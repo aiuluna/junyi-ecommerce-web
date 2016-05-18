@@ -1,0 +1,88 @@
+<% include('../../common/begin') %>
+<% include('../../common/header') %>
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:historyBack()" class="sc-prev">&nbsp;</a>
+			佣金提取记录
+		</div>
+	</header>
+	<% } %>
+	<div class="bg_white">
+		<ul class="odlist" id="js_item_wrapper">
+
+		</ul>
+		<div id="win-middle" style="display: none;">
+			<span class="noIco5"></span>
+			<p class="f16 light-grey">暂时没有符合要求的记录</p>
+		</div>
+	</div>
+</div>
+<script type="application/x-template" id="js_item_template">
+	<li>
+		<a href="member-promoter-commission-draw-detail-{{item.id}}.html">
+			<div class="odclear clearfix">
+				<div class="odLleft">¥{{ShopUtil.formatMoney(item.amount)}}<br/>(提取)</div>
+				<dl class="odLright">
+					<dd><span class="grey">申请时间：</span>{{item.requestDate | formatDate: 'yyyy-MM-dd'}}</dd>
+					<dd>
+						<span class="grey">提取状态：</span>
+						<span class="red">{{#ShopUtil.renderDrawRequestStatus(item.status)}}</span>
+					</dd>
+					<dd><span class="grey">发放说明：</span>{{item.remark}}</dd>
+				</dl>
+				<i class="u-rtarrL fr"></i>
+			</div>
+		</a>
+	</li>
+</script>
+<% include('../../common/footer_simple') %>
+<script type="text/javascript" src="js/lib/template.js"></script>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+<script type="text/javascript" src="js/shop.scroll.js"></script>
+<script type="text/javascript">
+	$(function(){
+
+		ShopUtil.initTemplateHelper();
+		var $wrapper = $('#js_item_wrapper');
+		var $noOrder = $('#win-middle');
+		var orderTmpl = ShopUtil.getTemplateById('js_item_template');
+		var loader = ShopScroll;
+		loader.init({
+			dataWrapper: $wrapper,
+			method:'POST',
+			url:'/member/promoter/commission/draw',
+			getParams: function() {
+				return {
+					pageSize: 8
+				};
+			},
+			afterLoad: function() {
+				$(".odlist").trigger('change');
+			},
+			beforeAppendData: function() {
+				$noOrder.hide();
+			},
+			afterAppendData:function() {
+
+			},
+			onDataEnd: function() {
+				$wrapper.append('<p class="nomore">已显示全部内容</p>');
+			},
+			onDataEmpty: function() {
+				$noOrder.show();
+				$wrapper.html('');
+			},
+			renderItem: function(item) {
+				return orderTmpl({
+					item: item,
+					ShopUtil: ShopUtil
+				});
+			},
+			fail: function() {}
+		});
+	});
+</script>
+<% include('../../common/end') %>

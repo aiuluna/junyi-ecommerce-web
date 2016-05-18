@@ -1,0 +1,298 @@
+<% include('../common/begin') %>
+<link rel="stylesheet" href="css/member.css" type="text/css"/>
+<link rel="stylesheet" href="css/lq.datetimepick.css" type="text/css"/>
+<% include('../common/header') %>
+
+<% include('./frame_begin') %>
+
+<h4 class="mbtit">基本信息</h4>
+<div class="ptop20">
+	<table cellpadding="0" cellspacing="0" width="100%" class="mbtab">
+		<tr>
+			<th width="88">用户名：</th>
+			<td>
+				<%if (user.login) {%>
+				<span class="mr20"><%=user.login%></span>
+				<% } else {%>
+				<input type="text" placeholder="用户名填写后不支持修改" value="" id="js_user_login" required="true" username="username" minlength="4" maxlength="20" name="login" class="ipt"/>
+				<% } %>
+			</td>
+			<td rowspan="7" width="320" valign="top">
+				<div class="setImg">
+					<span id="js_avatar_wrapper">
+						<% if (user.avatarUrl) { %>
+						<img src="<%=#imageUrlCrop(user.avatarUrl, 256, 256)%>"/>
+						<% } %>
+					</span>
+				</div>
+				<div class="type-file-box">
+					<input name="fileField" type="file" class="fileField type-file-file" size="10" id="js_upload_file"/>
+				</div>
+				<p class="imgtip">支持的图片格式：gif、png、jpg、jpeg<br/>建议图片尺寸：256*256</p>
+				<input type="hidden" name="avatarUrl" id="js_avatar_url"/>
+			</td>
+		</tr>
+		<tr>
+			<th>姓名：</th>
+			<td><input type="text" minlength="2" maxlength="20" value="<%=user.name%>" name="name" class="ipt"/></td>
+		</tr>
+		<tr>
+			<th>邮箱：</th>
+			<td>
+			<% if(!user.email){ %>
+			<input type="text" minlength="5" maxlength="40" email="true" id="js_user_email" value="" name="email" class="ipt"/>
+			<% }else{ %>
+			<span class="mr20"><%=#user.email%></span><a href="/member-safe.html" class="red">
+					<% if(user.emailVerified=='Y') {%>去修改<%} else {%>去验证<%}%></a>
+			<% } %>
+			</td>
+		</tr>
+		<tr>
+			<th>手机号：</th>
+			<td><span class="mr20"><%=#user.mobile%></span><a href="/member-safe.html" class="red">去修改</a></td>
+		</tr>
+		<tr>
+			<th>性别：</th>
+			<td>
+				<div class="sex">
+					<span><input type="radio" value="NOT_SET" name="sex" id="secret" <% if(!user.gender || user.gender == 'NOT_SET') { %> checked="checked"<% } %>/><label for="secret">保密</label></span>
+					<span><input type="radio" value="MALE" name="sex" id="male" <% if(user.gender == 'MALE') { %> checked="checked"<% } %>/><label for="male">男</label></span>
+					<span><input type="radio" value="FEMALE" name="sex" id="female" <% if(user.gender == 'FEMALE') { %> checked="checked"<% } %>/><label for="female">女</label></span>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<th>生日：</th>
+			<!--<td>
+				<div class="birthday"><input type="text" value="" name="" class="ipt"/> 年 <input type="text" value="" name="" class="ipt"/> 月 <input type="text" value="" name="" class="ipt"/> 日</div>
+			</td>-->
+			<td>
+				<div class="form-group float-left w140">
+					<input type="text" name="birthDate" id="datetimepicker3" class="ipt" value="<%=formatDate(user.birthDate, 'YYYY-MM-DD')%>" readonly="readonly"/>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<th>&nbsp;</th>
+			<td><input type="submit" value="保存" name="saveBtn" class="subbtn btn-save-info"/></td>
+		</tr>
+	</table>
+</div>
+<% if (regCouponCount) { %>
+<!--新人优惠券-->
+<div id="fullbg" style="display:block;"></div>
+<div id="newGift" class="pop" style="display:block;">
+	<a href="javascript:void(0)" class="pClose"></a>
+	<a href="member-coupon-my.html" class="gogift"></a>
+</div>
+<% } %>
+
+<% include('./frame_end') %>
+
+<% include('../common/footer_member') %>
+<script type="text/javascript" src="js/lib/js_selectUi.js"></script>
+<script type="text/javascript" src="js/lib/lq.datetimepick.js"></script>
+<script type="text/javascript" src="js/lib/jquery.ui.widget.js"></script>
+<!-- The File Upload plugin -->
+<%=#outputConditionBegin('if lt IE 9')%>
+<script type="text/javascript" src="js/lib/jquery.iframe-transport.js"></script>
+<%=#outputConditionEnd()%>
+<script type="text/javascript" src="js/lib/jquery.fileupload.js"></script>
+<!-- The File Upload processing plugin -->
+<script type="text/javascript" src="js/lib/jquery.fileupload-process.js"></script>
+<!-- The File Upload validation plugin -->
+<script type="text/javascript" src="js/lib/jquery.fileupload-validate.js"></script>
+<script type="text/javascript" src="js/shop.validate.js"></script>
+<script type="text/javascript">
+$(function(){
+	<% if (regCouponCount) { %>
+	$(function() {
+		$('#newGift .pClose').click(function() {
+			$('#fullbg').remove();
+			$('#newGift').remove();
+		});
+	});
+	<% } %>
+
+	$('.mbtab').simpleValidate();
+	$('#js_user_login').focus(function(){
+		var $this = $(this);
+		if ($.trim($this.val()) == $this.attr('placeholder')) {
+			$this.val('');
+		}
+	});
+	$("#datetimepicker3").on("click",function(e){
+        e.stopPropagation();
+        $(this).lqdatetimepicker({
+            css : 'datetime-day',
+            dateType : 'D'
+        });
+    });
+	function getValue(fieldName) {
+		return $('input[name=' + fieldName + ']').val();
+	}
+	$('.btn-save-info').click(function(){
+
+		function saveUser() {
+			var userInfo = {
+				login: getValue('login'),
+				name: getValue('name'),
+				gender: $('input[name=sex]:checked').val(),
+				email: getValue('email'),
+				birthDate: getValue('birthDate')
+			};
+			var success = function(json){
+				if (json.success) {
+					ShopAlert.alert('更新成功', '个人信息更新成功', function(){
+						if (userInfo.login) {
+							var $field = $('#js_user_login');
+							var $td = $field.closest('td');
+							$field.remove();
+							var $span = $('<span class="mr20"></span>').text(userInfo.login);
+							$td.append($span);
+						}
+
+						if(userInfo.email){
+							var $field = $('input[name="email"]');
+							var $td = $field.closest('td');
+							$field.remove();
+							var $span = $('<span class="mr20"></span>').text(userInfo.email);
+							$td.append($span);
+							var $a = $('<a href="/member-safe.html" class="red"></a>').text('去验证');
+							$td.append($a);
+						}
+					});
+					var data = json.data;
+
+					/* 更新名称*/
+					var names = [data.name, data.login, data.email, data.mobile];
+					for (var i = 0, len = names.length; i < len; i++) {
+						if(names[i]) {
+							$('.mbimg p').text(names[i]);
+							break;
+						}
+					}
+					/* 更新图像*/
+				} else {
+					ShopAlert.alert('更新失败', '更新失败啦:-;');
+				}
+			};
+
+			var error = function(json) {
+				if (json.error.message == 'LOGIN_EXT') {
+					ShopAlert.alert('保存失败', '该用户名已经被使用', function () {
+						var $login = $('#js_user_login').val(loginName).focus();
+						$login.closest('td').addClass('tdHold');
+					});
+
+				} else if (json.error.message == 'EMAIL_EXT') {
+					ShopAlert.alert('保存失败', '该邮箱已经被使用', function () {
+						var $email = $('#js_user_email').val(email).focus();
+						$email.closest('td').addClass('tdHold');
+					});
+				} else{
+					ShopAlert.alert('更新失败', '更新失败, 请检查网络是否正常');
+				}
+			};
+			var opt ={
+				url:'/member/update',
+				data:userInfo,
+				success:success,
+				error:error
+			};
+			Shop.post(opt);
+		}
+
+		var loginName = getValue('login');
+		var email = getValue('email');
+		var patterns = {
+				login: /^[a-z]+((?!@).)*$/i,
+				email: /^([\.a-zA-Z0-9_-])+@([\.a-zA-Z0-9_-])+\.([\.a-zA-Z0-9_-])+$/
+		};
+		if (loginName||email) {
+			if (loginName) {
+				if (!patterns.login.test(loginName)) {
+					ShopAlert.alert('提示', '用户名需由英文字母开头,且不包含@符号', function () {
+						var $login = $('#js_user_login').val(loginName).focus();
+						$login.closest('td').addClass('tdHold');
+					});
+					return;
+				}
+			}
+
+			if (email) {
+				if (!patterns.email.test(email)) {
+					ShopAlert.alert('提示', '邮件格式有误', function () {
+						var $email = $('#js_user_email').val(email).focus();
+						$email.closest('td').addClass('tdHold');
+					});
+					return;
+				}
+			}
+		}
+		if (!$('.mbtab').data('$validator').isValid()) {
+			return;
+		}
+
+		saveUser();
+	});
+
+	function toggleUpload(toggle) {
+		$('#js_upload_file')[!toggle ? 'show':'hide']();
+		var btn = $('.type-file-box .type-file-btn');
+		if (toggle) {
+			btn.val('图片上传中').addClass('disabled');
+		} else {
+			btn.val('设置头像').removeClass('disabled');
+		}
+	}
+
+	$('#js_upload_file').fileupload({
+		url: '/member/image/upload/avatar',
+		dataType: 'text',
+		method:'POST',
+		paramName: 'file',
+		acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
+		maxFileSize: 5242880, /* 5 MB*/
+		messages: {
+			maxNumberOfFiles: '只能上传一张图片',
+			acceptFileTypes: '只支持以下图片类型: gif, jpg, jpeg, png',
+			maxFileSize: '文件超过大小 5MB'
+		},
+		start: function() {
+			toggleUpload(true)
+		},
+
+		always: function() {
+			toggleUpload(false)
+		},
+		done: function (e, data) {
+			if (data.result) {
+				var json = $.parseJSON(data.result);
+				if (json.success) {
+					$('#js_avatar_url').val(json.data.url);
+					var imgUrl = '<%=imageUrlCrop("==", 256, 256)%>'.replace("==", json.data.url);
+					var imgUrl2 = '<%=imageUrlCrop("==", 90, 90)%>'.replace("==", json.data.url);
+					$('#js_avatar_wrapper').html('<img src="' + imgUrl + '"/>');
+					$('.mbimg img').attr('src', imgUrl2);
+				} else {
+					ShopAlert.alert('上传失败', '失败原因:&ensp;' + json.error.message);
+				}
+			} else {
+				ShopAlert.alert('更新失败', '设置个人头像失败啦');
+			}
+		},
+		fail: function(e, data){
+			toggleUpload(false);
+		}
+	}).on('fileuploadprocessalways', function(e, data){
+		if(data.files && data.files.length) {
+			if (data.files[0].error) {
+				ShopAlert.alert('上传失败', '失败原因:&ensp;' + data.files[0].error);
+			}
+		}
+		toggleUpload(false);
+	});
+});
+</script>
+<% include('../common/end') %>

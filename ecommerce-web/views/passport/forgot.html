@@ -1,0 +1,86 @@
+<% include('../common/begin') %>
+<link rel="stylesheet" href="css/login.css" type="text/css"/>
+<% include('../common/header_passport') %>
+
+<!--content-->
+<div id="loginCon" style="background-image:url(<%=#adsSetting&&adsSetting.imageUrl?imageUrl(adsSetting.imageUrl):staticImgWeb('login_bg.jpg')%>)">
+	<div class="wd1090 clearfix pre">
+		<% if (adsSetting && adsSetting.linkUrl) { %>
+		<a href="<%=#encodeURI(adsSetting.linkUrl)%>" target="_blank" class="lgAd">&nbsp;</a>
+		<% } %>
+		<div id="js_login_box" class="loginBox registerBox">
+			<div>
+				<div class="f12 pre">
+					<a href="http://121.40.201.82/ForgotPassword.aspx" target="_blank" class="grey fr">我是老用户></a>
+				</div>
+				<h3 class="f18">忘记密码</h3>
+			</div>
+
+			<dl class="lgDl mbtm30" id="regBox">
+				<dd>
+					<input type="text" value="" name="" id="bdPhone" class="lgipt" placeholder="请输入手机号"/>
+					<p class="lg-error"></p>
+					<p class="lg-warn"></p>
+				</dd>
+				<dd>
+					<input type="text" value="" name="" id="bdVcode" class="lgipt wd180" placeholder="请输入短信验证码"/><a href="javascript:void(0)" class="send" onclick="sendYzm('resetpwd')" id="btnSendYzm">发送验证码</a>
+					<p class="lg-error"></p>
+					<p class="lg-info"></p>
+				</dd>
+				<dd>
+					<input class="showPwd lgipt bdPassw" type="text" value="请输入新密码"/>
+					<input id="bdPassw" class="pwd lgipt bdPassw" name="password" type="password" value="" style="display:none"/>
+					<p class="lg-error"></p>
+				</dd>
+				<dd>
+					<input class="showPwd lgipt bdRepeat" type="text" value="请再次输入新密码"/>
+					<input id="bdRepeat" class="pwd lgipt bdRepeat" name="password" type="password" value="" style="display:none"/>
+					<p class="lg-error"></p>
+				</dd>
+				<dd>
+					<input type="hidden" id="captchaKey" name="captchaKey" value="<%=#captcha.captchaKey%>"/>
+					<input type="text" value="" name="" id="bdyzm" class="lgipt wd130" placeholder="验证码"/><span class="imgyzm"><img src="/passport/captcha/image/<%=#captcha.captchaKey%>?r=<%=#timestamp()%>" alt="验证码"/></span><a href="javascript:void(0)" class="regchange" onclick="refreshCaptcha()"></a>
+					<p class="lg-error"></p>
+				</dd>
+				<dd class="p0"><input type="submit" value="确认更改" name="" class="lgSub" onclick="resetPwdSub()"/></dd>
+			</dl>
+
+		</div>
+	</div>
+</div>
+
+<% include('../common/footer_passport') %>
+<script type="text/javascript" src="js/login.js"></script>
+<script type="text/javascript" src="js/shop.register.js"></script>
+<script type="text/javascript">
+$(function() {
+	function checkMobileOnBlur() {
+		var $phone = $("#bdPhone");
+		$phone.focus(function(){
+			var $me = $(this);
+			clearFieldMsg($me);
+		});
+
+		$phone.blur(function() {
+			var $me = $(this);
+			var selector = '#bdPhone';
+			var mobile = $.trim($me.val());
+			$me.val(mobile);
+			clearFieldMsg($me);
+
+			if ($.trim(mobile) == '') {
+				return;
+			}
+
+			if (!validateMobile(mobile)) {
+				showErrForInput(selector, "请输入正确的手机号");
+				return;
+			}
+		});
+	}
+	checkMobileOnBlur();
+	checkMobileOnBlurForResetPwd();
+	ShopRegisterEvent.checkPasswdOnBlur();
+});
+</script>
+<% include('../common/end') %>

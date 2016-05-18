@@ -1,0 +1,52 @@
+<% if (searchResult.totalCount > 0) { %>
+<div class="pre" id="js_div_result" data-total_count="<%=#searchResult.totalCount%>" data-page_size="<%=#searchResult.pageSize%>" data-page_number="<%=#searchResult.pageNumber%>">
+	<% if (searchResult.totalPages > 1) { %>
+	<span class="sPage" id="js_pagination_top"><a href="javasript:;" class="grey js-page-prev">&lt;</a><i class="red"><%=#searchResult.pageNumber%></i> / <%=#searchResult.totalPages%><a href="javascript:void(0);" class="grey js-page-next">&gt;</a></span>
+	<% } %>
+	<ul class="searchList clearfix">
+	<%
+	var productList = searchResult.pageData;
+	for (var i = 0; i < productList.length; ++i) {
+		var product = productList[i];
+	%>
+		<li>
+			<%=#product_util.renderProductTag(product)%>
+			<a href="product-<%=#product.skuId%>.html" target="_blank" class="picImg">
+				<img data-original="<%=#imageUrl(product.imageUrl,210,210)%>" src="images/blank.gif" class="lazy" title="<%=product.skuName%>"/>
+				<%=#product_util.renderProductSaleStatus(product)%>
+			</a>
+			<div class="new-intro">
+				<p class="gbie grey"><span class="red fr"><%=#product.isFreeShipping?'包邮':''%><%=#product.isFreeTax?'免税':''%></span><%=#product_util.renderProductOriginLogo(product,24,24)%><%=product.productOriginName%>&nbsp;<%=product.freightMethodName%></p>
+				<p class="imgtit"><a href="product-<%=#product.skuId%>.html" target="_blank" class="black"><%=product.skuName%></a></p>
+				<p class="schActive">
+				<%
+				if (product.activityType === 'ORDER_PROMOTION') {
+				%>
+					<span class="yel"><i class="favour"><%=#product_util.getOrderPromotionLabelShort(product.activityLabel)%></i><%=#product.activityLabel%></span>
+				<%
+				}
+				%>
+				</p>
+				<p class="ptop15"><del class="fr light-grey">¥<%=#formatMoney(product.marketPrice)%></del><span class="red">¥<i class="f20"><%=#formatMoney(product.promotionPrice || product.salePrice)%></i></span><%if(product.activityType === 'FLASH_SALE' || product.activityType === 'PRODUCT_PROMOTION'){%><span class="favourico small"><i><%=#product.activityLabel%></i></span><%}%></p>
+			</div>
+		</li>
+	<%
+	}
+	%>
+	</ul>
+	<% if (searchResult.totalPages > 1) { %>
+	<div class="rtl" id="js_pagination_bottom"></div>
+	<% } %>
+</div>
+
+<% } else { %>
+<div class="nobox-inner" id="js_div_result">
+	<div class="nocon">
+		<p class="f20">抱歉，没有找到相关的物品</p>
+		<p class="deep-grey mtop30">建议您：</p>
+		<p>1、看看输入的文字是否有误</p>
+		<p>2、拆分要搜索的关键词，分成几个词语再次搜索</p>
+	</div>
+</div>
+
+<% } %>

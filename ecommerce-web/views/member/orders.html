@@ -1,0 +1,168 @@
+<% include('../common/begin') %>
+<link rel="stylesheet" href="css/lq.datetimepick.css" type="text/css"/>
+<link rel="stylesheet" href="css/jquery.fancybox.css" type="text/css"/>
+<link rel="stylesheet" href="css/jquery.autocomplete.css" type="text/css"/>
+<link rel="stylesheet" href="css/member.css" type="text/css"/>
+<% include('../common/header') %>
+
+<% include('./frame_begin') %>
+
+<div class="ddTab js-status-tab" id="js_status_div">
+	<%
+	var _statusKeys = ['ALL', 'PENDING_PAY', 'PENDING_SHIP', 'PENDING_RECV', 'FINISHED', 'CANCELLED'];
+	var _statusName = ['所有订单', '待付款', '待发货', '待收货', '已完成', '已关闭'];
+	var orderNavFound = false;
+	for (var i = 0, len = _statusKeys.length; i < len; i++) {
+		if (_statusKeys[i] == status) {
+			orderNavFound = true;
+			break;
+		}
+	}
+	var pageOrderNav = orderNavFound ? status : _statusKeys[0];
+	%>
+	<% for (var i = 0, len = _statusKeys.length; i < len; i++) { %>
+	<a href="javascript:;" data-status="<%=#_statusKeys[i]%>" class="js-tab-item <%if ( pageOrderNav == _statusKeys[i]) { %> on <% } %>"><%=#_statusName[i]%><i class="red"></i></a>
+	<% } %>
+</div>
+<div class="ptb20 clearfix">
+	<div class="fl">
+		<input type="text" value="" name="" class="ipt wd190" id="js_search_keyword"/><a href="javascript:;" id="js_search_btn" class="orderKW">搜索</a>
+	</div>
+	<div class="fr clearfix">
+		<span class="fl lh40 grey">下单时间：</span>
+		<div class="jssel orderTime">
+			<input type="text" value="近一个月" name="" class="jsk" readonly="readonly"/>
+			<ul class="condt">
+				<li value="1"><a href="javascript:void(0)">近一个月</a></li>
+				<li value="2"><a href="javascript:void(0)">近三个月</a></li>
+				<li value="3"><a href="javascript:void(0)">近半年</a></li>
+				<li value="4"><a href="javascript:void(0)">全部</a></li>
+			</ul>
+			<input type="hidden" value="" name="" class="selectVal" id="js_search_time_range"/>
+			<input type="hidden" value="" name="" id="js_search_status"/>
+		</div>
+	</div>
+</div>
+<!--table开始-->
+<div class="orderDiv">
+	<table cellpadding="0" cellspacing="0" width="100%" class="tabTh">
+		<tr>
+			<th width="310">商品信息</th>
+			<th width="100">售价</th>
+			<th width="90">数量</th>
+			<th width="100">收货人</th>
+			<th width="100">订单金额</th>
+			<th width="100">订单状态</th>
+			<th>操作</th>
+		</tr>
+	</table>
+	<div id="js_order_wrapper"></div>
+	<div class="rtl" id="js_pagination_orders" style="float:right;"></div>
+</div>
+
+<% include('./frame_end') %>
+
+<% include('../common/footer_member') %>
+<script type="application/x-template" id="js_template_order_cancel">
+	<div class="cline1 clearfix">
+		<span class="fl">请选择取消订单的理由：</span>
+		<div class="jssel cancjs">
+			<input type="text" value="我不想买了" name="" id="js_order_cancel_reason" class="jsk" readonly="readonly">
+			<ul class="condt" style="display: none;">
+				<li value="0"><a href="javascript:;">买错了</a></li>
+				<li value="1"><a href="javascript:;">我不想买了</a></li>
+				<li value="2"><a href="javascript:;">信息填写错误</a></li>
+				<li value="3"><a href="javascript:;">付款遇到问题</a></li>
+				<li value="4"><a href="javascript:;">重复下单</a></li>
+				<li value="5"><a href="javascript:;">商品价格太贵</a></li>
+				<li value="6"><a href="javascript:;">不能开具发票</a></li>
+				<li value="7"><a href="javascript:;">其他理由</a></li>
+			</ul>
+			<input type="hidden" value="" name="" class="selectVal">
+		</div>
+	</div>
+</script>
+<script type="application/x-template" id="js_template_service_apply">
+<div class="ctTab pbt15">
+	<table cellpadding="0" cellspacing="0" width="100%">
+		<tbody>
+		<tr>
+			<th width="104"><em class="red">*</em>售后原因：</th>
+			<td>
+				<div class="jssel cancjs">
+					<input type="text" value="商品破损" name="" class="jsk" id="js_service_apply_reason" readonly="readonly" tabindex="1">
+					<ul class="condt">
+						<li value="0"><a href="javascript:void(0)">商品破损</a></li>
+						<li value="1"><a href="javascript:void(0)">商品错发/漏发</a></li>
+						<li value="2"><a href="javascript:void(0)">商品需要维修</a></li>
+						<li value="3"><a href="javascript:void(0)">商品质量问题</a></li>
+						<li value="4"><a href="javascript:void(0)">假冒商品</a></li>
+						<li value="5"><a href="javascript:void(0)">未收到货</a></li>
+						<li value="7"><a href="javascript:void(0)">其他原因</a></li>
+					</ul>
+					<input type="hidden" value="" name="" class="selectVal">
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<th>物流公司：</th>
+			<td><input maxlength="50" type="text" value="" name="" id="js_service_apply_express_name" class="ipt" tabindex="2">
+				<input type="hidden" value="" name="" id="js_service_apply_express_code" >
+				<p class="ctTip">若客服要求退货退款，请留下公司信息</p></td>
+		</tr>
+		<tr>
+			<th>物流运单号：</th>
+			<td><input maxlength="50" type="text" value="" name="" class="ipt" tabindex="3" id="js_service_apply_express_no" >
+
+				<p class="ctTip">若客服要求退货退款，请留下运单号</p></td>
+		</tr>
+		<tr>
+			<th valign="top">详细描述：</th>
+			<td>
+				<textarea maxlength="200" class="ctarea" tabindex="4" id="js_service_apply_comment" ></textarea>
+
+				<p class="ctTip">请详细描述问题，方便客服进行沟通，200字以内</p>
+			</td>
+		</tr>
+		<tr>
+			<th valign="top">上传凭证：</th>
+			<td>
+				<div class="voucher" id="js_service_apply_voucher_wrapper">
+				</div>
+				<p class="f12 light-grey">图片大小不超过5MB，最多3张，支持GIF、JPG、JPEG、PNG格式</p>
+
+				<div class="type-file-box">
+					<input type="button" value="选择照片" name="" class="textfield file-btn">
+					<input name="fileField" type="file" class="fileField-two type-file" size="10" tabindex="-1" id="js_upload_file">
+				</div>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+</div>
+</script>
+<script type="text/javascript" src="js/lib/slimscroll.js"></script>
+<script type="text/javascript" src="js/lib/jquery.fancybox.pack.js"></script>
+<script type="text/javascript" src="js/lib/jquery.ui.widget.js"></script>
+<script type="text/javascript" src="js/lib/jquery.fileupload.loadimage.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery.fileupload.canvas2blob.min.js"></script>
+<!-- The File Upload plugin -->
+<%=#outputConditionBegin('if lt IE 9')%>
+<script type="text/javascript" src="js/lib/jquery.iframe-transport.js"></script>
+<%=#outputConditionEnd()%>
+<script type="text/javascript" src="js/lib/jquery.fileupload.js"></script>
+<script type="text/javascript" src="js/lib/jquery.fileupload-process.js"></script>
+<script type="text/javascript" src="js/lib/jquery.fileupload-validate.js"></script>
+<script type="text/javascript" src="js/lib/jquery.fileupload-image.js"></script>
+<script type="text/javascript" src="js/lib/jquery.pagination.js"></script>
+<script type="text/javascript" src="js/lib/jquery.autocomplete.js"></script>
+<script type="text/javascript" src="js/shop.order.js"></script>
+<script type="text/javascript">
+
+$(function(){
+	ShopOrder.init4List({
+		orderTableSelector:'#js_order_wrapper'
+	});
+});
+</script>
+<% include('../common/end') %>

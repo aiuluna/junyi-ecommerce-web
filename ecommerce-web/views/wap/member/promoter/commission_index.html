@@ -1,0 +1,33 @@
+<% include('../../common/begin') %>
+<% include('../../common/header') %>
+<div class="wd640">
+    <% if (!_isWeixin) { %>
+    <header>
+        <div class="header clearfix">
+            <a href="javascript:historyBack()" class="sc-prev">&nbsp;</a>
+            我的佣金
+        </div>
+    </header>
+    <% } %>
+    <div class="bg_white plr15">
+        <dl class="mbdl">
+            <dd>
+                <a href="member-promoter-commission-draw-apply.html">
+                    <span class="fr f12"><i class="u-rtarr"></i></span><span>佣金提取</span>
+                </a>
+            </dd>
+            <dd>
+                <a href="member-promoter-commission-list.html">
+                    <span class="fr f12"><i class="u-rtarr"></i></span><span>佣金记录</span>
+                </a>
+            </dd>
+            <dd>
+                <a href="member-promoter-commission-draw-list.html">
+                    <span class="fr f12"><i class="u-rtarr"></i></span><span>佣金提取记录</span>
+                </a>
+            </dd>
+        </dl>
+    </div>
+</div>
+<% include('../../common/footer_simple') %>
+<% include('../../common/end') %>

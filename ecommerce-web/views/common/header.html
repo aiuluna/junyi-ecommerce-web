@@ -1,0 +1,109 @@
+</head>
+<!-- HACK: add onunload to body, see http://stackoverflow.com/questions/158319/cross-browser-onload-event-and-the-back-button -->
+<body onunload="">
+<%
+var homepageConfig = _siteConfig.homepage;
+if (homepageConfig.bannerImage) {
+	var bannerImage = homepageConfig.bannerImage;
+%>
+<a href="<%=#bannerImage.linkUrl ? encodeURI(bannerImage.linkUrl) : 'javascript:void(0)'%>" <%if(bannerImage.linkUrl){%>target="_blank"<%}%> class="ad"><img src="<%=#imageUrlCrop(bannerImage.imageUrl,1920,80)%>" width="100%"/></a>
+<%
+}
+%>
+<!--top-->
+<div id="top">
+	<div class="wd1090 clearfix">
+		<div class="topleft">
+		<% if (_user) { %>
+			<a href="member.html" class="red">您好，<%=_user.name || _user.login || _user.mobile%>！</a>&nbsp;&nbsp;<a href="passport-logout.html" class="grey">退出</a>
+		<% } else { %>
+			欢迎来到<%=_siteName%>！<span class="llink"><a href="passport-login.html" class="grey">请登录</a> | <a href="passport-signup.html" class="red">快速注册</a></span>
+		<% } %>
+		</div>
+		<ul class="topright clearfix">
+			<li><a href="member-orders.html">我的订单</a></li>
+			<li><a href="member.html">会员中心</a></li>
+			<li><a href="help-101.html">帮助中心</a></li>
+			<li><a href="javascript:void(0)" onclick="if(doyoo&&doyoo.util)doyoo.util.openChat('g=10059046')">在线客服</a></li>
+			<li class="liMore">
+				<span class="sep">|</span><a href="#" class="toplevel">更多<i class="arr"></i></a>
+				<div class="dropDown">
+					<a id="addToFav" href="javascript:void(0)">收藏本站</a>
+					<a href="javascript:void(0)" rel="nofollow" class="brdtop">
+						新浪微博
+						<span class="code"><img src="<%=#staticImgWeb('2dcode-wb.jpg')%>" width="100" height="100"/></span>
+					</a>
+					<a href="javascript:void(0)" rel="nofollow">
+						微信公众号
+						<span class="code"><img src="<%=#staticImgWeb('2dcode-wx.jpg')%>" width="100" height="100"/></span>
+					</a>
+				</div>
+			</li>
+		</ul>
+	</div>
+</div>
+<!--head-->
+<div id="head" class="wd1090 clearfix">
+	<h1 class="fl"><a href="/"><img src="<%=#staticImgWeb('logo.jpg')%>" alt="" title=""/></a></h1>
+	<div class="shoppingcart">
+		<a href="#" class="head-cart"><img src="images/cart-ico.jpg"/>购物车<i class="cart-num" style="display:none">0</i><em class="cart-down"></em></a>
+		<div class="carthover">
+			<div class="spacer"></div>
+			<div class="cartLoad"><i></i>正在加载，请稍候...</div>
+		</div>
+	</div>
+	<div class="fr mr20 mtop5">
+		<%
+		var keywords = homepageConfig.keywords,
+			placeholder = keywords.length > 0 ? keywords[0] : '',
+			q = typeof searchQuery === 'undefined' ? '' : (searchQuery.q || '');
+		%>
+		<div class="seacrhBox"><input type="text" value="<%=q%>" id="topSearchInput" placeholder="<%=placeholder%>" data-oVal="<%=q%>"/><a href="javascript:void(0)">搜 索</a></div>
+		<p class="keyword"><% for (var i = 1; i < keywords.length; ++i) { %><a href="search.html?q=<%=encodeURIComponent(keywords[i])%>"><%=keywords[i]%></a><% } %></p>
+	</div>
+</div>
+<!--navigation-->
+<div id="navigation">
+	<div class="wd1090 pre">
+		<ul class="nav clearfix">
+			<li <%=#_headerNav === 'index' ? 'class="navOn"' : ''%> ><a href="/">首页</a></li>
+			<%
+			var topicOrigins = homepageConfig.topicOrigins || [];
+			for (var i = 0; i < topicOrigins.length; ++i) {
+				var origin = topicOrigins[i],
+					originId = '' + origin.id;
+			%>
+			<li <%=#_headerNav === originId ? 'class="navOn"' : ''%> ><a href="topic-origin-<%=#originId%>.html"><%=origin.name%></a></li>
+			<%
+			}
+			%>
+		</ul>
+		<p class="security"><span class="sico1">正品保证</span><span class="sico2">海外货源</span><span class="sico3">无忧退货</span></p>
+	</div>
+</div>
+<!--浮动导航-->
+<div id="fixedNav">
+	<div class="wd1090 clearfix">
+		<h1 class="fl"><a href="#"><img src="<%=#staticImgWeb('logo-140.jpg')%>" alt="" title=""/></a></h1>
+		<ul class="fnav fl clearfix">
+			<li <%=#_headerNav === 'index' ? 'class="navOn"' : ''%> ><a href="/">首页</a></li>
+			<%
+			var topicOrigins = homepageConfig.topicOrigins || [];
+			for (var i = 0; i < topicOrigins.length; ++i) {
+				var origin = topicOrigins[i],
+					originId = '' + origin.id;
+			%>
+			<li <%=#_headerNav === originId ? 'class="navOn"' : ''%> ><a href="topic-origin-<%=#originId%>.html"><%=origin.name%></a></li>
+			<%
+			}
+			%>
+		</ul>
+		<div class="shoppingcart">
+			<a href="#" class="head-cart"><img src="images/cart-ico.jpg"/>购物车<i class="cart-num" style="display:none">0</i><em class="cart-down"></em></a>
+			<div class="carthover">
+				<div class="spacer"></div>
+				<div class="cartLoad"><i></i>正在加载，请稍候...</div>
+			</div>
+		</div>
+	</div>
+</div>

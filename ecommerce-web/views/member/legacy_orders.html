@@ -1,0 +1,142 @@
+<% include('../common/begin') %>
+<link rel="stylesheet" href="css/lq.datetimepick.css" type="text/css"/>
+<link rel="stylesheet" href="css/jquery.fancybox.css" type="text/css"/>
+<link rel="stylesheet" href="css/jquery.autocomplete.css" type="text/css"/>
+<link rel="stylesheet" href="css/member.css" type="text/css"/>
+<% include('../common/header') %>
+<% include('./frame_begin') %>
+<!--content-->
+<% var orderStatus = {"所有订单":"ALL","待付款":"PENDING_PAY","待发货":"PENDING_SHIP","已发货":"PENDING_RECV",
+"已完成":"FINISHED","已关闭":"CANCELLED","申请退款":"REFUND_MONEY","申请退货":"REFUND_GOODS","申请换货":"EXCHANGE_GOODS",
+"已退款":"REFUND_MONEY_FINISH","已退货":"REFUND_GOODS_FINISH","历史订单":"REFUND_GOODS_FINISH"};
+
+var orderStatusForSearch = {"所有订单":"ALL","已完成":"FINISHED","已关闭":"CANCELLED","已退款":"REFUND_MONEY_FINISH"};
+%>
+<div class="mbright historyOrder">
+  <h4 class="mbtit">历史订单</h4>
+  <div class="tgyjc clearfix">
+    <span class="tgyjc5">订单编号：<input type="text" name="" value="" id="js_search_keyword"/></span>
+    <div class="fl clearfix">
+      <span class="fl grey">订单状态：</span>
+      <div class="jssel agentS mr15">
+        <input type="text" value="" name="" class="jsk" readonly="readonly" >
+        <ul class="condt">
+          <% for(var key in orderStatusForSearch){%>
+          <li value="<%=#orderStatusForSearch[key]%>"><a href="javascript:void(0)"><%=#key%></a></li>
+          <%}%>
+        </ul>
+        <input type="hidden" value="" name="" class="selectVal" id="js_search_status">
+      </div>
+    </div>
+    <span class="tgyjc5">收货人：<input type="text" name="" value="" id="shipTo"/></span>
+    <span class="tgyjc5">下单时间：<input id="js_search_start" readonly="readonly"  type="text" name="" value="" class="date_picker"/>&nbsp; 至&nbsp; <input id="js_search_end" readonly="readonly" type="text" name="" value="" class="date_picker"/></span>
+    <a href="#" class="tgicon1">查询</a>
+  </div>
+  <div class="orderDiv">
+    <table cellpadding="0" cellspacing="0" width="100%" class="tabTh">
+      <tr>
+        <th width="310">商品信息</th>
+        <th width="100">售价</th>
+        <th width="90">数量</th>
+        <th width="100">收货人</th>
+        <th width="100">订单金额</th>
+        <th width="100">订单状态</th>
+        <th>操作</th>
+      </tr>
+    </table>
+    <div id="js_order_wrapper"></div>
+    <div class="rtl" id="js_pagination_orders" style="float:right;"></div>
+  </div>
+</div>
+<% include('./frame_end') %>
+<% include('../common/footer_member') %>
+<script type="text/javascript" src="js/lib/jquery.date_input.js"></script>
+<script type="text/javascript" src="js/lib/jquery.selectbox.js"></script>
+<script type="text/javascript" src="js/lib/jquery.pagination.js"></script>
+<script type="text/javascript">
+  $(function(){
+    function initSearchBox(){
+      function initDateInput(){
+        $('.date_picker').date_input();
+      }
+
+      function initSelectList() {
+        var $select = $('.jssel');
+        $select.selectBox({
+          'selectClassName':'.jsk',
+          'selectList':'.condt',
+          'selectVal':'.selectVal'
+        });
+        $('.condt li:first', $select).trigger('click');
+      }
+
+      initDateInput();
+      initSelectList();
+    }
+
+    function initLoader() {
+      var loader = ShopLoader.init({
+        pagination: false,
+        url: '/member/legacy/orders/list',
+        dataType: 'html',
+        method: 'post',
+        onBeforeLoad: function() {
+          ShopUtil.block($('.orderDiv'));
+          countLoader();
+        },
+        onAfterLoad: function() {
+          ShopUtil.unblock($('.orderDiv'));
+        },
+        getCriteria: function() {
+          var params = {
+            startTime:$('#js_search_start').val(),
+            endTime:$('#js_search_end').val(),
+            status : $('#js_search_status').val(),
+            searchWord: $.trim($('#js_search_keyword').val()),
+            shipTo: $.trim($('#shipTo').val())
+          };
+
+          if (params.status && params.status.toUpperCase() == 'ALL') {
+            delete params.status;
+          }
+
+          return params;
+        },
+        render:function(html) {
+          var $wrapper = $('#js_order_wrapper');
+          $wrapper.empty().html(html);
+        }
+      });
+
+      /* bind loader will be used by ajax*/
+      $('#js_pagination_orders').data('loader', loader);
+
+      /* 点击搜索*/
+      $('#js_search_btn').click(function () {
+        /* 查询并更新条件缓存 */
+        loader.search();
+      });
+      $('#js_search_keyword').keyup(function(event){
+        var keycode = event.which;
+        if (keycode == 13) {
+          /* 查询并更新条件缓存 */
+          loader.search();
+        }
+
+      });
+
+      $('.tgicon1').click(function(){
+        loader.search();
+      });
+
+      return loader;
+    }
+
+    initSearchBox();
+    var _loader = initLoader();
+    _loader.search();
+  });
+</script>
+
+
+<% include('../common/end') %>

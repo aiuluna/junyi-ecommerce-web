@@ -1,0 +1,28 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:void(0)" class="sc-prev" onclick="return historyBack()">&nbsp;</a>
+			线下支付
+		</div>
+	</header>
+	<% } %>
+
+	<div class="inNewBtn">
+		<p>请让商家扫描条形码或二维码</p>
+		<br/>
+		<img src="<%=#barcodeBase64%>" width="90%"/>
+		<p><%=#(orderNo.substr(0,6) + ' ' + orderNo.substr(6,4) + ' ' + orderNo.substr(10))%></p>
+		<img src="<%=#qrcodeBase64%>" width="70%"/>
+	</div>
+	<div class="inNewBtn">
+		<a href="member-orders-view-<%=#orderNo%>.html">已完成支付</a>
+		<a href="javascript:void(0)" onclick="return historyBack()">&emsp;返&emsp;回&emsp;</a>
+	</div>
+</div>
+
+<% include('../common/footer_simple') %>
+<% include('../common/end') %>

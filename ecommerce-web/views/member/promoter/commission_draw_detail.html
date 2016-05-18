@@ -1,0 +1,62 @@
+<table cellpadding="0" cellspacing="0" width="100%" class="afterTab">
+  <tr>
+    <th width="95">审核人：</th>
+    <td><%=record.auditUserName%></td>
+  </tr>
+  <tr>
+    <th>发放时间：</th>
+    <td><%=#formatDate(record.paymentDate, 'YYYY-MM-DD HH:mm:ss')%></td>
+  </tr>
+  <tr>
+    <th>提取结果：</th>
+    <td><%=#(record.status == 'COMMISSION_PAYED' ? '已发放' : '发放失败')%></td>
+  </tr>
+  <tr>
+    <th>提取金额：</th>
+    <td>¥<%=#record.amount%></td>
+  </tr>
+  <tr>
+    <%
+    if (record.payType == 'BANK_ACCOUNT') {
+    // 银行账户
+    %>
+    <th valign="top">银行账户：</th>
+    <td><%=record.accountName%>   <%=record.accountNo%> <br/><%=record.bankName%>  <%=record.bankSite%></td>
+    <%
+    } else if (record.payType == 'ALI_PAY') {
+    // 支付宝账户
+    %>
+    <th valign="top">支付宝账户：</th>
+    <td><%=record.alipayName%>   <%=record.alipayNo%>
+    <%
+    } else {
+    // 临时账户
+    %>
+    <th valign="top">临时账户：</th>
+    <td><%=record.accountName%>   <%=record.accountNo%> <br/><%=record.bankName%>  <%=record.bankSite%></td>
+    <% } %>
+  </tr>
+  <tr>
+    <th valign="top">发放凭证：</th>
+    <td>
+      <% if (record.paymentEvidenceUrl) {%>
+      <div class="voucher" id="js_image_enlarge">
+        <span>
+          <a class="fancybox" href="<%=#imageUrl(record.paymentEvidenceUrl, 409, 409)%>">
+            <img src="<%=#imageUrl(record.paymentEvidenceUrl, 60, 60)%>">
+          </a>
+        </span>
+      </div>
+      <% } %>
+    </td>
+  </tr>
+  <tr>
+    <th valign="top">备注：</th>
+    <td style="word-wrap: break-word; word-break: break-all;"><%=record.remark%></td>
+  </tr>
+</table>
+<script type="text/javascript">
+  var __init4viewDrawRequest = function(){
+    $('#js_image_enlarge .fancybox').fancybox({});
+  }();
+</script>

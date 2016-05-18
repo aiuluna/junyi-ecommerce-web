@@ -1,0 +1,70 @@
+<% include('../common/begin') %>
+<link rel="stylesheet" href="css/lq.datetimepick.css" type="text/css"/>
+<link rel="stylesheet" href="css/jquery.fancybox.css" type="text/css"/>
+<link rel="stylesheet" href="css/jquery.autocomplete.css" type="text/css"/>
+<link rel="stylesheet" href="css/member.css" type="text/css"/>
+<% include('../common/header') %>
+
+<% include('./frame_begin') %>
+<div class="mbright">
+    <h4 class="mbtit">邮箱验证</h4>
+    <div class="p40">
+        <%if(code=='200'){%>
+        <div class="mailSuc">
+            <p class="f18">邮箱验证成功</p>
+            <p class="grey">您现在可以 <a href="/member/safe" class="red">安全中心</a> |　<a href="index.html" class="red">去逛逛</a></p>
+        </div>
+        <%}else{%>
+        <div class="mailSuc mLose">
+            <p class="f18">邮箱验证失败</p>
+            <p class="grey">认证邮件已过期或当前邮箱已被认证</p>
+            <p><a href="#" class="bgwhitebtn">重新认证</a></p>
+        </div>
+        <%}%>
+    </div>
+</div>
+
+<div id="fullbg"></div>
+<div class="pop sfMailDiv" id="safe_wrapper" tabindex="-1">
+    <a href="javascript:void(0)" class="pop-close" data-action="emptyHtml">×</a>
+    <div id="safe_detail_wrapper"></div>
+</div>
+<% include('./frame_end') %>
+
+<% include('../common/footer_member') %>
+<script type="text/javascript">
+var initHtml = {
+    init:function sfOption(){
+        var sf_cache = {};
+        var _key;
+        function success(html) {
+            sf_cache[_key] = html;
+            var $wrapper = $("#safe_wrapper");
+            $("#safe_detail_wrapper",$wrapper).html(html);
+            $("#fullbg").show();
+            $wrapper.show().focus();
+        }
+        var options = {".bgwhitebtn":'/member/safe/email'};
+        for(var key in options){
+            $(key).click(function(){
+                if(sf_cache[key]){
+                    success(sf_cache[key]);
+                }else{
+                    _key = key;
+                    var opt ={
+                        dataType: 'html',
+                        url:options[key],
+                        success:success
+                    };
+                    Shop.get(opt);
+                }
+            });
+        }
+    }
+};
+$('.pop-close').on('click',function(){
+    $("#safe_detail_wrapper",$("#safe_wrapper")).empty();
+});
+initHtml.init();
+</script>
+<% include('../common/end') %>

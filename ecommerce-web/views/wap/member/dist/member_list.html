@@ -1,0 +1,185 @@
+<% include('../../common/begin') %>
+<% include('../../common/header') %>
+<div class="wd640">
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:historyBack()" class="sc-prev">&nbsp;</a>
+
+			<span id="js_list_title">下级会员</span>
+			<span id="js_search_title" style="display:none">按条件搜索</span>
+			<a href="javascript:void(0);" class="topsearch" id="js_search_view"></a>
+		</div>
+	</header>
+	<div class="bg_white" id="js_list_page">
+		<div class="ymChoose clearfix">
+			<span class="mbdt">注册时间</span>
+			<input type="hidden" value="4" name="" id="js_select_item">
+			<div class="infcon" id="timeRangeBtn"><span id="chtmlIn">全部</span><i class="u-rtarr"></i></div>
+		</div>
+		<div class="searchCondt" style="display:none">
+			<a href="javascript:void(0);" class="clearAll" id="js_search_clear">清空</a>
+			<div id="js_search_wrapper"></div>
+		</div>
+
+		<div id="js_empty_list" class="win-middle" style="display: none;">
+			<span class="noIco4"></span>
+			<p class="f16">您还没有下级会员哦~</p>
+			<p class="f12 light-grey">快去发展自己的会员吧！</p>
+			<a href="member-promote.html" class="goShopping">我的推广码</a>
+		</div>
+
+		<div id="js_empty_search" class="win-middle" style="display: none;">
+			<span class="noIco4"></span>
+			<p class="f16 light-grey">没有搜索到符合要求的会员</p>
+		</div>
+
+
+		<ul class="odlist lwd30" id="js_member_wrapper">
+		</ul>
+	</div>
+
+	<div class="wd640" id="js_search_page" style="display:none">
+		<dl class="editLine tleft">
+			<dd>
+				<div class="dbox">
+					<span class="grey">用户名</span>
+					<div class="editS"><input type="text" value="" placeholder="请输入想查找的会员的用户名" name="" id="cLogin"/></div>
+				</div>
+			</dd>
+			<dd>
+				<div class="dbox">
+					<span class="grey">姓名</span>
+					<div class="editS"><input type="text" value="" placeholder="请输入想查找的会员的真实姓名" name="" id="cName"/></div>
+				</div>
+			</dd>
+			<dd>
+				<div class="dbox">
+					<span class="grey">手机号</span>
+					<div class="editS"><input type="text" value="" placeholder="请输入想查找的会员的手机号" name="" id="cMobile"/></div>
+				</div>
+			</dd>
+			<dd>
+				<div class="dbox">
+					<span class="grey">推广员</span>
+					<div class="editS"><input type="text" value="" placeholder="请输入想查找的会员的上级推广员" name="" id="cPromoter"/></div>
+				</div>
+			</dd>
+		</dl>
+		<div class="p15"><a href="javascript:void(0)" class="btnL" id="js_search_btn">搜索</a></div>
+	</div>
+</div>
+
+
+<script type="application/x-template" id="js_member_item_template">
+	<li>
+		<a href="member-dist-member_orders.html?memberId={{member.id}}">
+			<div class="odclear clearfix">
+				<div class="odLleft">{{member.login}}<br/>{{member.name}}</div>
+				<dl class="odLright">
+					<dd><span class="grey">联系电话：</span>{{ShopUtil.maskMobile(member.mobile)}}</dd>
+					<dd><span class="grey">成交订单：</span>{{member.orderCount}}</dd>
+					<dd><span class="grey">消费总额：</span>¥{{ShopUtil.formatMoney(member.expenditure, '0.00')}}</dd>
+					<dd><span class="grey">贡献佣金：</span>¥{{ShopUtil.formatMoney(member.contribution, '0.00')}}</dd>
+					<dd><span class="grey">上级推广员：</span>{{member.referralLogin}}{{member.referralUserName?"("+member.referralUserName+")":""}}</dd>
+					<dd><span class="grey">注册时间：</span>{{#ShopUtil.formatDate(member.createDate, 'yyyy-MM-dd')}}</dd>
+				</dl>
+				<i class="u-rtarrL fr"></i>
+			</div>
+		</a>
+	</li>
+</script>
+
+<% include('../../common/footer_simple') %>
+<script type="text/javascript" src="js/lib/template.js"></script>
+<script type="text/javascript" src="js/lib/jquery.ba-hashchange.js"></script>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+<script type="text/javascript" src="js/shop.scroll.js"></script>
+<script type="text/javascript" src="js/shop.search.tag.js"></script>
+
+<script type="text/javascript">
+	$(function() {
+		ShopUtil.initTemplateHelper();
+		var $wrapper = $('#js_member_wrapper');
+		var $noListData = $('#js_empty_list');
+		var $noSearchData = $('#js_empty_search');
+		var $noData =  $noListData;
+		var memberTmpl = ShopUtil.getTemplateById('js_member_item_template');
+		var searchWrapper = $('#js_search_wrapper');
+
+		ShopScroll.init({
+			dataWrapper: $wrapper,
+			emptyWrapper: $noData,
+			method:'POST',
+			url:'/member/distributor/member/search',
+			getParams: function() {
+				var param = SearchUtil.getKeys(searchWrapper);
+				if($.isEmptyObject(param)) {
+					$noData = $noListData;
+				} else {
+					$noData = $noSearchData;
+				}
+				return $.extend({pageSize: 8, timeRange : ShopUtil.getFinishTimeRange($('#js_select_item').val())}, param);
+			},
+			afterLoad: function() {
+				$(".odlist").trigger('change');
+			},
+			beforeAppendData: function() {
+				$noData.hide();
+				$noListData.hide();
+				$noSearchData.hide();
+			},
+			afterAppendData: function() {
+
+			},
+			onDataEnd: function() {
+				$wrapper.append('<li class="nomore">已显示全部内容</li>');
+			},
+			onDataEmpty: function() {
+				$noData.show();
+				$wrapper.html('');
+			},
+			renderItem: function(member) {
+				return memberTmpl({
+					member: member,
+					ShopUtil: ShopUtil
+				});
+			},
+			fail: function() {}
+		});
+
+		var searchOpt = {login: '#cLogin', name:'#cName', mobile: '#cMobile', promoterName: '#cPromoter'};
+		SearchUtil.init({
+			listTitle: $('#js_list_title'),
+			list: $('#js_list_page'),
+			query: $('#js_search_page'),
+			clearAll: $('#js_search_clear'),
+			searchTitle: $('#js_search_title'),
+			searchView: $('#js_search_view'),
+			searchBtn: $('#js_search_btn'),
+			searchOpt: searchOpt,
+			searchWrapper: searchWrapper
+		});
+
+		var selectData = [
+			{id: '0', text: '近一周'},
+			{id: '1', text: '近一个月'},
+			{id: '2', text: '近三个月'},
+			{id: '3', text: '近半年'},
+			{id: '4', text: '全部'}
+		];
+		ShopSelect.select(
+				selectData,
+				$('#timeRangeBtn'),
+				'4', /* 全部 */
+				function($ele) {
+					var $a = $('a', $ele);
+					var value = $a.data('value'), text = $a.text();
+					$('#chtmlIn').text(text);
+					$('#js_select_item').val(value);
+					ShopScroll.reload();
+				}
+		);
+	});
+</script>
+<% include('../../common/end') %>

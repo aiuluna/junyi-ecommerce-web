@@ -1,0 +1,66 @@
+<%
+if (list && list.length) {
+%>
+<div class="pgSpan">
+    <%
+    for (var i = 0, len = list.length; i < len; ++i) {
+
+    %>
+    <span <% if ( i == 0 ) {%>class="on" <% } %> data-log_tab="<%=#i%>">包裹<%=#(i + 1)%></span>
+    <%
+    }
+    %>
+
+</div>
+
+    <%
+    for (var i = 0, len = list.length; i < len; ++i) {
+        var express = list[i];
+    %>
+<div class="pgDiv" data-log_tab="<%=#i%>">
+    <p>
+        <span><i class="grey">物流公司：</i><%=express.expName%></span>
+        <span class="ml40"><i class="grey">运单号：</i> <%=express.expNo%></span>
+    </p>
+    <dl class="logistics">
+        <%
+        if (express.details && express.details.length) {
+        for (var j = 0, jlen = express.details.length; j < jlen; ++j) {
+            var item = express.details[j];
+        %>
+        <dd class="clearfix">
+            <span class="slot"><%=formatDate(item.createDate, 'YYYY-MM-DD HH:mm:ss')%></span>
+            <%
+            var v_slot_clz = '';
+            if (j == jlen - 1) {
+                v_slot_clz = 'red logOn';
+            } else if (j == 0) {
+                v_slot_clz = 'logFirst';
+            }
+            %>
+
+
+            <p class="logP <%=#v_slot_clz%>"><%=item.content%></p>
+        </dd>
+        <%
+        }
+        }
+        %>
+    </dl>
+    <%
+    if (express.details && express.details.length > 5) {
+    %>
+    <span class="clickShow" style="">展开全部<i></i></span>
+    <span class="clickHide" style="">点击收起<i></i></span>
+    <%
+    }
+    %>
+</div>
+    <%
+    }
+    %>
+<%
+} else {
+%>
+<div style="padding: 5px 10px;">暂时没有物流信息</div>
+<% } %>

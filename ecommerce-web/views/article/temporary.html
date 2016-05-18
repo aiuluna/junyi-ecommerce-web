@@ -1,0 +1,45 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+
+<!--content-->
+<div id="content">
+	<div class="banner" style="background:#87c40d;">
+		<img src="<%=#imageUrlCrop(bannerImageUrl,1920,350)%>" width="100%" height="350"/>
+	</div>
+	<div class="wd1090">
+		<ul class="searchList ptop30 clearfix">
+			<%
+			for (var i = 0; i < products.length; ++i) {
+				var product = products[i];
+			%>
+			<li>
+				<%=#product_util.renderProductTag(product)%>
+				<a href="product-<%=#product.skuId%>.html" target="_blank" class="picImg">
+					<img data-original="<%=#imageUrl(product.imageUrl,210,210)%>" src="images/blank.gif" class="lazy" title="<%=product.skuName%>"/>
+					<%=#product_util.renderProductSaleStatus(product)%>
+				</a>
+				<div class="new-intro">
+					<p class="gbie grey"><span class="red fr"><%=#product.isFreeShipping?'包邮':''%><%=#product.isFreeTax?'免税':''%></span><%=#product_util.renderProductOriginLogo(product,24,24)%><%=product.productOriginName%>&nbsp;<%=product.freightMethodName%></p>
+					<p class="imgtit"><a href="product-<%=#product.skuId%>.html" target="_blank" class="black"><%=product.skuName%></a></p>
+					<p class="schActive">
+						<%
+						if (product.activityType === 'ORDER_PROMOTION') {
+						%>
+						<span class="yel"><i class="favour"><%=#product_util.getOrderPromotionLabelShort(product.activityLabel)%></i><%=#product.activityLabel%></span>
+						<%
+						}
+						%>
+					</p>
+					<p class="ptop15"><del class="fr light-grey">¥<%=#formatMoney(product.marketPrice)%></del><span class="red">¥<i class="f20"><%=#formatMoney(product.promotionPrice || product.salePrice)%></i></span><%if(product.activityType === 'FLASH_SALE' || product.activityType === 'PRODUCT_PROMOTION'){%><span class="favourico small"><i><%=#product.activityLabel%></i></span><%}%></p>
+				</div>
+			</li>
+			<%
+			}
+			%>
+		</ul>
+	</div>
+</div>
+
+<% include('../common/footer') %>
+<script type="text/javascript" src="js/lib/jquery.lazyload.js"></script>
+<% include('../common/end') %>

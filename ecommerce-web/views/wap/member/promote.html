@@ -1,0 +1,47 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+<div class="wd640">
+    <% if (!_isWeixin) { %>
+    <header>
+        <div class="header clearfix">
+            <a href="javascript:historyBack()" class="sc-prev">&nbsp;</a>
+            我的推广码
+        </div>
+    </header>
+    <% } %>
+    <div class="bg_white mb10">
+        <h2 class="h2"><span class="titLine"></span>我的推广二维码</h2>
+        <div class="p15">
+            <p class="grey">邀请朋友扫一扫二维码，朋友注册购买后您将得到商品返佣。</p>
+            <p class="aboutL"><img src="<%=#imageUrl(member.ReferralQrcodeUrl, 600, 640)%>" width="35%"/></p>
+        </div>
+    </div>
+    <div class="bg_white mb10">
+        <h2 class="h2"><span class="titLine"></span>我的推广链接</h2>
+        <div class="p15">
+            <p class="grey">将以下链接分享到您的QQ群或朋友圈，朋友注册购买后您将得到商品返佣。</p>
+            <div class="inputborder">
+                <input value="<%=#member.referralUrl%>" readonly="readonly" name="copy_link" id="mylink" />
+            </div>
+        </div>
+    </div>
+    <div class="bg_white">
+        <h2 class="h2"><span class="titLine"></span>商品分享</h2>
+        <div class="p15">
+            <p class="grey">任意商品详情页点分享，朋友购买后您将得到商品返佣。</p>
+        </div>
+    </div>
+</div>
+
+<p class="tip"></p>
+<% include('../common/footer_simple') %>
+<script type="text/javascript">
+    function copyd() {
+        var Url2 = document.getElementById("mylink");
+        Url2.select(); // 选择对象
+        document.execCommand("Copy"); // 执行浏览器复制命令
+        $(".tip").fadeIn().html("链接已复制，去分享吧~");
+        setTimeout("$('.tip').fadeOut()", 2800);
+    }
+</script>
+<% include('../common/end') %>

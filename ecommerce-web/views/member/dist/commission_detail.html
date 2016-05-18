@@ -1,0 +1,48 @@
+<table cellpadding="0" cellspacing="0" width="100%" class="afterTab" id="js_view_commission_detail">
+    <tr>
+        <th width="95">操作人：</th>
+        <td><%=record.paymentOperatorName%></td>
+    </tr>
+    <tr>
+        <th>发放金额：</th>
+        <td>¥<%=#record.amount%></td>
+    </tr>
+    <tr>
+        <th>发放时间：</th>
+        <td><%=#formatDate(record.paymentDate, 'YYYY-MM-DD HH:mm:ss')%></td>
+    </tr>
+    <tr>
+        <th>结算月份：</th>
+        <td><%=#record.stmtMonth%>月份</td>
+    </tr>
+    <tr>
+        <th valign="top">银行账号：</th>
+        <td>
+            <%=record.accountName%> <%=record.accountNo%><br/>
+            <%=record.bankName%> <%=record.bankSite%>
+        </td>
+    </tr>
+    <tr>
+        <th valign="top">发放凭证：</th>
+        <td>
+            <% if (record.paymentVoucher) {%>
+            <div class="voucher">
+                <span>
+                    <a class="fancybox" href="<%=imageUrl(record.paymentVoucher, 1024, 1024)%>">
+                        <img src="<%=imageUrl(record.paymentVoucher, 49, 49)%>"/>
+                    </a>
+                </span>
+            </div>
+            <% } %>
+        </td>
+    </tr>
+    <tr>
+        <th valign="top">备注：</th>
+        <td style="word-wrap: break-word; word-break: break-all"><%=record.remark%></td>
+    </tr>
+</table>
+<script type="text/javascript">
+    var __view_commission_detail = function() {
+        $('.fancybox', $('#js_view_commission_detail')).fancybox();
+    }();
+</script>

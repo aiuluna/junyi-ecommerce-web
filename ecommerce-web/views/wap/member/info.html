@@ -1,0 +1,308 @@
+<% include('../common/begin') %>
+<!-- css for mobiscroll -->
+<link href="js/lib/mobiscroll/css/mobiscroll.animation.css" rel="stylesheet" type="text/css" />
+<link href="js/lib/mobiscroll/css/mobiscroll.icons.css" rel="stylesheet" type="text/css" />
+<link href="js/lib/mobiscroll/css/mobiscroll.frame.css" rel="stylesheet" type="text/css" />
+<link href="js/lib/mobiscroll/css/mobiscroll.frame.ios.css" rel="stylesheet" type="text/css" />
+<link href="js/lib/mobiscroll/css/mobiscroll.scroller.css" rel="stylesheet" type="text/css" />
+<link href="js/lib/mobiscroll/css/mobiscroll.scroller.ios.css" rel="stylesheet" type="text/css" />
+
+<% include('../common/header') %>
+
+<div class="wd640">
+    <% if (!_isWeixin) { %>
+    <header>
+        <div class="header clearfix">
+            <a href="member.html" class="sc-prev">&nbsp;</a>
+            个人信息
+        </div>
+    </header>
+    <% } %>
+    <div class="bg_white plr15 mb10">
+        <input type="hidden" id="js_user_email" name="email" value="<%=#user.email%>">
+        <input type="hidden" id="js_user_intro" name="intro" value="<%=#user.intro%>">
+        <dl class="mbdl f15">
+            <dd>
+                <div class="ptb10 clearfix">
+                    <span class="mbdt">头像</span>
+                    <div class="infcon upload-box">
+                        <span id="js_avatar_upload" class="upload-btn" style="">&ensp;</span>
+                        <img id="js_avatar_url" src="<%=#(user.avatarUrl ? imageUrlCrop(user.avatarUrl, 200, 200) : 'images/defaultAvatar.jpg')%>" width="45" class="roundImg"/><i class="u-rtarr"></i>
+                    </div>
+                </div>
+            </dd>
+            <dd>
+                <div class="clearfix">
+                    <span class="mbdt">用户名</span>
+                    <div class="infcon">
+                        <% if (user.login) {%>
+                        <input type="text" readonly="readonly" value="<%=user.login%>"/>
+                        <% } else {%>
+                        <input type="text" value="<%=user.login%>" name="login" id="js_user_login" minlength="4" maxlength="20"/>
+                        <% } %>
+                    </div>
+                </div>
+            </dd>
+            <dd>
+                <div class="clearfix">
+                    <span class="mbdt">姓名</span>
+                    <div class="infcon"><input minlength="2" maxlength="20" type="text" value="<%=user.name%>" name="name" id="js_user_name"/></div>
+                </div>
+            </dd>
+            <dd>
+                <div class="clearfix">
+                    <span class="mbdt">性别</span>
+                    <div class="infcon" id="sexbtn"><input type="hidden"  name="gender" value="<%=user.gender%>" id="js_user_sex"/><span id="chtmlIn"></span><i class="u-rtarr"></i></div>
+                </div>
+            </dd>
+            <dd>
+                <div class="clearfix">
+                    <span class="mbdt">生日</span>
+                    <div class="infcon" id="datebtn"><input value="<%=#formatDate(user.birthDate, 'YYYY-MM-DD')%>"  id="js_user_birthdate" name="birthDate" class="kbtn" /><i class="u-rtarr"></i></div>
+                </div>
+            </dd>
+        </dl>
+    </div>
+    <p class="btnMid"><a href="javascript:void(0)" id="js_user_btn">保存修改</a></p>
+</div>
+
+<!--生日-->
+<div id="datePlugin"></div>
+
+<% include('../common/footer_simple') %>
+<!-- webuploader -->
+<script type="text/javascript" src="js/lib/webuploader.html5only.js"></script>
+<!-- Mobiscroll JS and CSS Includes -->
+<!-- core -->
+<script type="text/javascript" src="js/lib/mobiscroll/js/mobiscroll.core.js"></script>
+<script type="text/javascript" src="js/lib/mobiscroll/js/mobiscroll.frame.js"></script>
+<script type="text/javascript" src="js/lib/mobiscroll/js/mobiscroll.scroller.js"></script>
+<!-- widgets -->
+<script type="text/javascript" src="js/lib/mobiscroll/js/mobiscroll.util.datetime.js"></script>
+<script type="text/javascript" src="js/lib/mobiscroll/js/mobiscroll.datetimebase.js"></script>
+<script type="text/javascript" src="js/lib/mobiscroll/js/mobiscroll.datetime.js"></script>
+
+
+<script type="text/javascript" src="js/lib/mobiscroll/js/mobiscroll.frame.ios.js"></script>
+<!-- i18n -->
+<script type="text/javascript" src="js/lib/mobiscroll/js/i18n/mobiscroll.i18n.zh.js"></script>
+
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+<script type="text/javascript">
+    $(function(){
+
+        function popupAlert4Field(msg, $field) {
+            ShopPopup.toast(msg);
+        }
+
+        /*$('#js_user_birthdate').date();*/
+        var opt = {
+            lang: 'zh',
+            theme: 'ios',
+            display: 'bottom',
+            dateFormat: 'yy-mm-dd',
+            dateOrder: 'yymmdd'
+        };
+
+        $('#js_user_birthdate').mobiscroll().date(opt);
+
+        function validateUser() {
+            var patterns = {
+                login: /^[a-z]+((?!@).)*$/i
+            };
+            var message = {
+                minlength: '{1}最少{0}个字符',
+                maxlength: '{1}最多{0}个字符',
+                login: '{1}需由英文字母开头，且不包含@符号',
+                required: '{1}不能为空'
+            };
+            var fields = [{
+                id:'js_user_login',
+                text: '用户名',
+                maxlength : 20,
+                minlength : 4,
+                pattern: 'login',
+                required: true
+            }, {
+                id:'js_user_name',
+                text:'姓名',
+                maxlength: 20,
+                minlength: 2,
+                required : false
+            }];
+
+            var pass = true, msg;
+            for (var i = 0, len = fields.length; i < len; ++i) {
+                var field = fields[i];
+                var $field = $('#' + field.id);
+                if ($field.length) {
+                    var val = $.trim($field.val());
+                    if (!val) {
+                        if (field.required) {
+                            pass = false;
+                            msg = (message.required.replace('{1}', field.text));
+                            popupAlert4Field(msg, $field);
+                            break;
+                        } else {
+                            continue;
+                        }
+                    }
+                    if (field.minlength && val.length < field.minlength) {
+                        pass = false;
+                        msg = (message.minlength.replace('{0}', field.minlength).replace('{1}', field.text));
+                        popupAlert4Field(msg, $field);
+                        break;
+                    }
+                    if (field.maxlength && val.length > field.maxlength) {
+                        pass = false;
+                        msg = (message.maxlength.replace('{0}', field.maxlength).replace('{1}', field.text));
+                        popupAlert4Field(msg, $field);
+                        break;
+                    }
+
+                    if (field.pattern && !patterns[field.pattern].test(val)) {
+                        pass = false;
+                        msg = (message[field.pattern].replace('{1}', field.text));
+                        popupAlert4Field(msg, $field);
+                        break;
+                    }
+                }
+            }
+
+            return pass;
+        }
+
+        function getUserInfo() {
+            var user = {};
+            var keys = ['js_user_login', 'js_user_name', 'js_user_sex', 'js_user_birthdate', 'js_user_email', 'js_user_intro'];
+            for (var i = 0, len = keys.length; i < len; ++i) {
+                var $field = $('#' +keys[i]);
+                if ($field.length) {
+                    user[$field.attr('name')] = $.trim($field.val());
+                }
+            }
+
+            return user;
+        }
+
+        function saveUser() {
+
+            if (!validateUser()) {
+                return;
+            }
+
+            var userInfo = getUserInfo();
+            ShopPopup.popupLoading('数据更新中...');
+            Shop.post({
+                url:'/member/update',
+                data : userInfo,
+                dataType:'json'
+            }).done(function(json){
+
+                if (json.success) {
+                    ShopPopup.alert('个人信息更新成功', function(){
+                        if (userInfo.login) {
+                            var $field = $('#js_user_login');
+                            var $parent = $field.parent();
+                            $parent.html('<input type="text" readonly="readonly" value="' + userInfo.login + '"/>');
+                        }
+                    });
+                } else {
+                    ShopPopup.alert('更新失败', '更新失败啦:-;');
+                }
+
+            }).fail(function(res){
+                ShopPopup.alert('更新失败', '更新失败, 请检查网络是否正常');
+            }).always(function(){
+                ShopPopup.popupLoadingClose();
+                $('#js_user_btn').attr('disabled', false);
+            });
+        }
+
+        $('#js_user_btn').on('click', function() {
+            var $me = $(this);
+            $me.attr('disabled', true);
+
+            var loginName = getUserInfo()['login'];
+            if (loginName) {
+                Shop.post({
+                    url: '/passport/check/login',
+                    data: {login: loginName},
+                    success:function(json) {
+                        if (json.data == '<%=#user.id%>' || json.data < 0) {
+                            saveUser();
+                        } else {
+                            $me.attr('disabled', true);
+                            ShopPopup.toast( '该用户名已被注册');
+                            $('#js_user_login').val(loginName).focus();
+                        }
+                    }
+                })
+            } else {
+                saveUser();
+            }
+        });
+
+        var uploader = WebUploader.create({
+
+            /* 选完文件后，是否自动上传*/
+            auto: true,
+
+            /* 文件接收服务端。*/
+            server: '/member/image/upload/avatar',
+
+            /* 选择文件的按钮。可选。*/
+            /* 内部根据当前运行是创建，可能是input元素，也可能是flash. */
+            pick: {
+                id: '#js_avatar_upload',
+                multiple: false,
+                innerHTML:'&ensp;'
+            },
+
+            /* 只允许选择图片文件。*/
+            accept: {
+                title: 'Images',
+                extensions: 'gif,jpg,jpeg,png',
+                mimeTypes: 'image/*'
+            }
+        });
+        uploader.on('startUpload', function (file) {
+            ShopPopup.popupLoading('图像上传中...');
+        });
+        uploader.on('uploadComplete', function (file) {
+            uploader.reset();
+            ShopPopup.popupLoadingClose();
+        });
+        uploader.on('uploadSuccess', function(file, json){
+            if (json.success) {
+                var imgUrl = '<%=imageUrlCrop("==", 100, 100)%>'.replace("==", json.data.url);
+                $('#js_avatar_url').attr('src', imgUrl);
+                ShopPopup.toastSuccess('上传图像成功');
+            } else {
+                ShopPopup.toastError('上传图像失败啦');
+            }
+        });
+        uploader.on('uploadError', function(file){
+            ShopPopup.toastError('上传图像失败啦');
+        });
+
+        var selectData = [
+            {id: 'MALE', text: '男性'},
+            {id: 'FEMALE', text: '女性'},
+            {id: 'NOT_SET', text: '保密'}
+        ];
+        ShopSelect.select(
+                selectData,
+                $('#sexbtn'),
+                ('<%=user.gender%>' || 'NOT_SET'),
+                function($ele) {
+                    var $a = $('a', $ele);
+                    var value = $a.data('value'), text = $a.text();
+                    $('#js_user_sex').val(value);
+                    $('#chtmlIn').text(text);
+                }
+        );
+    });
+</script>
+<% include('../common/end') %>

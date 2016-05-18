@@ -1,0 +1,480 @@
+<% include('../../common/begin') %>
+<link rel="stylesheet" href="css/jquery.fancybox.css" type="text/css"/>
+<link rel="stylesheet" href="css/member.css" type="text/css"/>
+<% include('../../common/header') %>
+
+<% include('../frame_begin') %>
+
+<h4 class="mbtit">我的佣金</h4>
+<div class="tgy clearfix mbtm30">
+  <div class="tgyj">
+	<p> 过往总额</p>
+	<div>¥<%=#total%></div>
+  </div>
+  <div class="tgyj pd1">
+	<p>已提现总额</p>
+	<div>¥<%=#settlement%></div>
+  </div>
+  <div class="tgyj pd2">
+	<p> 可提取金额</p>
+	<div>¥<%=#remaining%></div>
+  </div>
+  <div class="tgyj1">
+	  <a href="javascript:void(0)" class="extracBtn"><img src="images/yongjin-icon.png"></a>
+	  <!--<p><a href="javascript:void(0)" target="_blank" class="grey5"><img src="images/tqyjzy-icon.png">请查阅佣金提取说明</a></p>-->
+  </div>
+</div>
+<div class="pgSpan f18"><span class="on" data-action="commission_list">推广佣金</span><span data-action="fecth_list">佣金提取</span></div>
+<div class="pgDiv presta">
+	<div class="tgyjc clearfix">
+		<form id="form_for_excel" target="_blank" method="post" action="/member/promoter/commission/order/excel">
+		<span class="tgyjc1">结算时间：<input class="date_picker" readOnly  type="text" id="js_search_start" name="beginDate" value=""/>&nbsp; 至&nbsp; <input class="date_picker" readOnly type="text" id="js_search_end"  name="endDate" value=""/></span>
+		<a href="javascript:void(0)"><div class="tgicon1" id="js_search_btn">查阅</div></a>
+		<a class=" tgiconmg" href="javascript:void(0)" id="excel_export"><div class="tgicon"> EXCEL导出</div></a>
+		</form>
+		<span class="tgzy" id="effDays"><img src="images/tqyjzy-icon.png">客户签收<%=#eff%>天后，订单才计入合计佣金中</span>
+	</div>
+	<table cellpadding="0" cellspacing="0" width="100%" class="tgtable brdtab" >
+		<tr>
+			<th width="56">序号</th>
+			<th width="160">订单编号</th>
+			<th width="110">会员</th>
+			<th width="110">收货人姓名</th>
+			<th width="150">完成时间</th>
+			<th width="150">结算时间</th>
+			<th width="110">订单金额</th>
+			<th>佣金</th>
+		</tr>
+	</table>
+	<table cellpadding="0" cellspacing="0" width="100%" class="tgtable" id="js_search_result">
+	</table>
+	<div class="rtl" id="js_pagination"></div>
+</div>
+<div class="pgDiv">
+	<table cellpadding="0" cellspacing="0" width="100%" class="tgtable brdtab">
+		<tr>
+			<th width="56">序号</th>
+			<th width="120">申请人</th>
+			<th width="120">审核人</th>
+			<th width="110">提取金额</th>
+			<th width="160">申请时间</th>
+			<th width="160">发放时间</th>
+			<th width="110">状态</th>
+			<th>详情</th>
+		</tr>
+	</table>
+	<table cellpadding="0" cellspacing="0" width="100%" class="tgtable" id="js_commission_result">
+	</table>
+	<div class="rtl" id="js_pagination2"></div>
+</div>
+
+<% include('../frame_end') %>
+<% include('../../common/footer_member') %>
+<script type="text/javascript" src="js/lib/jquery.fancybox.pack.js"></script>
+<script type="text/javascript" src="js/lib/jquery.pagination.js"></script>
+<script type="text/javascript" src="js/lib/template.js"></script>
+<script type="text/javascript" src="js/lib/jquery.date_input.js"></script>
+<script type="text/javascript" src="js/account.apply_next.js"></script>
+<script type="application/x-template" id="js_order_row_tmpl">
+	<tr>
+			<td width="56">{{#orderIndex}}</td>
+			<td width="160"><a href="javascript:;" class="numDt js-order-detail" data-order_no="{{#orderNo}}">{{#orderNo}}</a></td>
+			<td width="110">{{#buyerLogin}}</td>
+			<td width="110">{{#consignee}}</td>
+			<td width="150">{{finishTime | formatDate: 'yyyy.MM.dd hh:mm:ss'}}</td>
+			<td width="150">{{settleTime | formatDate: 'yyyy.MM.dd hh:mm:ss'}}</td>
+			<td width="110">¥{{#orderFee.toFixed(2)}}</td>
+			<td>¥{{#commissionFee.toFixed(2)}}</td>
+	</tr>
+</script>
+
+<script type="application/x-template" id="js_commission_row_tmpl">
+	<tr>
+		<td width="56">{{#index}}</td>
+		<td width="120">{{proposer}}</td>
+		<td width="120">{{#auditUserName}}</td>
+		<td width="110">{{#amount}}</td>
+		<td width="160">{{requestDate | formatDate: 'yyyy.MM.dd hh:mm:ss'}}</td>
+		{{if status == 'COMMISSION_REQUESTED'}}
+			<td width="160"></td>
+			<td width="110">待审核</td>
+		{{else if status == 'COMMISSION_APPROVED'}}
+			<td width="160"></td>
+			<td width="110">审核通过</td>
+		{{else if status == 'COMMISSION_FAILED' }}
+			<td>——</td>
+			<td width="110">发放失败</td>
+		{{else if status == 'COMMISSION_PAYED' }}
+			<td>{{paymentDate | formatDate: 'yyyy.MM.dd hh:mm:ss'}}</td>
+			<td width="110">已发放</td>
+		{{else}}
+			<td>——</td>
+			<td width="110">——</td>
+		{{/if}}
+
+		{{if status == 'COMMISSION_REQUESTED' }}
+			<td>&nbsp;</td>
+		{{else}}
+			<td><a href="javascript:void(0)" data-draw-req-id="{{#id}}" class="aftersales grey5 js-commission-detail">查看</a></td>
+		{{/if}}
+	</tr>
+</script>
+<script type="application/x-template" id="js_commission_draw_tmpl">
+	<table width="100%" cellspacing="0" cellpadding="0" class="add-tab">
+		<tr>
+			<th width="90">提取金额：</th>
+			<td><input type="text" class="ipt" value="" id="comAmount"><span class="grey">（当前可提取金额：<i class="red">¥<em id="cmtotal"><%=#remaining%></em></i>）</span><p class="lg-error"></p></td>
+		</tr>
+		<tr>
+			<th width="85">提取金额：</th>
+			<td>
+				<div id="acct">
+					<span {{if accountType == 'BANK'}}class="on"{{/if}}><input type="radio" name="comMode" id="account1" value="" {{if accountType == 'BANK'}}checked="checked"{{/if}}/><label for="account1">银行账户</label></span>
+					<span {{if !accountType||accountType != 'BANK'}}class="on"{{/if}}><input type="radio" name="comMode" id="account2" value="" {{if !accountType||accountType != 'BANK'}}checked="checked"{{/if}}/><label for="account2">支付宝账户</label></span>
+				</div>
+			</td>
+		</tr>
+	</table>
+	<div class="acctDiv">
+		<table id="acc_tbl" width="100%" cellspacing="0" cellpadding="0" class="add-tab" {{if !accountType||accountType != 'BANK'}}style="display:none;"{{/if}}>
+			<tr>
+				<th width="90">开户人姓名：</th>
+				<td><input type="text" class="ipt" value="{{#accountName}}" id="khName"/><p class="lg-error"></p></td>
+			</tr>
+			<tr>
+				<th>开户行名称：</th>
+				<td><input type="text" class="ipt" value="{{#bankName}}" id="khBank"/><p class="lg-error"></p></td>
+			</tr>
+			<tr>
+				<th>开户网点：</th>
+				<td><input type="text" class="ipt" value="{{#bankSite}}"" id="khMesh"/><p class="lg-error"></p></td>
+			</tr>
+			<tr>
+				<th>银行卡号：</th>
+				<td><input type="text" class="ipt" id="khCnum" value="{{#formatBankNo(accountNo)}}" maxlength="24"/><p class="lg-error"></p></td>
+			</tr>
+		</table>
+		<table id="aly_tbl" width="100%" cellspacing="0" cellpadding="0" class="add-tab" {{if accountType == 'BANK'}}style="display:none;"{{/if}}>
+			<tr>
+				<th width="90">支付宝账号：</th>
+				<td><input type="text" class="ipt" value="{{#alipayNo}}" id="aliCnum"/><p class="lg-error"></p></td>
+			</tr>
+			<tr>
+				<th>账户姓名：</th>
+				<td><input type="text" class="ipt" value="{{#alipayName}}" id="aliName"/><p class="lg-error"></p></td>
+			</tr>
+		</table>
+	</div>
+</script>
+<script type="text/javascript">
+$(function() {
+	function formatBankNo(bankNo){
+		return bankNo ? bankNo.replace(/[^\d]/g, '').replace(/(\d{4})(?=\d)/g, "$1 ") : '';
+	}
+	ShopUtil.initTemplateHelper();
+	var commission_util = function(){
+
+		function getTemplate(id) {
+			return ShopUtil.getTemplateById(id);
+		}
+		function searchByDate(loader){
+			loader.search({
+				beginDate: $.trim($('#js_search_start').val()),
+				endDate: $.trim($('#js_search_end').val())
+			});
+			commission_util.enExcel();
+		}
+		function tagSearch(loader){
+			loader.search({
+				beginDate: '',
+				endDate: ''
+			});
+			$('#js_search_start').val('');
+			$('#js_search_end').val('');
+			commission_util.enExcel();
+		}
+		function disExcel(){
+			$('#excel_export').off('click');
+			$('#excel_export').css({background:'darkgray'});
+		}
+		function enExcel(){
+			$('#excel_export').on('click',function(){
+				$('#form_for_excel').submit();
+			});
+			$('#excel_export').css({background:''});
+		}
+		return {
+			getTemplate:getTemplate,
+			search:searchByDate,
+			disExcel:disExcel,
+			enExcel:enExcel,
+			tagSearch:tagSearch
+		};
+	}();
+
+
+	var orderRowTmpl = commission_util.getTemplate('js_order_row_tmpl');
+
+	var commissionRowTmpl = commission_util.getTemplate('js_commission_row_tmpl');
+
+	var commission_draw_tmpl = commission_util.getTemplate('js_commission_draw_tmpl');
+
+	var commission_list = function () {
+		var _loader = ShopLoader.init();
+		_loader.init({
+			pageSelector: '#js_pagination',
+			url: '/member-promoter-commission.html',
+			getCriteria: function () {
+				return {
+					pageNumber: 1,
+					pageSize: 20
+				}
+			},
+			render: function (json) {
+				var htmlArr = [];
+				var pageData = json.data.pageData;
+				if (json.data.totalCount > 0) {
+					var seq = (json.data.pageNumber - 1) * json.data.pageSize;
+					var fillArr = ShopUtil.fillArr;
+					for (var i = 0, len = pageData.length; i < len; i++) {
+						var order = pageData[i] || {};
+						order.orderIndex = (seq + 1 + i);
+						fillArr(htmlArr, orderRowTmpl(order));
+					}
+					$('#js_search_result').html(htmlArr.join(''));
+				} else {
+					$('#js_search_result').html('<tr><td colspan="8">暂无没有符合要求的记录</td></tr>');
+				}
+			}
+		});
+
+		function showOrderDetail(order) {
+			ShopAlert.dialog({
+				title: '订单详情',
+				body: order,
+				className: 's-order-detail-wrapper'
+			});
+		}
+
+		$('#js_search_result').on('click', '.js-order-detail', function() {
+			var me = $(this);
+			var orderNo = me.data('order_no');
+			if (!$.trim(orderNo)) {
+				ShopAlert.alert('出错啦', '订单号不能为空');
+				return;
+			}
+			Shop.get({
+				url:'/member/order/detail/' + orderNo,
+				dataType:'html',
+				data: {commissionType: 'promoter'},
+				success:function(html) {
+					showOrderDetail(html);
+				}
+			});
+		});
+
+		return _loader;
+	}();
+
+	$('#js_search_btn').on('click', function () {
+		commission_util.search(commission_list);
+	});
+
+	var loader2 = function(){
+		var loader2 = ShopLoader.init({
+			pageSelector: '#js_pagination2',
+			url: '/member/promoter/commission/draw',
+			getCriteria: function() {
+				return {
+					pageNumber: 1,
+					pageSize: 20
+				}
+			},
+			render:function(json) {
+				var htmlArr = [];
+				var pageData = json.data.pageData;
+
+				if (json.data.totalCount > 0) {
+					var seq = (json.data.pageNumber - 1) * json.data.pageSize;
+					var fillArr = ShopUtil.fillArr;
+					for (var i = 0, len = pageData.length; i < len; i++) {
+						var item = pageData[i] || {};
+						item.index = (seq + 1 + i);
+						item.proposer = '<%=#_user.name || _user.login%>';
+						fillArr(htmlArr, commissionRowTmpl(item));
+					}
+
+					$('#js_commission_result').html(htmlArr.join(''));
+				} else {
+					$('#js_commission_result').html('<tr><td colspan="8">暂无没有符合要求的记录</td></tr>');
+				}
+			}
+		});
+
+		function showCommissionDetail(html) {
+			ShopAlert.dialog({
+				title: '佣金提取详情',
+				body: html,
+				className: 's-order-detail-wrapper'
+			});
+		}
+
+		$('#js_commission_result').on('click', '.js-commission-detail', function() {
+			var me = $(this);
+			var drawReqId = me.data('draw-req-id');
+			if (!$.trim(drawReqId)) {
+				ShopAlert.alert('出错啦', '佣金提取号不能为空');
+				return;
+			}
+			Shop.post({
+				url:'/member/promoter/commission/draw/detail',
+				dataType:'html',
+				data: {
+					drawRequestId: drawReqId
+				},
+				success:function(html) {
+					showCommissionDetail(html)
+				}
+			});
+		});
+		return loader2;
+	}();
+
+	$('#comAmount').keydown(function(){
+		$('#comAmount').parent().removeClass("tdHold");
+	});
+
+	$('#cancel,.pop-close').click(function(){
+		$('#comAmount').val('');
+		$('#comAmount').keydown();
+	});
+
+	function drawCommission($popup) {
+		var remaining = <%=#remaining%>;
+		var comAmount_flag = true;
+		if($('#comAmount').val().trim() > remaining){
+			$('#comAmount').siblings('.lg-error').html('提取佣金不能大于当前可提取额度');
+			$('#comAmount').parent("td").addClass("tdHold");
+			comAmount_flag = false;
+		}
+		if ($('#comAmount').val().trim() < parseInt('<%=#minDrawAmount%>')) {
+			$('#comAmount').siblings('.lg-error').html('提取额度不能小于<%=#minDrawAmount%>');
+			$('#comAmount').parent("td").addClass("tdHold");
+			comAmount_flag = false;
+		}
+		var data;
+		if ($('#account1').is(':checked')) {
+			if(!account.tgSub()||!comAmount_flag) {
+				account.warn();
+				return false;
+			}
+			data = {
+				payType: 'TEMP_BANK_ACCOUNT',
+				amount: $('#comAmount').val().trim(),
+				accountName: $('#khName').val().trim(),
+				accountNo: $('#khCnum').val().replace(/\s+/g, ''),
+				bankName: $('#khBank').val().trim(),
+				bankSite: $('#khMesh').val().trim()
+			};
+		} else {
+			if(!account.aliPaySub()||!comAmount_flag) {
+				account.warn();
+				return false;
+			}
+			data = {
+				payType: 'ALI_PAY',
+				amount: $('#comAmount').val().trim(),
+				alipayNo: $('#aliCnum').val().trim(),
+				alipayName: $('#aliName').val().trim()
+			};
+		}
+		Shop.post({
+			url: '/member/commission/draw',
+			data: data,
+			success: function(result){
+				ShopAlert.alert('确定', result.data, function () {
+					$popup.destroy();
+					loader2.search();
+				});
+			},
+			error: function(result) {
+				ShopAlert.alert('提示', result.error.message, function(){
+					$popup.destroy();
+				});
+			}
+		});
+	};
+	$(".extracBtn").click(
+		function(){
+			 Shop.get({
+				url: '/member/promoter/bank/account',
+				success: function(result) {
+					if (result.success) {
+						result.data.formatBankNo = formatBankNo;
+						var $popup = ShopAlert.confirm('佣金提取',commission_draw_tmpl(result.data),
+							function(yes) {
+								if (yes == 'yes') {
+									drawCommission($popup);
+								} else if (yes == 'no') {
+									$popup.destroy();
+								}
+							},
+							{
+								className: 's-alert-w-small',
+								after: function(){
+									$("#acct span").click(function(){
+										$(this).addClass("on").siblings().removeClass("on");
+										var acIndex = $(this).index();
+										$(".acctDiv table").eq(acIndex).show().siblings(".acctDiv table").hide();
+									});
+									account.initParams().bindEvent();
+								},
+								autoClose:false
+							});
+						}
+					}
+			});
+		});
+
+	$(function() {
+		var $start  = $('#js_search_start');
+		var $end = $('#js_search_end');
+		var temp_date_start = $start.val();
+		var temp_date_end = $end.val();
+		$('.date_picker').date_input();
+		$('.date_picker').on('change',function(){
+			var _$ = $(this);
+			switch(_$.attr('id')){
+				case 'js_search_start':
+					temp_date_start = check(temp_date_start,_$.val());
+					break;
+				case 'js_search_end':
+					temp_date_end = check(temp_date_end,_$.val());
+					break;
+			}
+		});
+		function check(temp_date,choose_date){
+			if(temp_date !== choose_date){
+				commission_util.disExcel();
+			}
+			return choose_date;
+		}
+	});
+
+	$(".pgSpan span").on('click',function(){
+		var action = $(this).attr('data-action');
+		switch(action){
+			case 'commission_list':
+				commission_util.tagSearch(commission_list);
+				break;
+			case 'fecth_list':
+				loader2.search();
+				break;
+		}
+	});
+
+	commission_list.search();
+	commission_util.enExcel();
+});
+</script>
+<% include('../../common/end') %>

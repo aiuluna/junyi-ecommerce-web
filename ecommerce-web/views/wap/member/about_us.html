@@ -1,0 +1,20 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+<div class="wd640">
+    <% if (!_isWeixin) { %>
+    <header>
+        <div class="header clearfix">
+            <a href="javascript:historyBack()" class="sc-prev">&nbsp;</a>
+            关于我们
+        </div>
+    </header>
+    <% } %>
+    <div class="bg_white p15">
+        <p>分享二维码给好友</p>
+        <p class="aboutL brdbt-dotted"><img src="<%=#staticImgWap('2dcode-wx.jpg')%>" width="35%"/></p>
+        <p class="aboutL"><img src="<%=#staticImgWap('logoS.jpg')%>" width="35%"/></p>
+    </div>
+</div>
+
+<% include('../common/footer_simple') %>
+<% include('../common/end') %>

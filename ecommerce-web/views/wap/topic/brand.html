@@ -1,0 +1,77 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:void(0)" class="sc-prev" onclick="return historyBack()">&nbsp;</a>
+			<%=productBrand.name%>
+		</div>
+	</header>
+	<% } %>
+	<div class="its">
+		<img src="<%=#imageUrlCrop(topicBrand.imageUrl,640,396)%>" width="100%" style="box-shadow:0 2px 2px rgba(0,0,0,0.1);-webkit-box-shadow:0 2px 2px rgba(0,0,0,0.1)"/>
+		<div class="itsDiv">
+			<div class="clearfix">
+				<span class="itslogo"><img src="<%=#imageUrl(productBrand.logoUrl,130,120)%>" width="65"/></span>
+				<p class="f16"><%=productBrand.name%></p>
+				<p class="u-brand light-grey"><img src="<%=#imageUrlPNG(productOrigin.logoUrl,32,32)%>" width="16"><span><%=productOrigin.name%></span></p>
+			</div>
+			<div class="mtop10"><%=productBrand.description%></div>
+		</div>
+	</div>
+	<% if (page.totalCount) { %>
+	<div class="idLine3">
+		<h2 class="h2"><span class="titLine"></span>热销</h2>
+		<ul class="idList" id="productList" data-totalPages="<%=#page.totalPages%>">
+			<% include('./brand_list') %>
+		</ul>
+	</div>
+	<% } %>
+	<p class="nomore" id="loadingLabel"><%=#page.totalPages>1?'加载中...':'已显示全部内容'%></p>
+</div>
+
+<% include('../common/footer') %>
+<script type="text/javascript" src="js/lib/jquery.lazyload.js"></script>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<% if (page.totalPages > 1) { %>
+<script type="text/javascript">
+$(function() {
+	var $doc = $(document),
+		$win = $(window),
+		jqProductList = $('#productList'),
+		currentPage = 1,
+		totalPages = jqProductList.attr('data-totalPages')-0;
+	$win.scroll(function(){
+		var dh = $doc.height();
+		var wh = $win.height();
+		var st = $doc.scrollTop();
+		if ((dh-wh) - st <= 30) loadData();
+	});
+	var loading = false;
+	function loadData() {
+		if (currentPage >= totalPages) return;
+		if (loading) return;
+		loading = true;
+		$.ajax({
+			method: 'POST',
+			url: '/wap/topic/brand/<%=#productBrand.id%>',
+			data: { pageNumber: currentPage + 1 }
+		}).done(function(html) {
+			loading = false;
+			if (++currentPage >= totalPages) $('#loadingLabel').html('已显示全部内容');
+			jqProductList.append(html).find("img.lazy").lazyload({
+				effect:"show",
+				threshold:200,
+				failure_limit:10
+			});
+		}).fail(function() {
+			loading = false;
+			ShopPopup.toastError('加载失败');
+		});
+	}
+});
+</script>
+<% } %>
+<% include('../common/end') %>

@@ -1,0 +1,116 @@
+<table cellpadding="0" cellspacing="0" width="100%" class="afterTab">
+    <tbody>
+    <tr>
+        <th width="95">售后原因：</th>
+        <td style="word-wrap: break-word; word-break: break-all"><%=service.requestReason%></td>
+    </tr>
+    <tr>
+        <th>申请时间：</th>
+        <td><%=#formatDate(service.createDate, 'YYYY-MM-DD HH:mm:ss')%></td>
+    </tr>
+    <tr class="js-service-view-express" data-order_no="<%=#service.orderNo%>">
+        <th>物流公司：</th>
+        <td>
+            <div class="ydhao js-service-change-wrapper">
+                <span class="js-text" data-original="<%=service.refundExpName%>"><%=service.refundExpName%></span>
+                <a href="javascript:void(0)" class="grey hidden js-service-view-change">修改</a>
+            </div>
+            <div class="ydhChange js-service-update-wrapper">
+                <input class="js-input" type="text" value="" maxlength="30" name="expressName" id="js_service_apply_express_name"/>
+                <input type="hidden" value="<%=service.refundExpCode%>" name="expressCode" id="js_service_apply_express_code" >
+                <!--
+                <a href="javascript:void(0)" class="grey js-service-view-update">确定</a>
+                <a href="javascript:void(0)" class="grey js-service-view-cancel">取消</a>
+                -->
+            </div>
+        </td>
+    </tr>
+    <tr class="js-service-view-express" data-order_no="<%=#service.orderNo%>">
+        <th>物流运单号：</th>
+        <td>
+            <div class="ydhao js-service-change-wrapper">
+                <span class="js-text" data-original="<%=service.refundExpNo%>"><%=service.refundExpNo%></span>
+                <a href="javascript:void(0)" class="grey js-service-view-change">修改</a>
+            </div>
+            <div class="ydhChange js-service-update-wrapper">
+                <input class="js-input" type="text" value="" maxlength="30" name="expressNo">
+                <a href="javascript:void(0)" class="grey js-service-view-update">确定</a>
+                <a href="javascript:void(0)" class="grey js-service-view-cancel">取消</a>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <th>详情描述：</th>
+        <td style="word-wrap: break-word; word-break: break-all"><%=service.requestComment%></td>
+    </tr>
+    <tr>
+        <th valign="top">上传凭证：</th>
+        <td>
+            <div class="voucher" id="js_service_track_image_wrapper">
+
+                <%
+                if(service.imageUrls && service.imageUrls.length) {
+                    for (var i = 0, len = service.imageUrls.length; i < len; ++i) {
+                        var url = service.imageUrls[i];
+                %>
+                <span>
+                    <a class="fancybox" href="<%=#imageUrl(url, 1024, 1024)%>">
+                        <img src="<%=#imageUrl(url, 60, 60)%>">
+                    </a>
+                </span>
+                <%
+                    }
+                }
+                %>
+            </div>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<div class="btop-e8">
+    <table cellpadding="0" cellspacing="0" width="100%" class="afterTab">
+        <tbody><tr>
+            <th width="95">处理方式：</th>
+            <td><%=#order_util.renderSaleServiceOperationMode(service.operateMode)%></td>
+        </tr>
+        <tr>
+            <th>处理状态：</th>
+            <td><%=#order_util.renderSaleServiceStatus(service.operateStatus)%></td>
+        </tr>
+        <tr>
+            <th>处理时间：</th>
+            <td>
+                <% if (service.operateStatus != 'PENDING_PROCESSING') {%>
+                <%=#formatDate(service.operateTime, 'YYYY-MM-DD HH:mm:ss')%>
+                <% } %>
+            </td>
+        </tr>
+        <tr>
+            <th>处理说明：</th>
+            <td style="word-wrap: break-word; word-break: break-all"><%=service.operateMemo%></td>
+        </tr>
+        <%
+        /* 提前关闭服务单 */
+        %>
+        <% if (service.operateMode && service.operateMode != 'CLOSE') { %>
+        <tr>
+            <th>退款状态：</th>
+            <td><%=#order_util.renderSaleServicePayStatus(service.refundStatus)%></td>
+        </tr>
+        <tr>
+            <th valign="top">退款时间：</th>
+            <td>
+                <%=#service.refundTime?formatDate(service.refundTime, 'YYYY-MM-DD HH:mm:ss'):''%>
+                <p class="f12 light-grey lh18">注：退款将以原路返回的方式退回，各银行具体到账时间依据银行规定略有差别。</p>
+            </td>
+        </tr>
+        <% } %>
+        </tbody></table>
+</div>
+
+<script type="application/javascript">
+    /* avoid global variables introduced */
+    var __init_sale_service_track = function() {
+        $('.fancybox', $('#js_service_track_image_wrapper')).fancybox();
+    }();
+</script>

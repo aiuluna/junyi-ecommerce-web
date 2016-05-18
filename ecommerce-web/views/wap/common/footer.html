@@ -1,0 +1,11 @@
+<!--footer-->
+<div id="fixedNav">
+	<span <%=#_footerNav==='index'?'class="on"':''%> ><a href="/wap/" class="fixIco1">首页</a></span>
+	<span <%=#_footerNav==='search'?'class="on"':''%> ><a href="search.html" class="fixIco2">搜索</a></span>
+	<span <%=#_footerNav==='cart'?'class="on"':''%> ><a href="cart.html" class="fixIco3">购物车</a><i id="cartCount" class="hidden"></i></span>
+	<span <%=#_footerNav==='member'?'class="on"':''%> ><a href="<%=#_isWeixin&&!_user?'javascript:void(0)':'member.html'%>" class="fixIco4" <%=#_isWeixin&&!_user?'onclick="openPageMaybeSlow(\'member.html\')"':''%> >我的</a></span>
+</div>
+
+<script type="text/javascript" src="js/lib/jquery.min.1.9.1.js"></script>
+<script type="text/javascript" src="js/lib/es5-shim.min.js"></script>
+<script type="text/javascript" src="js/normal.js"></script>

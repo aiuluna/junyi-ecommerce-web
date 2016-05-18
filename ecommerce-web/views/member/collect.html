@@ -1,0 +1,122 @@
+<% include('../common/begin') %>
+<link rel="stylesheet" href="css/member.css" type="text/css"/>
+<link rel="stylesheet" href="css/lq.datetimepick.css" type="text/css"/>
+<% include('../common/header') %>
+
+<% include('./frame_begin') %>
+
+<% if (pageVO.totalCount > 0) {%>
+	<h4 class="mbtit">全部商品</h4>
+	<ul class="cltList">
+		<%var prods = pageVO.prods%>
+		<%for(var i = 0; i < prods.length; i++){%>
+		<li>
+			<a href="javascript:void(0)" class="c-del" data-id="<%=#prods[i].skuId%>"></a>
+			<%if (prods[i].tag === 'PARTICULAR') {%>
+			<span class="mark">精品</span>
+			<%}else if (prods[i].tag === 'HOT_SALE') {%>
+			<span class="mark">热卖</span>
+			<%}else if (prods[i].tag === 'NEW') {%>
+			<span class="mark">新品</span>
+			<%}%>
+			<a href="product-<%=#prods[i].skuId%>.html" target="_blank" class="picImg">
+				<img data-original="<%=#imageUrl(prods[i].imageUrl,210,210)%>" src="images/blank.gif" class="lazy" title="<%=prods[i].productName%>"/>
+				<%if (prods[i].saleStatus !== 'ON_SALE'){%>
+				<span class="under-shelf"></span>
+				<%}else if (prods[i].stockStatus === 'OUT_OF_STOCK') {%>
+				<span class="robbed-light"></span>
+				<%}%>
+			</a>
+			<p class="imgtit">
+				<a href="product-<%=#prods[i].skuId%>.html" target="_blank" class="black" title="<%=prods[i].productName%>"><%=prods[i].productName%></a>
+			</p>
+			<p>
+				<del class="fr light-grey">¥<%=prods[i].marketPrice%></del>
+				<span class="red weight f18">
+					<%if(prods[i].isPromotion){%><i class="cux"></i><%}%>
+					¥<%=prods[i].salePrice%>
+				</span>
+			</p>
+		</li>
+		<%}%>
+
+	</ul>
+	<%
+	<div class="rtl"></div>
+<% } else {%>
+	<div class="nobox ptop160" style="padding-top: 0px!important;">
+		<div class="nocon">
+			<p class="f20">您还没有收藏商品</p>
+			<p class="mtop15">可以去看看有哪些想买的，<a href="/" class="nobtn">去逛逛</a></p>
+		</div>
+	</div>
+<% } %>
+
+<% include('./frame_end') %>
+
+<% include('../common/footer_member') %>
+<script type="text/javascript" src="js/lib/jquery.lazyload.js"></script>
+<script type="text/javascript" src="js/lib/jquery.pagination.js"></script>
+<script type="text/javascript">
+$(function(){
+	$(".cltList li").mouseover(function(){
+		$(this).find(".picImg").css({
+			"border-color":"#ff5252"
+		});
+		$(this).find(".c-del").show();
+	}).mouseout(function(){
+		$(this).find(".picImg").css({
+			"border-color":"#e5e5e5"
+		});
+		$(this).find(".c-del").hide();
+	});
+	var choosePop = "<div class='choosePop'><p class='blackbg'></p><div class='cpDiv'><p>从我的收藏中删除？</p><p><span class='cpSure'>确定</span><span class='cpGiveup'>取消</span></p></div></div>";
+	$(".cltList").on("click",".c-del",function(){
+		$(this).parent("li").append(choosePop);
+		$(this).hide();
+	});
+	$(".cltList").on("click",".cpSure",function(){
+		var $this = $(this);
+		var $li = $this.parents("li");
+		var skuId = $('.c-del',$li).attr('data-id');
+
+		var success = function(result){
+			if(result.success){
+				$li.remove();
+
+				setTimeout(function(){
+					if (!$('li', $li.closest('.cltList')).length) {
+						window.location.reload(true);
+					}
+				}, 50);
+				return;
+			}
+			$this.parents(".choosePop").remove();
+
+
+		};
+
+		var opt ={
+			url:'/member/user/favorite/delete/'+skuId,
+			success:success
+		};
+		Shop.get(opt);
+	});
+	$(".cltList").on("click",".cpGiveup",function(){
+		$(this).parents(".choosePop").remove();
+	});
+
+	var pgOpt = {
+		selector: '.rtl',
+		pageNumber : parseInt('<%=#pageVO.pageNumber%>'),
+		totalCount: parseInt('<%=#pageVO.totalCount%>'),
+		pageSize : parseInt('<%=#pageVO.pageSize%>'),
+		callback: function(pageNum) {
+			location.href = 'member-collect.html?pageNum=' + (pageNum + 1);
+		}
+	};
+	Shop.pagination(pgOpt);
+});
+
+</script>
+<% include('../common/end') %>

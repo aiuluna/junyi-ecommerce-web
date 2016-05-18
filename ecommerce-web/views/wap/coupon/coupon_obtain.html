@@ -1,0 +1,186 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+
+<%
+	var handout = !!result;
+%>
+
+<div class="wd640">
+
+	<input type="hidden" value="<%=batch?batch.redeemCode:''%>" id="js_coupon_code">
+	<div class="receiveBg">
+		<div class="rePhonenum js_obtain_prepare" style="<%=handout?'display:none':'display:block'%>">
+			<input type="text" value="" name="" placeholder="请输入手机号" class="reIpt" id="js_mobile" />
+			<a href="javascript:void(0)" class="reSub" id="js_coupon_obtain"></a>
+		</div>
+		<div class="js_obtain_result" style="<%=handout?'display:block':'display:none'%>">
+		<%
+			if (result && result.success) {
+			var coupon = result.data;
+		%>
+			<div class="receiveSucc">
+				<div class="cppad">
+					<div class="cpl1">
+						<p><i class="f22">¥</i><i class="f30"><%=coupon.amountDiscount%></i></p>
+						<p>
+							<span class="qlei"><%=coupon.name%></span><br />
+							<span><% if (coupon.amountExceed > 0) {%>
+        			满<%=coupon.amountExceed%>元可用
+        			<% } else { %>
+        			无限制
+        			<% } %>
+							</span>
+						</p>
+					</div>
+					<p class="f12 textover"><%=coupon.description%></p>
+					<p class="f12"><%=formatDate(coupon.startTime, 'YYYY-MM-DD HH:mm')%> - <%=formatDate(coupon.endTime, 'YYYY-MM-DD HH:mm')%></p>
+				</div>
+			</div>
+			<div class="tct ptop15 lh24 mb45">
+				<p>恭喜您！优惠券已放入您的账户！</p>
+				<p><%=mobile%>  <a href="#" class="red js_change_mobile">修改></a></p>
+				<p class="mtop5"><a href="/wap/" class="succGo">快去购物吧~</a></p>
+			</div>
+	<% } else {%>
+			<div class="receiveFailure">
+				<p class="failTip"><%=result && result.error && result.error.message? result.error.message : ''%></p>
+			</div>
+	<% }%>
+		</div>
+		<div class="rules">
+			<div class="plr15 mb10">
+				<p class="codewx tct mb10"><img src="images/2dcode-wx.jpg" width="45%"/></p>
+				<p class="codecopy tct">长按识别二维码关注蚂蚁海购公众号，优惠信息及时获取</p>
+			</div>
+			<div class="rulesTit"><img src="images/rulesTit.png" width="100%" /></div>
+			<div class="actRules">
+				<p>1.未注册用户请先完成注册 <a href="coupon-signup.html" class="red">注册领取 &gt;</a></p>
+				<p>2.优惠券将自动发送到手机号对应账户；</p>
+				<p>3.部分优惠券会有适用范围限制，详见优惠券说明；</p>
+				<p>4.每张订单仅限使用一张优惠券，优惠券不找零不可兑现；</p>
+				<p>5.本活动最终解释权归蚂蚁海购所有。</p>
+			</div>
+		</div>
+	</div>
+</div>
+
+<% include('../common/footer_simple') %>
+<script type="text/javascript" src="js/lib/template.js"></script>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+
+<script type="application/x-template" id="js_success_template">
+	<div class="receiveSucc">
+		<div class="cppad">
+			<div class="cpl1">
+				<p><i class="f22">¥</i><i class="f30">{{coupon.amountDiscount}}</i></p>
+				<p>
+					<span class="qlei">{{coupon.name}}</span><br />
+							<span>
+        			{{ if coupon.amountExceed > 0 }}
+              满{{coupon.amountExceed}}元可用
+              {{ else }}
+              无限制
+              {{ /if }}
+							</span>
+				</p>
+			</div>
+			<p class="f12 textover">{{coupon.description}}</p>
+			<p class="f12">{{coupon.startTime | formatDate: 'yy.MM.dd hh:mm'}} - {{coupon.endTime | formatDate: 'yy.MM.dd hh:mm'}}</p>
+		</div>
+	</div>
+	<div class="tct ptop15 lh24 mb45">
+		<p>恭喜您！优惠券已放入您的账户！</p>
+		<p>{{mobile}}  <a href="javascript:void(0);" class="red js_change_mobile">修改></a></p>
+		<p class="mtop5"><a href="/wap/" class="succGo">快去购物吧~</a></p>
+	</div>
+</script>
+
+<script type="application/x-template" id="js_error_template">
+	<div class="receiveFailure">
+		<p class="failTip">{{message}}</p>
+	</div>
+</script>
+
+<script type="text/javascript">
+	$(function() {
+		var hasTouch = 'ontouchstart' in window,
+				CLICK_EVT = hasTouch ? 'touchend' : 'click';
+
+		var successTpl = ShopUtil.getTemplateById('js_success_template');
+		var errorTpl = ShopUtil.getTemplateById('js_error_template');
+
+		$('#js_coupon_obtain').on(CLICK_EVT, function () {
+			var mobile = $.trim($('#js_mobile').val());
+
+			if (!validateMobile(mobile)) {
+				ShopPopup.toast("请填入正确的手机号码");
+				return;
+			}
+			var rcode = $.trim($('#js_coupon_code').val());
+
+			if (!rcode) {
+				ShopPopup.toast("该优惠券不存在！");
+				return;
+			}
+
+			var opt = {
+				url: '/coupon/obtain/qrcode',
+				data: {mobile: mobile, rcode: rcode},
+				success: function (json) {
+					var html = successTpl({coupon:json.data, mobile: mobile});
+					updatePage(true, html);
+				},
+				error: function (json) {
+					if(json.error) {
+						if(json.error.code) {
+							if(json.error.code === 402) {
+								window.location.href = "coupon-signup.html";
+							} else {
+								var html = errorTpl({message: json.error.message});
+								updatePage(true, html);
+							}
+
+						} else {
+							ShopPopup.toast(json.error.message);
+						}
+					}
+				}
+			};
+			Shop.post(opt);
+		});
+
+		function validateMobile(mobile) {
+			return /^(1[34578])\d{9}$/.test(mobile.trim());
+		}
+
+		$('.js_obtain_result').on(CLICK_EVT, '.js_change_mobile', function() {
+			updatePage(false);
+		});
+		function updatePage(showResult, templateHtml) {
+			if(showResult) {
+				$('.js_obtain_prepare').hide();
+				$('.js_obtain_result').show();
+				if(templateHtml) {
+					$('.js_obtain_result').html('');
+					$('.js_obtain_result').html(templateHtml);
+				}
+			} else {
+				$('.js_obtain_result').hide();
+				$('.js_obtain_prepare').show();
+			}
+		}
+
+		<% if(!batch) {%>
+			ShopPopup.alert("该优惠券不存在！");
+		<% }%>
+	});
+
+	<!--微信分享-->
+	var wxshare_config = {
+		title: '<%=batch?batch.name:"领取优惠券"%>',
+		imgUrl: 'http://static.mayihg.com/wap/couponshare.jpg',
+		desc: '关注蚂蚁海购，优惠享不停！'
+	};
+</script>
+<% include('../common/end') %>

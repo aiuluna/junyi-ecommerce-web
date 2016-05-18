@@ -1,0 +1,158 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">购物车</div>
+	</header>
+	<% } %>
+	<!--购物车商品列表-->
+	<%
+	if (categorizedCartProducts && categorizedCartProducts.length) {
+	%>
+	<% if (!_user) { %>
+	<div class="p15 bg_white brdbt lh24">
+		<a href="<%=#_isWeixin?'javascript:void(0)':'passport-login.html?redirectUrl=cart.html'%>" class="cartLog" <%=#_isWeixin?'onclick="openPageMaybeSlow(\'passport-login.html?redirectUrl=cart.html\')"':''%> >登录</a>登录后购物车的商品将保存到您账户中
+	</div>
+	<% } %>
+	<%
+		for (var i = 0; i < categorizedCartProducts.length; ++i) {
+			var cat = categorizedCartProducts[i];
+			var warehouseId = cat.warehouseId;
+	%>
+	<div class="mycart" data-whs="<%=#warehouseId%>">
+		<p class="ware"><span class="<%=#cat.freightMethodId===1?'wareico2':'wareico1'%>"><%=#cat.freightMethodName%></span><input type="checkbox" name="cartAll" class="check">&nbsp;<%=cat.warehouseName%></p>
+		<ul class="cart-list">
+			<%
+			if (cat.products.length) {
+				for (var j = 0; j < cat.products.length; ++j) {
+					var product = cat.products[j], productQuantity = productQuantityMap[product.skuId] || 1;
+			%>
+			<li class="goodsline" data-sku="<%=#product.skuId%>">
+				<div class="gdDiv clearfix">
+					<span class="cartImg">
+						<i><input type="checkbox" name="goods" class="check"></i>
+						<a href="product-<%=#product.skuId%>.html"><img src="<%=#imageUrl(product.imageUrl,180,180)%>" width="88" height="88" class="brd"/></a>
+					</span>
+					<div class="cartInfor">
+						<p class="tit"><a href="product-<%=#product.skuId%>.html"><%=product.skuName%></a></p>
+						<p class="cr-price">
+							<span class="red f16">¥<%=#formatMoney2(product.promotionPrice || product.salePrice)%></span>
+							<% if (product.activityLabel) { %><span class="actico"><%=product.activityLabel%></span><% } %>
+						</p>
+						<p>
+							<a href="javascript:void(0)" class="goodsDel"></a>
+							<span><input type="button" value="-" name="" class="dt-redu dt-reduct"><input type="text" value="<%=#productQuantity%>" readonly class="dt-count"/><input type="button" value="+" name="" class="dt-add dt-addct"></span>
+						</p>
+						<p class="someact stock-message" style="display:none"><%=product_util.getProductRestrictStr(product)%></p>
+						<input type="hidden" name="salePrice" value="<%=#product.promotionPrice || product.salePrice%>"/>
+						<input type="hidden" name="restrictNumber" value="<%=#product.restrictNumber%>"/>
+						<input type="hidden" name="stock" value="<%=#product.stockForSale%>"/>
+					</div>
+				</div>
+			</li>
+			<%
+				}
+			}
+			%>
+			<!--缺货 无效商品-->
+			<%
+			if (cat.outOfStocks.length) {
+				for (var j = 0; j < cat.outOfStocks.length; ++j) {
+					var product = cat.outOfStocks[j];
+			%>
+			<li class="goodsline out-of-stock" data-sku="<%=#product.skuId%>">
+				<div class="gdDiv clearfix">
+					<span class="cartImg">
+						<i>无效</i>
+						<a href="product-<%=#product.skuId%>.html"><img src="<%=#imageUrl(product.imageUrl,180,180)%>" width="88" height="88" class="brd"/></a>
+					</span>
+					<div class="cartInfor">
+						<p class="tit"><a href="product-<%=#product.skuId%>.html"><%=product.skuName%></a></p>
+						<p class="cr-price"></p>
+						<p class="red"><a href="javascript:void(0)" class="goodsDel"></a><%=#product.saleStatus === 'ON_SALE' ? '商品暂时缺货' : '商品已下架'%></p>
+					</div>
+				</div>
+			</li>
+			<%
+				}
+			}
+			%>
+			<!--订单活动-->
+			<%
+			if (cat.orderActs.length) {
+				var activityId = -1;
+				for (var j = 0; j < cat.orderActs.length; ++j) {
+					var product = cat.orderActs[j], productQuantity = productQuantityMap[product.skuId];
+					if (product.activityId !== activityId) {
+						activityId = product.activityId;
+			%>
+			<li class="brdnone order-act-row act-<%=#activityId%>">
+				<p class="cart-active">
+					<span class="fr soYou" style="display:none">已优惠<i class="red order-act-discount" id="orderActDiscount_<%=#warehouseId%>_<%=#activityId%>">0.00</i>元</span>
+					<span class="fr coudan"><a href="topic-act-o-<%=#activityId%>.html" class="red">去凑单 &gt;</a></span>
+					<span><i class="actico"><%=product.activityTypeName%></i><%=product.activityLabel%></span>
+				</p>
+			</li>
+			<%
+					}
+			%>
+			<li <%=#j < cat.orderActs.length-1?'style="border-bottom-style: dotted"':''%> class="goodsline" data-sku="<%=#product.skuId%>" data-act="<%=#activityId%>">
+				<div class="gdDiv clearfix">
+					<span class="cartImg">
+						<i><input type="checkbox" name="goods" class="check"></i>
+						<a href="product-<%=#product.skuId%>.html"><img src="<%=#imageUrl(product.imageUrl,180,180)%>" width="88" height="88" class="brd"/></a>
+					</span>
+					<div class="cartInfor">
+						<p class="tit"><a href="product-<%=#product.skuId%>.html"><%=product.skuName%></a></p>
+						<p class="cr-price"><span class="red f16">¥<%=#formatMoney2(product.promotionPrice || product.salePrice)%></span></p>
+						<p>
+							<a href="javascript:void(0)" class="goodsDel"></a>
+							<span><input type="button" value="-" name="" class="dt-redu dt-reduct"><input type="text" value="<%=#productQuantity%>" readonly class="dt-count"/><input type="button" value="+" name="" class="dt-add dt-addct"></span>
+						</p>
+						<p class="someact stock-message" style="display:none"><%=product_util.getProductRestrictStr(product)%></p>
+						<input type="hidden" name="salePrice" value="<%=#product.promotionPrice || product.salePrice%>"/>
+						<input type="hidden" name="restrictNumber" value="<%=#product.restrictNumber%>"/>
+						<input type="hidden" name="stock" value="<%=#product.stockForSale%>"/>
+					</div>
+				</div>
+			</li>
+			<%
+				}
+			}
+			%>
+		</ul>
+		<div class="cartTotal">
+			<p>商品总价：<span class="wd60 grey6 total-pay-fee">¥0.00</span></p>
+			<p>活动优惠：<span class="wd60 grey6 order-act-discount">-¥0.00</span></p>
+			<p><!--<span class="gsTip">关税≤¥50，可以免征哦！<i></i></span>-->商品税费：<span class="wd60 grey6 total-tax">¥0.00</span></p>
+			<p>合计（不含运费）：<span class="wd60 red total-fee">¥0.00</span></p>
+			<p><span class="jsTip error-message" style="display:none"></span><a href="javascript:void(0)" class="cantjies btn-order">去结算</a></p>
+		</div>
+	</div>
+	<%
+		}
+	%>
+	<div class="hidden"><form id="submitPreOrderForm" method="post" action="cart-order.html"><input type="text" name="items" value=""/></form></div>
+	<%
+	}
+	%>
+	<div id="win-middle" <%=#(categorizedCartProducts && categorizedCartProducts.length) ? 'style="display:none"' : ''%> >
+		<span class="noico"></span>
+		<p class="f16 light-grey">购物车空空如也，赶紧去逛逛吧</p>
+		<a href="/wap/" class="goShopping">去逛逛</a>
+	</div>
+</div>
+
+<% include('../common/footer') %>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.cart.js"></script>
+
+<% if (preorderError) { %>
+<script type="text/javascript">
+var _ERR_MSG = '<%=preorderError%>';
+</script>
+<% } %>
+
+<% include('../common/end') %>

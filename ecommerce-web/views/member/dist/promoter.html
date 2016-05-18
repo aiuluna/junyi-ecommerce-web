@@ -1,0 +1,196 @@
+<% include('../../common/begin') %>
+<link rel="stylesheet" href="css/member.css" type="text/css"/>
+<% include('../../common/header') %>
+
+<% include('../frame_begin') %>
+
+<h4 class="mbtit">下级推广员</h4>
+<div class="tgyjc clearfix" id="js_search_form">
+	<span class="tgyjc3">推广员&nbsp;：&nbsp;&nbsp;<input type="text" name="login" value=""/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 推广员姓名&nbsp;：&nbsp;&nbsp;<input type="text" name="name" value=""/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 手机号码&nbsp;：&nbsp;&nbsp;<input type="text" name="mobile" value=""/></span>
+	<div class="fl clearfix">
+		<span class="fl grey">审核时间：</span>
+		<div class="jssel agentS">
+			<input type="text" value="近一周内" name="" class="jsk" readonly="readonly">
+			<ul class="condt">
+				<li value="0"><a href="javascript:void(0)">近一周内</a></li>
+				<li value="1"><a href="javascript:void(0)">近一个月内</a></li>
+				<li value="2"><a href="javascript:void(0)">近三个月内</a></li>
+				<li value="3"><a href="javascript:void(0)">近半年内</a></li>
+				<li value="4"><a href="javascript:void(0)">全部</a></li>
+			</ul>
+			<input type="hidden" value="" name="" class="selectVal" id="js_time_range">
+		</div>
+	</div>
+	<a href="javascript:;"><div class="tgicon1" id="js_search_btn" >查询</div></a>
+</div>
+<table cellpadding="0" cellspacing="0" width="100%" class="tgtable brdtab">
+	<tr>
+		<th width="56">序号</th>
+		<th width="170">推广员</th>
+		<th width="80">下级会员</th>
+		<th width="80" title="推广员推广订单=∑（推广员自己成交订单）+∑（下级会员成交订单） ">推广订单</th>
+		<th width="80">返佣比例</th>
+		<th width="80" title="推广员贡献佣金=∑（推广员自己贡献佣金）+∑（所有下级会员贡献佣金），只统计已确认结算的佣金">贡献佣金</th>
+		<th width="100" title="该推广员已经提取的佣金总额">已提现金额</th>
+		<th width="120">手机号码</th>
+		<th>审核时间</th>
+	</tr>
+</table>
+<table cellpadding="0" cellspacing="0" width="100%" class="tgtable" id="js_search_result">
+
+</table>
+<div class="rtl" id="js_pagination"></div>
+
+<% include('../frame_end') %>
+
+<% include('../../common/footer_member') %>
+<script type="text/javascript" src="js/lib/jquery.pagination.js"></script>
+<script type="text/javascript">
+	$(function() {
+		$('.jssel').selectBox({'selectClassName':'.jsk','selectList':'.condt','selectVal':'.selectVal'});
+		$('.jssel').each(function(index, ele) {
+			var $ele = $(ele);
+			$('.condt li:last', $ele).trigger('click');
+		});
+
+		var loader = ShopLoader.init({
+			pageSelector: '#js_pagination',
+			url: '/member-distributor-promoter-list.html',
+			getCriteria: function() {
+				var form = $('#js_search_form');
+				return {
+					timeRange: ShopUtil.getFinishTimeRange($('#js_time_range').val()),
+					login: $('input[name=login]', form).val(),
+					name: $('input[name=name]', form).val(),
+					mobile: $('input[name=mobile]', form).val()
+				}
+			},
+			render:function(json) {
+				var htmlArr = [];
+				var pageData = json.data.pageData;
+				var fillArr = ShopUtil.fillArr;
+				var formatMoney = ShopUtil.formatMoney;
+				var formatDate = ShopUtil.formatDate;
+				if (json.data.totalCount > 0) {
+					var seq = (json.data.pageNumber - 1) * json.data.pageSize;
+
+
+					for (var i = 0, len = pageData.length; i < len; i++) {
+						var item = pageData[i];
+						htmlArr.push('<tr>');
+						fillArr(htmlArr, '<td width="56">', seq + 1 + i, '</td>');
+						fillArr(htmlArr, '<td width="170">', (item.login && item.name) ? ([item.login, item.name].join('<br/>')) : [item.login||'', item.name||''].join(''), '</td>');
+						fillArr(htmlArr, '<td width="80">', (item.memberCount || 0), '</td>');
+						fillArr(htmlArr, '<td width="80">', ((item.orderCount && item.orderCount > 0) ? item.orderCount : 0), '</td>');
+						fillArr(htmlArr, '<td width="80"><span class="discount" data-promoter="', item.id, '">', formatMoney((item.commissionRate || 0) * 100), '%', '</span></td>');
+						fillArr(htmlArr, '<td width="80">¥', (item.contribution || 0), '</td>');
+						fillArr(htmlArr, '<td width="100">¥', (item.drawAmount || 0), '</td>');
+						fillArr(htmlArr, '<td width="120">', (item.mobile || ''), '</td>');
+						fillArr(htmlArr, '<td>', (formatDate(item.sinceFrom, 'yyyy-MM-dd hh:mm') ), '</td>');
+						htmlArr.push('</tr>');
+					}
+
+					$('#js_search_result').html(htmlArr.join(''));
+				} else {
+					$('#js_search_result').html('<tr><td colspan="9">暂时没有符合要求的推广员</td></tr>');
+				}
+			}
+		});
+
+		loader.search();
+		$('#js_search_btn').on('click', function() {
+			loader.search();
+		});
+		/* 监听回车 */
+		$('#js_search_form').on('keyup', 'input', function(event) {
+			var keycode = event.which;
+			if (keycode == 13) {
+				loader.search();
+			}
+		});
+
+		$('#js_search_result').on('click', '.discount', function() {
+			var me = $(this);
+			var rate = parseFloat($.trim(me.text()).replace('%',''));
+
+			var body = '<p class="mbtm30"><span class="light-grey">佣金比例：</span><input id="js_commission_rate" maxlength="6" type="text" value="'
+					+ rate
+					+ '" name="commission" class="ipt wd140"/> %</p>';
+
+			var CommissionRate = function() {
+				function check($ele, val, allowEmpty) {
+					if (val == '') {
+						return allowEmpty === true;
+					}
+					if (val == 100 || (/^(0*[0-9]\d?){1}$/.test(val) && parseInt(val) >= 0)) {
+						return true;
+					}
+
+					return false;
+				}
+				function validate(me, allowEmpty){
+					var val = me.val();
+					if (check(me, $.trim(val), allowEmpty)) {
+						me.css('border', '1px solid #e5e5e5');
+						return true;
+					} else {
+						me.css('border', '1px solid red');
+						me.attr('title', '佣金比例有效范围为0% ~ 100%');
+
+						return false;
+					}
+				}
+				return {
+					validate:validate
+				}
+			}();
+			ShopAlert.confirm('佣金比例修改', body, function(yes) {
+				if (yes == 'yes') {
+					var rateEle = $('#js_commission_rate');
+					var rateVal = $.trim(rateEle.val());
+
+					if (!CommissionRate.validate(rateEle, false)) {
+						return false;
+					}
+
+					var data = {
+						promoterId: me.data('promoter'),
+						rate: rateVal
+					};
+
+					Shop.post({
+						url: '/member/distributor/promoter/update/rate',
+						data:　data,
+						success: function(json) {
+							me.text(rateVal + '%');
+						}
+					});
+				}
+			});
+
+			var rateHandler = function($this){
+				CommissionRate.validate($this, true);
+			};
+			var rateElement = $('#js_commission_rate');
+			rateElement.on('keyup', function() {
+				rateHandler($(this));
+			});
+			rateElement.on('blur', function(){
+				rateHandler($(this));
+				$(this).val(ShopUtil.formatMoney(parseFloat($(this).val())));
+			});
+
+			setTimeout(function() {
+				var rateInput = $('#js_commission_rate');
+				if (rateInput && rateInput.length) {
+					rateInput.val(rateInput.val()).focus();
+				}
+
+			}, 250);
+
+		});
+	});
+</script>
+
+
+<% include('../../common/end') %>

@@ -1,0 +1,382 @@
+<% include('common/begin') %>
+<% include('common/header') %>
+
+<!--content-->
+<div id="content" style="background-color:<%=!!homeSetting.bgColor ? homeSetting.bgColor:'#fff'%>">
+	<%
+	var carousels = homepageConfig.carousels;
+	if (carousels && carousels.length) {
+	%>
+	<div class="fullSlide">
+		<div class="bd">
+			<div>
+				<ul>
+				<%
+				for (var i = 0; i < carousels.length; ++i) {
+					var carousel = carousels[i];
+				%>
+					<li><a <%=#activityLinkHref(carousel)%> ><img src="<%=#imageUrlCrop(carousel.imageUrl,1920,350)%>"/></a></li>
+				<%
+				}
+				%>
+				</ul>
+			</div>
+		</div>
+		<div class="hd"><ul></ul></div>
+	</div>
+	<%
+	}
+	%>
+	<div class="wd1090">
+		<!--新品推荐-->
+		<%
+		var newProducts = products.newProducts;
+		if (newProducts && newProducts.length) {
+		%>
+		<div class="section">
+			<h3><img src="images/tit-ico1.png"/>新品推荐</h3>
+			<ul class="id-list id-new clearfix">
+			<%
+			for (var i = 0; i < newProducts.length; ++i) {
+				var newProduct = newProducts[i];
+			%>
+				<li>
+					<!--<%=#product_util.renderProductTag(newProduct)%>-->
+					<a href="product-<%=#newProduct.skuId%>.html" target="_blank" class="picImg">
+						<img data-original="<%=#imageUrl(newProduct.imageUrl, 200, 200)%>" src="images/blank.gif" class="lazy" title="<%=newProduct.skuName%>"/>
+						<%=#product_util.renderProductSaleStatus(newProduct)%>
+					</a>
+					<div class="new-intro">
+						<p class="imgtit"><a href="product-<%=#newProduct.skuId%>.html" target="_blank" class="black"><%=newProduct.skuName%></a></p>
+						<p class="red"><%=#product_util.getPriceLabel(newProduct)%>：¥<span class="f16"><%=#formatMoney(newProduct.promotionPrice || newProduct.salePrice)%></span></p>
+						<p class="grey f12">国内参考价：<del>¥<%=#formatMoney(newProduct.marketPrice)%></del></p>
+					</div>
+				</li>
+			<%
+			}
+			%>
+			</ul>
+		</div>
+		<%
+		}
+		%>
+
+		<!--人气专区-->
+		<%
+		var topicActivities = homepageConfig.topicActivities;
+		if (topicActivities && topicActivities.length) {
+		%>
+		<div class="section">
+			<h3><img src="images/tit-ico1.png"/>人气专区</h3>
+			<%
+			var halfRow = false;
+			for (var i = 0; i < topicActivities.length; ++i) {
+				var act = topicActivities[i], endTag;
+				if (act.bannerType === 'FULL_ROW') {  // 通栏
+					if (halfRow) {
+			%>
+			</ul>
+			<%
+						halfRow = false;
+					}
+			%>
+			<div class="bigimg"><a <%=#activityLinkHref(act)%> ><img data-original="<%=#imageUrlCrop(act.imageUrl,1090,250)%>" width="1090" height="250" src="images/blank.gif" class="lazy" title="<%=act.description%>"/></a></div>
+			<%
+				} else {  // 1/2栏
+					if (!halfRow) {
+			%>
+			<ul class="this-list clearfix">
+			<%
+						halfRow = true;
+					}
+			%>
+			<li><a <%=#activityLinkHref(act)%> ><img data-original="<%=#imageUrlCrop(act.imageUrl,540,250)%>" width="540" height="250" src="images/blank.gif" class="lazy" title="<%=act.description%>"/></a></li>
+			<%
+				}
+			}
+			if (halfRow) {
+			%>
+			</ul>
+			<%
+			}
+			%>
+		</div>
+		<%
+		}
+		%>
+		
+		<!--本期限时抢购-->
+		<%
+		var currentFlashSaleProducts = products.currentFlashSaleProducts;
+		if (currentFlashSaleProducts && currentFlashSaleProducts.length) {
+		%>
+		<div class="section">
+			<h3><img src="images/tit-ico1.png"/>本期限时抢购</h3>
+			<ul class="limit-buy">
+		<%
+			for (var i = 0; i < currentFlashSaleProducts.length; ++i) {
+				var flashSaleProduct = currentFlashSaleProducts[i];
+		%>
+				<li class="clearfix">
+					<a href="product-<%=#flashSaleProduct.skuId%>.html" target="_blank" class="fl picImg">
+						<img data-original="<%=#imageUrlBoxed(flashSaleProduct.imageUrl,560,318)%>" src="images/blank.gif" class="lazy" title="<%=flashSaleProduct.skuName%>"/>
+						<%=#product_util.renderProductSaleStatus(flashSaleProduct)%>
+					</a>
+					<div class="buy-con">
+						<div class="w-brand pre">
+							<%=#product_util.renderProductOriginLogo(flashSaleProduct,42,42,'fl')%>
+							<p class="f16"><%=flashSaleProduct.productOriginName%></p>
+							<p class="grey"><%=flashSaleProduct.freightMethodName%></p>
+							<div class="lm-time grey"><span class="deep-grey">限时特卖：</span><span class="f16 flash-sale-countdown" data-deadline="<%=#flashSaleProduct.activityEndTime%>" data-current="<%=#timestamp()%>"></span></div>
+						</div>
+						<a href="product-<%=#flashSaleProduct.skuId%>.html" target="_blank" class="black buytit" title="<%=flashSaleProduct.skuName%>"><%=flashSaleProduct.skuName%></a>
+						<p class="briefIntro grey5" <%if(flashSaleProduct.shortDescription && flashSaleProduct.shortDescription.length > 80){%>title="<%=flashSaleProduct.shortDescription%>"<%}%> ><%=flashSaleProduct.shortDescription%></p>
+						<div class="id-price">
+							<p class="red"><%=#product_util.getPriceLabel(flashSaleProduct)%>：<i class="f16">¥</i> <i class="f24"><%=#formatMoney(flashSaleProduct.promotionPrice)%></i></p>
+							<p class="grey">蚂蚁海购原价：<del>¥<%=#formatMoney(flashSaleProduct.salePrice)%></del>&nbsp;&nbsp;&nbsp;国内参考价：<del>¥<%=#formatMoney(flashSaleProduct.marketPrice)%></del></p>
+						</div>
+					</div>
+					<span class="buy-cart-btn">
+					<% if (product_util.productCouldSell(flashSaleProduct)) { %>
+						<a href="javascript:void(0)" class="buy-cart enterCart" title="加入购物车" data-rel="<%=#flashSaleProduct.skuId%>"></a>
+					<% } else { %>
+						<span class="cant-cart">&nbsp;</span>
+					<% } %>
+					</span>
+				</li>
+		<%
+			}
+		%>
+			</ul>
+		</div>
+		<%
+		}
+		%>
+
+		<!--下期抢购预告-->
+		<%
+		var nextFlashSaleProducts = products.nextFlashSaleProducts;
+		if (nextFlashSaleProducts && nextFlashSaleProducts.length) {
+			var nextFlashSaleStartTime = products.nextFlashSaleStartTime;
+		%>
+		<div class="section">
+			<h3><img src="images/tit-ico1.png"/>下期抢购预告<span class="f14 grey5"> / <i class="red"><%=#nextFlashSaleStartTime.getMonth()+1%></i> 月 <i class="red"><%=#nextFlashSaleStartTime.getDate()%></i> 日 <i class="red"><%=#nextFlashSaleStartTime.getHours()%></i> 时 <i class="red">准时开抢</i></span></h3>
+			<div class="picScroll-left">
+				<div class="hd">
+					<a href="javascript:void(0)" class="prev"></a>
+					<a href="javascript:void(0)" class="next"></a>
+				</div>
+				<div class="bd">
+					<ul class="picList">
+		<%
+			for (var i = 0; i < nextFlashSaleProducts.length; ++i) {
+				var flashSaleProduct = nextFlashSaleProducts[i];
+		%>
+						<li>
+							<a href="product-<%=#flashSaleProduct.skuId%>.html" target="_blank" class="picImg">
+								<img src="" _src="<%=#imageUrl(flashSaleProduct.imageUrl,210,210)%>" title="<%=flashSaleProduct.skuName%>"/>
+								<%=#product_util.renderProductSaleStatus(flashSaleProduct)%>
+							</a>
+							<div class="new-intro">
+								<p class="imgtit"><a href="product-<%=#flashSaleProduct.skuId%>.html" target="_blank" class="black"><%=flashSaleProduct.skuName%></a></p>
+								<p><span class="fr light-grey"><del>¥<%=#formatMoney(flashSaleProduct.marketPrice)%></del></span>预告价：<span class="red">¥<i class="f20"><%=#formatMoney(flashSaleProduct.promotionPrice)%></i></span></p>
+							</div>
+						</li>
+		<%
+			}
+		%>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<%
+		}
+		%>
+
+		<!--商品分类专区-->
+		<%
+		var topicCategories = homepageConfig.topicCategories;
+		if (topicCategories && topicCategories.length) {
+			for (var i = 0; i < topicCategories.length; ++i) {
+				var topicCat = topicCategories[i],
+					topicItemMap = {},
+					topicProducts = products['topicCategory_' + topicCat.id];
+				if (!topicProducts || !topicProducts.length) continue;  // 分类下面没有商品?
+				topicCat.items.forEach(function(item) { topicItemMap[item.skuId] = item; });
+		%>
+		<div class="section">
+			<div>
+				<a href="topic-cat-<%=#topicCat.id%>.html" target="_blank" class="fr black sectMore">更多商品></a>
+				<h3><img src="<%=#imageUrlPNG(topicCat.iconUrl, 20, 20)%>"/><%=topicCat.productCategoryName%></h3>
+			</div>
+			<div class="comover">
+				<ul class="commodity clearfix">
+				<%
+				for (var j = 0; j < topicProducts.length; ++j) {
+					var product = topicProducts[j], item = topicItemMap[product.skuId],
+						itemImageUrl = item.imageUrl ? item.imageUrl : product.imageUrl;
+				%>
+					<li>
+						<%=#product_util.renderProductTag(product)%>
+						<a href="product-<%=#product.skuId%>.html" target="_blank" class="picImg">
+							<img data-original="<%=#imageUrlBoxed(itemImageUrl,538,300)%>" src="images/blank.gif" class="lazy" title="<%=product.skuName%>"/>
+							<%=#product_util.renderProductSaleStatus(product)%>
+						</a>
+						<div class="p15">
+							<p class="coline1">
+							<%
+							if (product.activityType === 'ORDER_PROMOTION') {
+							%>
+								<span class="fr yel mtop5"><i class="favour"><%=#product_util.getOrderPromotionLabelShort(product.activityLabel)%></i><%=#product.activityLabel%></span>
+							<%
+							}
+							%>
+								<span class="light-grey"><%=#product_util.renderProductOriginLogo(product,42,42)%><%=product.productOriginName%>&nbsp;&nbsp;<%=product.freightMethodName%></span></p>
+							<h4>
+								<p class="buytit"><a href="product-<%=#product.skuId%>.html" target="_blank" class="black" title="<%=product.skuName%>"><%=product.skuName%></a></p>
+							</h4>
+							<p class="red spanVer">
+								<%=#product_util.getPriceLabel(product)%>：<i class="f16">¥</i><i class="f24"><%=#formatMoney(product.promotionPrice || product.salePrice)%></i>
+								<%
+								var promotionList = [];
+								if (product.isFreeShipping) promotionList.push('包邮');
+								if (product.isFreeTax) promotionList.push('免税');
+								if (promotionList.length) {
+								%><span class="favourico"><%
+									for (var k = 0; k < promotionList.length; ++k) {
+								%><i <%=#(k==0)?'style="background-position:0 -1772px"':''%> ><%=#promotionList[k]%></i><%
+									}
+								%></span><%
+								}
+								%>
+							</p>
+							<p class="light-grey">国内参考价：<del>¥<%=#formatMoney(product.marketPrice)%></del></p>
+						</div>
+						<span class="buy-cart-btn">
+							<% if (product_util.productCouldSell(product)) { %>
+							<a href="javascript:void(0)" class="buy-cart enterCart" title="加入购物车" data-rel="<%=#product.skuId%>"></a>
+							<% } else { %>
+							<span class="cant-cart">&nbsp;</span>
+							<% } %>
+						</span>
+					</li>
+				<%
+				}
+				%>
+				</ul>
+			</div>
+		</div>
+		<%
+			}
+		}
+		%>
+
+		<!--合作品牌-->
+		<%
+		var brands = homepageConfig.brands;
+		if (brands && brands.length) {
+		%>
+		<div class="section">
+			<h3><img src="images/tit-ico1.png"/>合作品牌</h3>
+			<div class="cooperate clearfix">
+		<%
+			for (var i = 0; i < brands.length; ++i) {
+				var topicBrand = brands[i],
+					productBrand = topicBrand.productBrand;
+		%>
+				<a href="topic-brand-<%=#topicBrand.id%>.html" target="_blank"><img data-original="<%=#imageUrl(productBrand.logoUrl,170,66)%>" title="<%=productBrand.name%>" src="images/blank.gif" class="lazy"/></a>
+		<%
+			}
+		%>
+			</div>
+		</div>
+		<%
+		}
+		%>
+	</div>
+</div>
+
+<% if (siteNotice) { %>
+<!--活动弹窗-->
+<div id="fullbg" style="display:none;"></div>
+<div class="pop" id="actPop" style="display:none;">
+	<a href="javascript:void(0)" class="pClose actico"></a>
+	<div class="actPdiv">
+		<div class="actpad">
+			<p class="actPtit"><%=siteNotice.title%></p>
+			<div id="actover">
+				<%=#siteNotice.content%>
+			</div>
+			<p class="tct"><a href="javascript:void(0)" class="pClose actbtn" >我知道了</a></p>
+		</div>
+	</div>
+</div>
+<% } %>
+
+<% include('common/footer') %>
+
+<script type="text/javascript" src="js/lib/jquery.lazyload.js"></script>
+<script type="text/javascript" src="js/lib/jquery.SuperSlide.2.1.2.js"></script>
+<script type="text/javascript" src="js/lib/requestAnimationFrame.js"></script><!--IE8 fly-->
+<script type="text/javascript" src="js/lib/jquery.fly.min.js"></script>
+<script type="text/javascript" src="js/shop.index.js"></script>
+
+<% if (siteNotice) { %>
+<script type="text/javascript" src="js/lib/slimscroll.js"></script><!--滚动条-->
+<script type="text/javascript">
+$(function() {
+	var $doc = $(document),
+		$wnd = $(window),
+		dH = $doc.height(),
+		wH = $wnd.height(),
+		$fullbg = $('#fullbg');
+	if (dH > wH) {
+		$fullbg.height(dH);
+	} else {
+		$fullbg.height(wH);
+	}
+	$fullbg.show();
+    $(".pClose").click(function(){
+    	$("#fullbg,.pop").fadeOut(100);
+    });
+	/* 调整弹出窗口的尺寸大小 */
+	var $pop = $('.pop');
+	function BoxAdapt() {
+		var boxHeight = $pop.height(),
+			boxWidth = $pop.width(),
+			scrollTop = $doc.scrollTop(),
+			docHeight = $doc.height(),
+			winWidth = $wnd.width(),
+			winHeight = $wnd.height(),
+			centerWidth = (winWidth-boxWidth)/2,
+			centerHeight = (winHeight-boxHeight)/2+scrollTop;
+		$pop.animate({"top": centerHeight, "left": centerWidth}, 0);
+		if (docHeight !== dH || winHeight !== wH) {
+			dH = docHeight;
+			wH = winHeight;
+			if (dH > wH) {
+				$fullbg.height(dH);
+			} else {
+				$fullbg.height(wH);
+			}
+		}
+	}
+	$wnd.scroll(function(){
+		BoxAdapt();
+	});
+	$wnd.resize(function(){
+		BoxAdapt();
+	});
+	BoxAdapt();
+	$pop.fadeIn(200);
+	/* 如果内容过长，显示滚动条 */
+	var $actover = $("#actover");
+	var lbsH = $actover[0].scrollHeight;
+	if (lbsH > 260){
+		$actover.slimscroll({"height":"260px",alwaysVisible:true});
+	}
+});
+</script>
+<% } %>
+
+<% include('common/end') %>

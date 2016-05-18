@@ -1,0 +1,76 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+<div class="wd640">
+    <% if (!_isWeixin) { %>
+    <header>
+        <div class="header clearfix">
+            <a href="javascript:historyBack()" class="sc-prev">&nbsp;</a>
+            详情
+        </div>
+    </header>
+    <% } %>
+    <dl class="idLine2">
+        <dd class="clearfix"><span class="grey">订单编号：</span><p><%=#order.orderNo %></p></dd>
+        <dd class="clearfix"><span class="grey">订单金额：</span><p>¥<%=#(order.totalFee || 0) + (order.adjustFee || 0) %></p></dd>
+        <dd class="clearfix"><span class="grey">订单状态：</span><p><%=#order_util.renderSimpleOrderStatus(order.orderStatus) %></p></dd>
+        <!--
+        <dd><span class="clearfix grey">佣金类型：</span><p><%=#(commissionType == 'direct' ? '推广佣金' : '非推广佣金') %></p></dd>
+        -->
+        <dd class="clearfix"><span class="grey">结算状态：</span><p><%=#order.orderStatus == 'CANCELLED'? '未结算' : order_util.renderSimpleSettleStatus(order.commissionSettleStatus) %></p></dd>
+        <dd class="clearfix"><span class="grey">下单时间：</span><p><%=#formatDate(order.orderTime, 'YYYY-MM-DD HH:mm:ss')  %></p></dd>
+        <dd class="clearfix"><span class="grey">完成时间：</span><p><%=#formatDate(order.closeTime, 'YYYY-MM-DD HH:mm:ss')  %></p></dd>
+        <% if (commissionType == 'direct') {%>
+            <% if (order.promoterId) {%>
+        <dd class="clearfix"><span class="grey">推&ensp;广&ensp;员：</span><p><%=#order.promoterLogin%><%=#order.promoterName?"("+order.promoterName+")":""%></p></dd>
+        <dd class="clearfix"><span class="grey">推广员返佣：</span><p>¥<%=#formatMoney2(order.totalPromoterCommission)%></p></dd>
+            <% } %>
+        <% } else if (commissionType == 'indirect') {%>
+        <dd class="clearfix"><span class="grey">收&ensp;货&ensp;人：</span><p><%=#order.address.consignee%></p></dd>
+        <dd class="clearfix"><span class="grey">收货区域：</span><p><%=#order.address.state%> <%=#order.address.city%> <%=#order.address.county%></p></dd>
+        <% } %>
+    </dl>
+    <div class="mb10 bg_white">
+        <h2 class="h2"><span class="titLine"></span>商品信息</h2>
+        <ul class="idList">
+            <%
+            if (order.items && order.items.length) {
+                for (var i = 0, len = order.items.length; i < len; i++) {
+                    var item = order.items[i];
+            %>
+            <li>
+                <a href="product-<%=#item.skuId%>.html" class="clearfix">
+                    <div class="picImg">
+                        <img src="<%=#imageUrl(item.skuImageUrl, 180, 180) %>" title="<%=item.skuName %>" />
+                    </div>
+                    <div class="picInfor">
+                        <p class="tit" title="<%=item.skuName %>"><%=item.skuName %></p>
+                        <p class="mb5 light-grey">¥<%=#formatMoney2(item.payPrice) %> * <%=#item.quantity %></p>
+                        <p>
+                            <% if (item.activityLabel) {%>
+                            <span class="actico fr"><%=#item.activityLabel %></span>
+                            <% } %>
+                            <span class="red f16">
+                            <% if (commissionType == 'promoter') {%>
+                            返佣：¥<%=#formatMoney2((item.promoterCommission || 0.00) * (item.quantity || 0)) %>
+                            <% } else if (commissionType == 'direct') {%>
+                            返佣：¥<%=#formatMoney2((item.distCommission || 0.00) * (item.quantity || 0)) %>
+                            <% } else if (commissionType == 'indirect') {%>
+                            返佣：¥<%=#formatMoney2((item.indirectCommission || 0.00) * (item.quantity || 0)) %>
+                            <% } %>
+                            </span>
+                        </p>
+                    </div>
+                </a>
+            </li>
+
+            <%
+                } // end of for
+            } // end of if
+            %>
+        </ul>
+        <p class="tright f15">我的返佣（合计）：<span class="red">¥<%=#formatMoney2(commissionType == 'promoter' ? order.totalPromoterCommission : order.totalDistCommission) %></span></p>
+    </div>
+
+</div>
+<% include('../common/footer_simple') %>
+<% include('../common/end') %>

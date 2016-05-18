@@ -1,0 +1,191 @@
+<% include('common/begin') %>
+<% include('common/header') %>
+
+<%
+var productSummary = productDetail.productSummary,
+	activityType = productSummary.activityType;
+%>
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:void(0)" class="sc-prev" onclick="return historyBack()">&nbsp;</a>
+			商品详情
+			<a href="/wap/" id="goHome-h"></a>
+		</div>
+	</header>
+	<% } %>
+	<div id="focus" class="focus dtFocus">
+		<div class="hd">
+			<ul></ul>
+		</div>
+		<div class="bd">
+			<ul>
+				<%if(productDetail.imageUrl1){%><li><img src="<%=#staticImgWap('bg_logo_640x640.gif')%>" _src="<%=#imageUrl(productDetail.imageUrl1,640,640)%>"/></li><%}%>
+				<%if(productDetail.imageUrl2){%><li><img src="<%=#staticImgWap('bg_logo_640x640.gif')%>" _src="<%=#imageUrl(productDetail.imageUrl2,640,640)%>"/></li><%}%>
+				<%if(productDetail.imageUrl3){%><li><img src="<%=#staticImgWap('bg_logo_640x640.gif')%>" _src="<%=#imageUrl(productDetail.imageUrl3,640,640)%>"/></li><%}%>
+				<%if(productDetail.imageUrl4){%><li><img src="<%=#staticImgWap('bg_logo_640x640.gif')%>" _src="<%=#imageUrl(productDetail.imageUrl4,640,640)%>"/></li><%}%>
+				<%if(productDetail.imageUrl5){%><li><img src="<%=#staticImgWap('bg_logo_640x640.gif')%>" _src="<%=#imageUrl(productDetail.imageUrl5,640,640)%>"/></li><%}%>
+			</ul>
+		</div>
+	</div>
+	<div class="p15 bg_white">
+		<div class="u-brand light-grey"><span class="fr"><%=productSummary.freightMethodName%></span><%=#product_util.renderProductOriginLogo(productSummary,32,32)%><%=productSummary.productOriginName%></div>
+		<p class="h3"><%=productSummary.skuName%> <span class="light-grey">(货号：<%=#productSummary.skuCode%>)</span></p>
+		<!--商品价格-->
+		<% if (activityType === 'FLASH_SALE' || activityType === 'PRODUCT_PROMOTION') { %>
+		<div><span class="red">促销价：¥<i class="f18 weight"><%=#formatMoney(productSummary.promotionPrice)%></i></span><span><i class="dtico1"><%=productSummary.activityLabel%></i><%if(productSummary.isFreeShipping){%><i class="dtico1">包邮</i><%}%></span></div>
+		<% } else { %>
+		<div><span class="red">售价：¥<i class="f18 weight"><%=#formatMoney(productSummary.salePrice)%></i></span><%if(productSummary.isFreeShipping){%><span><i class="dtico1">包邮</i></span><%}%></div>
+		<% } %>
+		<!--税费-->
+		<p class="dtline1">
+			<span class="fr">适用税率：<i class="light-grey">
+				<% if (productSummary.isFreeTax) { %>
+				免税
+				<% } else { %>
+				<%=#typeof productSummary.taxRate === 'number' ? (formatMoney(productSummary.taxRate*100)+'%') : '-'%>
+				<% } %>
+			</i></span>
+			<span>参考价：<del class="light-grey f14">¥<%=#formatMoney(productSummary.marketPrice)%></del></span>
+		</p>
+		<!--限时抢购-->
+		<% if (activityType === 'FLASH_SALE') { %>
+		<p class="dtline2">限时抢购：<span class="light-grey">距离结束</span> <span class="flash-sale-countdown" data-deadline="<%=#productSummary.activityEndTime%>" data-current="<%=#timestamp()%>"></span></p>
+		<% } %>
+		<!--订单促销-->
+		<% if (activityType === 'ORDER_PROMOTION') { %>
+		<p class="dtline2"><%=#productSummary.activityTypeName%>：<a href="topic-act-o-<%=#productSummary.activityId%>.html" class="red"><%=productSummary.activityLabel%></a></p>
+		<% } %>
+		<%
+		if (_user) {
+			var commissionFee = product_util.getPromotionCommissionFeeForUser(_user, productSummary);
+			if (typeof commissionFee === 'number') {
+		%>
+		<p class="dtline2">推广佣金：<span class="red"><%=#formatMoney(commissionFee)%></span>元/件</p>
+		<%
+			}
+		}
+		%>
+		<% if (productDetail.productSkuPropertyList && productDetail.productSkuPropertyList.length) { %>
+		<div class="dtline3">
+			<span class="fl">产品规格：</span>
+			<div class="guig">
+				<%
+				for (var i = 0; i < productDetail.productSkuPropertyList.length; ++i) {
+					var pair = productDetail.productSkuPropertyList[i];
+					if (pair.skuId === productSummary.skuId) {
+				%>
+					<a href="javascript:void(0)" class="on"><%=pair.skuProperty%></a>
+				<%
+					} else {
+				%>
+					<a href="product-<%=#pair.skuId%>.html"><%=pair.skuProperty%></a>
+				<%
+					}
+				}
+				%>
+			</div>
+		</div>
+		<% } %>
+		<div class="mb10">
+			<p class="dtline4"><%=productSummary.shortDescription%></p>
+			<a href="javascript:void(0)" class="sildedown">展开全部</a><a href="javascript:void(0)" class="sildeup">收起</a>
+		</div>
+	</div>
+	<div class="bg_white mb45">
+		<% if (relatedProducts && relatedProducts.length) { %>
+		<h2 class="h2"><span class="titLine"></span>相关商品</h2>
+		<ul class="dt-list clearfix">
+			<%
+			for (var i = 0; i < relatedProducts.length; ++i) {
+				var relatedProduct = relatedProducts[i];
+			%>
+			<li>
+				<a href="product-<%=#relatedProduct.skuId%>.html">
+					<div class="pre">
+						<%=#product_util.renderProductTag(relatedProduct,'i')%>
+						<%=#product_util.renderProductSaleStatus(relatedProduct,true)%>
+						<img data-original="<%=#imageUrl(relatedProduct.imageUrl,320,320)%>" class="lazy" width="100%"/>
+					</div>
+					<p class="tit"><%=relatedProduct.skuName%></p>
+					<p>
+						<del class="fr">¥<%=#formatMoney(relatedProduct.marketPrice)%></del>
+						<span class="red f16">¥<%=#formatMoney(relatedProduct.promotionPrice || relatedProduct.salePrice)%></span>
+						<% if (relatedProduct.activityType === 'FLASH_SALE' || relatedProduct.activityType === 'PRODUCT_PROMOTION') { %>
+						<span class="actico"><%=#relatedProduct.activityLabel%></span>
+						<% } else if (relatedProduct.activityType === 'ORDER_PROMOTION') { %>
+						<span class="actico"><%=#relatedProduct.activityTypeName%></span>
+						<% } %>
+					</p>
+				</a>
+			</li>
+			<%
+			}
+			%>
+		</ul>
+		<% } %>
+		<h2 class="h2"><span class="titLine"></span>产品详情</h2>
+		<%
+		var productAttrList = productDetail.productAttrList;
+		if (productAttrList && productAttrList.length) {
+		%>
+		<dl class="dt-dl">
+		<%
+			for (var i = 0; i < productAttrList.length; ++i) {
+				var productAttr = productAttrList[i];
+		%>
+			<dd class="clearfix"><span class="dleft"><%=productAttr.name%></span><span><%=productAttr.value%></span></dd>
+		<%
+			}
+		%>
+		</dl>
+		<%
+		}
+		%>
+		<div class="mobile-detail">
+			<%=#product_util.renderProductDetailMobile(productDetail.mobileDescription)%>
+			<p><img data-original="<%=#staticImgWap('cust_notice.png')%>" src="<%=#staticImgWap('bg_logo_640x450.gif')%>" width="100%" class="lazy"/></p>
+		</div>
+	</div>
+	<div id="dtFixed" class="clearfix">
+		<div class="fxleft">
+			<% if (productSummary.saleStatus === 'ON_SALE') { %>
+			<a href="javascript:void(0)" class="dt-collect <%=#favorite?'on':''%>" data-rel="<%=#productSummary.skuId%>:<%=#productSummary.salePrice%>" data-fav="<%=#favorite?favorite.id:''%>">收藏</a>
+			<% } %>
+			<a href="cart.html" class="dt-cart">购物车<i <%=#cartCount?'':'style="display:none"'%> ><%=#cartCount?cartCount:''%></i></a>
+		</div>
+		<div class="fxright">
+			<% if (productSummary.saleStatus === 'ON_SALE') { %>
+				<% if (productDetail.stockForSale > 0) { %>
+				<a href="javascript:void(0)" class="enterCart" data-rel="<%=#productSummary.skuId%>">加入购物车</a><a href="javascript:void(0)" class="buybtn">立即购买</a>
+				<% } else { %>
+				<a href="javascript:void(0)" class="soldEnd">已抢光</a>
+				<% } %>
+			<% } else { %>
+			<a href="javascript:void(0)" class="soldEnd">已下架</a>
+			<% } %>
+		</div>
+	</div>
+	<% if (_isWeixin) { %>
+	<!--微信上显示“返回首页”按钮-->
+	<a href="/wap/" id="goHome"></a>
+	<% } %>
+</div>
+
+<% include('common/footer_simple') %>
+
+<script type="text/javascript" src="js/lib/jquery.lazyload.js"></script>
+<script type="text/javascript" src="js/lib/TouchSlide.js"></script>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.product.js"></script>
+<!--微信分享-->
+<script type="text/javascript">
+var wxshare_config = {
+	title: '<%=#escapeJsStr(productSummary.skuName)%>',
+	imgUrl: '<%=#imageUrl(productDetail.imageUrl1,300,300)%>',
+	desc: '我在蚂蚁海购发现了一件不错的商品，绝对适合你，赶快来看看吧！'
+};
+</script>
+
+<% include('common/end') %>

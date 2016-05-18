@@ -1,0 +1,148 @@
+<% include('../../common/begin') %>
+<link rel="stylesheet" href="css/member.css" type="text/css"/>
+<% include('../../common/header') %>
+
+<% include('../frame_begin') %>
+
+<h4 class="mbtit">下级会员</h4>
+<div class="tgyjc clearfix" id="js_search_form">
+	<span class="tgyjc6">会员名：<input type="text" id="login" value="" name=""/>&nbsp;&nbsp;姓名：<input type="text" id="name" value="" name=""/>&nbsp;&nbsp;手机号码：<input id="mobile" type="text" name="" value=""/>&nbsp;&nbsp;推广员姓名：<input type="text" id="promoterName" name="" value=""/></span>
+	<div class="fl clearfix">
+		<span class="fl grey">注册时间：</span>
+		<div class="jssel agentS mr12">
+			<input type="text" value="近一周内" name="" class="jsk" readonly="readonly">
+			<ul class="condt">
+				<li value="0"><a href="javascript:void(0)">近一周内</a></li>
+				<li value="1"><a href="javascript:void(0)">近一个月内</a></li>
+				<li value="2"><a href="javascript:void(0)">近三个月内</a></li>
+				<li value="3"><a href="javascript:void(0)">近半年内</a></li>
+				<li value="4"><a href="javascript:void(0)">全部</a></li>
+			</ul>
+			<input type="hidden" value="" name="" class="selectVal" id="js_time_range">
+		</div>
+	</div>
+	<a href="javascript:void(0)" class="tgicon1" id="js_search_btn">查询</a>
+</div>
+<table cellpadding="0" cellspacing="0" width="100%" class="tgtable brdtab">
+	<tr>
+		<th width="56">序号</th>
+		<th width="150">会员名</th>
+		<th width="90">姓名</th>
+		<th width="90">电话</th>
+		<th width="60" title="该会员已完成支付且尚未发生售后退款的订单总数">成交订单</th>
+		<th width="90" title="该会员所有成交订单实付金额总和">消费金额</th>
+		<th width="90" title="该会员贡献给我的佣金总和（只统计已确认结算的佣金）">贡献佣金</th>
+		<th width="90">上级推广员</th>
+		<th width="150">注册时间</th>
+		<th>会员订单</th>
+	</tr>
+</table>
+<% var pageVO = page.pageData; %>
+<% if(pageVO) {%>
+<table cellpadding="0" cellspacing="0" width="100%" class="tgtable" id ="memberTable_Id">
+	<% var number = page.pageSize*(page.pageNumber-1)+1%>
+	<% for(var i=0;i<pageVO.length;i++) {%>
+	<tr>
+		<td width="56"><%=#(number+i)%></td>
+		<td width="150"><%=pageVO[i].login%></td>
+		<td width="90"><%=pageVO[i].name%></td>
+		<td width="90"><%=#pageVO[i].mobile%></td>
+		<td width="60"><%=#pageVO[i].orderCount%></td>
+		<td width="90">¥<%=#pageVO[i].expenditure||0%></td>
+		<td width="90">¥<%=#pageVO[i].contribution||0%></td>
+		<td width="90"><%=(pageVO[i].referralLogin || pageVO[i].referralUserName)%></td>
+		<td width="150"><%=#formatDate(pageVO[i].createDate,'YYYY-MM-DD HH:mm')%></td>
+		<td><a href="/member-dist-member_orders.html?memberId=<%=#(pageVO[i].id)%>" class="red">查看</a></td>
+	</tr>
+	<%}%>
+	<% if(pageVO.length == 0 ) { %>
+	<tr><td colspan="9">您还没有下级会员哦</td></tr>
+	<% } %>
+</table>
+<%}%>
+<div class="rtl" id="js_pagination"></div>
+<% include('../frame_end') %>
+
+<% include('../../common/footer_member') %>
+<script type="text/javascript" src="js/lib/jquery.pagination.js"></script>
+<script type="text/javascript">
+	$(function(){
+
+		$('.jssel').selectBox({'selectClassName':'.jsk','selectList':'.condt','selectVal':'.selectVal'});
+		$('.jssel').each(function(index, ele) {
+			var $ele = $(ele);
+			$('.condt li:last', $ele).trigger('click');
+		});
+
+		var loader = ShopLoader.init({
+			pageSelector: '#js_pagination',
+			url: '/member/distributor/member/search',
+			getCriteria: function() {
+				var data = {};
+				data.login = $('#login').val();
+				data.name = $('#name').val();
+				data.mobile = $('#mobile').val();
+				data.promoterName = $('#promoterName').val();
+				data.timeRange = ShopUtil.getFinishTimeRange($('#js_time_range').val());
+			    return data;
+			},
+			render:function(json) {
+				var htmlArr = [];
+				var pageData = json.data.pageData;
+				var formatDate = ShopUtil.formatDate;
+				if (json.data.totalCount > 0) {
+					var seq = (json.data.pageNumber - 1) * json.data.pageSize;
+
+					for (var i = 0, len = pageData.length; i < len; i++) {
+						var item = pageData[i];
+						htmlArr.push(
+							'<tr>',
+								'<td width="56">' + (seq + i + 1 ) + '</td>',
+								'<td width="150">'+ (item.login || '') + '</td>',
+								'<td width="90">' + (item.name || '') + '</td>',
+								'<td width="90">' + (item.mobile || '') + '</td>',
+								'<td width="60">' + (item.orderCount || 0) + '</td>',
+								'<td width="90">¥' + (item.expenditure || 0) + '</td>',
+								'<td width="90">¥' + (item.contribution || 0) + '</td>',
+								'<td width="90">' + (item.referralLogin || item.referralUserName || '') + '</td>',
+								'<td width="150">'+ (formatDate(item.createDate, 'yyyy-MM-dd hh:mm')) + '</td>',
+								'<td><a href="' + '/member-dist-member_orders.html?memberId=' + item.id + '" class="red">查看</a></td>',
+							'</tr>'
+						);
+					}
+
+					$('#memberTable_Id').html(htmlArr.join(''));
+				} else {
+					$('#memberTable_Id').html('<tr><td colspan="9">您还没有下级会员哦</td></tr>');
+				}
+			}
+		});
+
+		var pgOpt = {
+			timeRange: ShopUtil.getFinishTimeRange($('#js_time_range').val()),
+			selector: '.rtl',
+			totalCount: parseInt('<%=#page.totalCount%>'),
+			pageSize: parseInt('<%=#page.pageSize%>'),
+			pageNumber: parseInt('<%=#page.pageNumber%>'),
+			callback: function (pageNum) {
+				loader.page(pageNum + 1);
+			}
+		};
+
+		Shop.pagination(pgOpt);
+
+		$('#js_search_btn').on('click', function(){
+			loader.search();
+		});
+
+		/* 监听回车 */
+		$('#js_search_form').on('keyup', 'input', function(event) {
+			var keycode = event.which;
+			if (keycode == 13) {
+				loader.search();
+			}
+		});
+	});
+
+</script>
+<% include('../../common/end') %>

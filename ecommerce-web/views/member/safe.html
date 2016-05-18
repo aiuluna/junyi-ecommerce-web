@@ -1,0 +1,629 @@
+<% include('../common/begin') %>
+<link rel="stylesheet" href="css/member.css" type="text/css"/>
+<link rel="stylesheet" href="css/lq.datetimepick.css" type="text/css"/>
+<% include('../common/header') %>
+
+<% include('./frame_begin') %>
+
+<h4 class="mbtit">安全中心</h4>
+<!--<div class="safeL1">
+	安全级别：<span class="sfico1" title="低"></span><span class="red ml40">建议您启动全部安全设置，以保障账户及资金安全。</span>
+</div>
+<div class="safeL1">
+	安全级别：<span class="sfico2" title="中"></span><span class="yel ml40">建议您启动全部安全设置，以保障账户及资金安全。</span>
+</div>
+<div class="safeL1">
+	安全级别：<span class="sfico3" title="高"></span><span class="grey5 ml40">您的账户很安全。</span>
+</div>-->
+<dl class="sfDl">
+<!--	<dd>
+		<a href="javascript:void(0)" class="fr sf-password">修改</a>
+		<span class="cg1"><i class="cgico1"></i>登录密码</span>
+		<span>互联网账号存在被盗风险，建议您<i class="yel">定期更改密码以保护账户安全</i>。</span>
+	</dd>-->
+	<dd>
+		<a href="javascript:void(0)" class="fr sf-password">修改</a>
+		<span class="cg1"><i class="cgico3"></i>登录密码</span>
+		<span>您的账户很安全。</span>
+	</dd>
+	<dd>
+		<a href="javascript:void(0)" class="fr sf-phone">修改</a>
+		<span class="cg1"><i class="cgico3"></i>手机验证</span>
+		<span><i class="grey">您的验证手机号：</i><%=#order_util.maskMobile(_user.mobile)%></span>
+	</dd>
+
+	<%if(_user.emailVerified=='Y'){%>
+		<dd>
+			<a href="javascript:void(0)" class="fr sf-email">修改</a>
+			<span class="cg1"><i class="cgico3"></i>邮箱验证</span>
+			<span>已通过验证。</span>
+		</dd>
+	<%}else{%>
+		<dd>
+			<a href="javascript:void(0)" class="fr sf-email">验证</a>
+			<span class="cg1"><i class="cgico1"></i>邮箱验证</span>
+			<span>验证后，可用于账号登录。</span>
+		</dd>
+	<%}%>
+</dl>
+<h4 class="mbtit mbtom15">温馨提示</h4>
+<div class="plr15">
+	1.确认您登录的是蚂蚁海购网址http://www.mayihg.com/，注意防范进入钓鱼网站，不要轻信各种通讯工具发送的商品或支付链接，谨防网购诈骗。<br/>
+	2.建议您安装杀毒软件，并定期更新操作系统等软件补丁，确保账户及交易安全。
+</div>
+
+<div id="fullbg"></div>
+<div class="pop sfDiv" id="sf_resetPwd" tabindex="-1">
+	<a href="javascript:void(0)" class="pop-close" data-action="resetPwd">×</a>
+	<p class="popTit">修改登录密码</p>
+	<table cellpadding="0" cellspacing="0" width="100%" class="sfTab">
+		<tr>
+			<th width="120"><em class="red">*</em>当前登录密码：</th>
+			<td>
+				<input type="password" value="" name="" class="ipt sf-password-old" id="old_password" />
+				<p class="lg-error"></p>
+			</td>
+		</tr>
+		<tr>
+			<th><em class="red">*</em>新密码：</th>
+			<td>
+				<input type="password" data-id="1" value="" class="ipt sf-password-new"/>
+				<p class="lg-error"></p>
+			</td>
+		</tr>
+		<tr>
+			<th><em class="red">*</em>确认新密码：</th>
+			<td>
+				<input type="password" data-id="2" value="" class="ipt sf-password-new" id="new_pwd_again"/>
+				<p class="lg-error"></p>
+			</td>
+		</tr>
+		<tr>
+			<th>&nbsp;</th>
+			<td><a href="javascript:void(0)" class="redbtn reset-sumbit" id="resetPwd_sumbit">确&nbsp;&nbsp;认</a></td>
+		</tr>
+	</table>
+</div>
+
+<!--更换手机 1-->
+<div class="pop sfPhoneDiv" id="sf_resetMobile" tabindex="-1">
+	<a href="javascript:void(0)" class="pop-close" data-action="resetMobile">×</a>
+	<p class="popTit mbtom15">更换手机号</p>
+	<!--step1-->
+	<div id="step1" style="display:block;">
+		<div class="tct flow">
+			<span class="red"><i class="flows2">1</i>更换手机号</span><span><i class="flows3">2</i>完成</span>
+		</div>
+		<table cellpadding="0" cellspacing="0" width="100%" class="sfTab">
+			<tr>
+				<th width="105" valign="top"><em class="red">*</em>密码：</th>
+				<td>
+					<input type="password" value="" name="" class="ipt sf-password-old" id="sfpassword"/>
+					<p class="lg-error"></p>
+				</td>
+			</tr>
+			<tr>
+				<th width="105" valign="top"><em class="red">*</em>设置新手机号：</th>
+				<td>
+					<input type="text" value="" name="" data-action="resetMobile" style="width:150px" class="ipt sf-phone-input"/>
+					<a href="javascript:void(0)" tabindex="-1" style="float:right;margin-right:44px;height:36px;margin-top:0px" class="clickyzm sf-sendMobileYzm">点击获取验证码</a>
+					<p class="lg-error"></p>
+				</td>
+			</tr>
+			<tr>
+				<th><em class="red">*</em>验证码：</th>
+				<td>
+					<input type="text" value="" style="width:150px" name="" class="ipt sf-mobileYzm-input"/>
+					<a style="margin-left:44px;" tabindex="-1" href="javascript:void(0)" class="redbtn reset-sumbit" id="resetMobile_sumbit">确&nbsp;&nbsp;认</a>
+					<p class="lg-error"></p>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<!--step2-->
+	<div id="step2" style="display:none;">
+		<div class="tct flow">
+			<span class="red"><i class="flows1">1</i>更换手机号</span><span class="red"><i class="flows1">2</i>完成</span>
+		</div>
+		<div class="scspad">
+			<p class="scsico">恭喜您，手机号修改成功,需要重新登录账户。</p>
+			<!--			<p>最新安全评级：<i class="red f16">低</i></p>
+            <p class="light-grey">你的账户安全级别还能提升哦，快去账户安全 完善其它安全设置提高评级吧！</p>-->
+		</div>
+	</div>
+</div>
+
+<div class="pop sfMailDiv" id="safe_wrapper" tabindex="-1">
+	<a href="javascript:void(0)" class="pop-close" data-action="emptyHtml">×</a>
+	<div id="safe_detail_wrapper"></div>
+</div>
+<% include('./frame_end') %>
+
+<% include('../common/footer_member') %>
+<script type="text/javascript">
+	$(function(){
+		var check_util = function (){
+			var mobile_flag = false;
+			var pwd_flag = false;
+			var new_pwd_flag = false;
+			var again_new_pwd_flag = false;
+			var yzm_flag = false;
+ 			var errorArr = [];
+			var resetMobile_data = {};
+			var resetPwd_data = {};
+			var temp_pwd = '';
+			var temp_pwd_again = '';
+
+			function showErrorMessage(selector,message){
+				selector.parent().addClass('lgHold');
+				selector.siblings('.lg-error').html(message);
+				errorArr.push(selector);
+			}
+
+			function setPwdFlag($sfpassword,flag){
+				if($sfpassword.attr('data-id')==='1'){
+					new_pwd_flag = flag;
+					temp_pwd = $sfpassword.val();
+				}else if($sfpassword.attr('data-id')==='2'){
+					again_new_pwd_flag = flag;
+					temp_pwd_again = $sfpassword.val();
+				}else{
+					pwd_flag = flag;
+					resetPwd_data.oldPassword = $sfpassword.val();
+					resetMobile_data.password = $sfpassword.val();
+				}
+			}
+
+			function check_pwd($sfpassword){
+				if (!$sfpassword.val() || $sfpassword.val().length < 6) {
+					showErrorMessage($sfpassword, '您输入的密码长度不够，请重新输入');
+					setPwdFlag($sfpassword,false);
+				}else{
+					setPwdFlag($sfpassword,true);
+				}
+			}
+
+			function check_newPwd($newPwd){
+				$newPwd.each(function(index,item){
+					check_pwd($(item));
+					if(new_pwd_flag&&again_new_pwd_flag){
+						if(temp_pwd===temp_pwd_again){
+							resetPwd_data.newPassword = temp_pwd_again;
+							$('#new_pwd_again').keydown();
+						}else{
+							again_new_pwd_flag = false;
+							showErrorMessage($('#new_pwd_again'), '输入的密码不同');
+						}
+					}
+				});
+			}
+
+			function check_mobileRex($sfphone){
+				var myreg = /^(1[34578])\d{9}$/;
+				if(!myreg.test($sfphone.val()) || $sfphone.val() == ''){
+					showErrorMessage($sfphone,'您输入的手机号有误，请重新输入');
+					mobile_flag = false;
+				}else{
+					resetMobile_data.mobile = $sfphone.val();
+					mobile_flag = true;
+				}
+				check_send($sfphone.closest('table').find('.sf-sendMobileYzm'));
+			}
+
+			function check_yzm($yzm){
+				if(!sendMobileYzm.getClickYzm()){
+					showErrorMessage($yzm,'请点击获取验证码');
+					return;
+				}
+				if($yzm.val()&&$yzm.val().length===6){
+					resetMobile_data.mobileCode = $yzm.val();
+					yzm_flag = true;
+				}else{
+					yzm_flag = false;
+					showErrorMessage($yzm,'您输入的验证码长度不够不对，请重新输入');
+				}
+			}
+
+			function check_send($sfphoneSendYzm){
+				if(!sendMobileYzm.getCountdown()){
+					$sfphoneSendYzm.css({background:''}).text('点击获取验证码');
+					$sfphoneSendYzm.on('click',sendMobileYzm.sendYzm);
+				}
+			}
+
+			function getMobile_flag(){
+				return mobile_flag;
+			}
+
+			function getResetMobile_data(){
+				return resetMobile_data;
+			}
+
+			function getResetPwd_data(){
+				return resetPwd_data;
+			}
+
+			function getErrorArr(){
+				return errorArr;
+			}
+
+			function setFalseFlag(){
+				mobile_flag = false;
+				pwd_flag = false;
+				yzm_flag = false;
+				resetMobile_data = {};
+			}
+
+			function setFalsePwdFlag(){
+				new_pwd_flag = false;
+				again_new_pwd_flag = false;
+				pwd_flag = false;
+				resetPwd_data = {};
+			}
+
+			function check_resetMobile(){
+				if(!mobile_flag) check_mobileRex($('#sf_resetMobile .sf-phone-input'));
+				if(!pwd_flag) check_pwd($('#sfpassword'));
+				if(!yzm_flag) check_yzm($('#sf_resetMobile .sf-mobileYzm-input'));
+				if(mobile_flag&&pwd_flag&&yzm_flag) return true;
+			}
+
+			function check_resetPwd(){
+				if(!pwd_flag) check_pwd($('#old_password'));
+				if(!new_pwd_flag||!again_new_pwd_flag) check_newPwd($('.sf-password-new'));
+				if(pwd_flag&&new_pwd_flag&&again_new_pwd_flag) return true;
+			}
+
+			return {
+				setFalseFlag:setFalseFlag,
+				getResetMobile_data:getResetMobile_data,
+				getResetPwd_data:getResetPwd_data,
+				getMobile_flag:getMobile_flag,
+				check_mobileRex:check_mobileRex,
+				check_pwd:check_pwd,
+				check_newPwd:check_newPwd,
+				showErrorMessage:showErrorMessage,
+				check_send:check_send,
+				check_yzm:check_yzm,
+				check_resetMobile:check_resetMobile,
+				getErrorArr:getErrorArr,
+				setFalsePwdFlag:setFalsePwdFlag,
+				check_resetPwd:check_resetPwd
+			}
+		}();
+
+		var sendMobileYzm = function(){
+			var countdown = false;
+			var clickSendYzm = false;
+			var countdownForYzm_flag = false;
+
+			function sendYzm() {
+				clickSendYzm = true;
+				var $sfphoneSendYzm = $(this);
+				var $sfPhone = $sfphoneSendYzm.closest('table').find('.sf-phone-input');
+				var action = $sfPhone.attr('data-action');
+				if (!check_util.getMobile_flag()) {
+					check_util.showErrorMessage($sfPhone,'您输入的手机号有误，请重新输入');
+					return;
+				}
+				if (countdown) return; /* 距离上次发送不足60秒*/
+				disablesfphoneSendYzm();
+				$.ajax({
+					method: "POST",
+					url: "/passport/"+action.toLowerCase()+"/verifyCode/" + $sfPhone.val(),
+					dataType: "json"
+				}).done(function(json) {
+					if (!json.success) {
+						switch(action){
+							case 'resetPwd':
+								check_util.showErrorMessage($sfphoneSendYzm, json.error.message);
+								break;
+							case 'resetMobile':
+								check_util.showErrorMessage($sfPhone, json.error.message);
+								break;
+						}
+						enablesfphoneSendYzm();
+						return;
+					}
+					check_util.showErrorMessage($sfphoneSendYzm, '验证码已发送至您的手机(10分钟内有效)');
+					startCountdownForYzm($sfphoneSendYzm);
+				}).fail(function() {
+					check_util.showErrorMessage($sfphoneSendYzm, '暂时无法发送验证码到您的手机，请稍后再试！');
+					enablesfphoneSendYzm();
+				});
+			}
+
+			function startCountdownForYzm($sfphoneSendYzm) {
+				var count = 60;
+				/* countdown = true; */
+				$sfphoneSendYzm.css("background-color", "rgb(204, 204, 204)");
+
+				function timerForYzm() {
+					if (count === 0) {
+						/* countdown = false; */
+						enablesfphoneSendYzm();
+						check_util.check_send($sfphoneSendYzm);
+						return;
+					}
+					$sfphoneSendYzm.text(count + "秒后重试");
+					count--;
+					var id_setTimeout = setTimeout(timerForYzm, 1000);
+					if(countdownForYzm_flag){
+						clearTimeout(id_setTimeout);
+						enablesfphoneSendYzm();
+						check_util.check_send($sfphoneSendYzm);
+						countdownForYzm_flag = false;
+					}
+				}
+				timerForYzm();
+			}
+
+			function stopCountdownForYzm(){
+				if(countdown){
+					countdownForYzm_flag = true;
+				}else{
+					countdownForYzm_flag = false;
+				}
+			}
+			function getCountdown(){
+				return countdown;
+			}
+			function disablesfphoneSendYzm() {
+				countdown = true;
+			}
+
+			function enablesfphoneSendYzm() {
+				countdown = false;
+			}
+
+			function getClickYzm(){
+				return clickSendYzm;
+			}
+
+			function setClickSendYzm(){
+				clickSendYzm = false;
+			}
+			return{
+				sendYzm:sendYzm,
+				getCountdown:getCountdown,
+				getClickYzm:getClickYzm,
+				stopCountdownForYzm:stopCountdownForYzm,
+				setClickSendYzm:setClickSendYzm
+			}
+		}();
+		var resetMobileAjax = function(){
+			var success = function(result){
+				$('#step1').hide();
+				$('#step2').show();
+				$('#sf_resetMobile').focus();
+				$('.pop-close').on('click',function(){
+					window.location.href = '/passport-forceLogin.html';
+				});
+			};
+
+			var error = function(result){
+				var _error = result.error;
+				switch (_error.code){
+					case 205:
+						check_util.showErrorMessage($('#sfpassword'),_error.message);
+						break;
+					case 203:
+						check_util.showErrorMessage($('#sf_resetMobile .sf-mobileYzm-input'), _error.message);
+						break;
+				}
+			};
+			function resetMobile(){
+				var data = check_util.getResetMobile_data();
+				var opt ={
+					data:data,
+					url:'/passport/resetMobile',
+					success:success,
+					error:error
+				};
+				Shop.post(opt);
+			}
+			return {
+				resetMobile:resetMobile
+			}
+		}();
+
+		var resetPwdAjxa = function(){
+			var success = function(result){
+				ShopAlert.alert('修改密码','修改密码成功,用户需要重新登录',function(){
+					window.location.href = '/passport-forceLogin.html';
+				},
+				{
+					after:function(dialog){
+						dialog.attr('tabindex',-1);
+						dialog.focus();
+						dialog.keydown(function(event){
+							switch(event.keyCode || event.which){
+								case 13:
+								case 27:
+									window.location.href = '/passport-forceLogin.html';
+									break;
+							}
+						});
+					}
+				});
+			};
+			var error = function(result){
+				var _error = result.error;
+				switch (_error.code){
+					case 301:
+						ShopAlert.alert('错误','旧密码或者新密码不能为空');
+						break;
+					case 304:
+						ShopAlert.alert('错误','当前用户不存在',function(){
+							window.location.href = '/passport-forceLogin.html';
+						});
+						break;
+					case 205:
+						check_util.showErrorMessage($('#old_password'), _error.message);
+						break;
+				}
+			};
+			function resetPwd(){
+				var data = check_util.getResetPwd_data();
+				var opt ={
+					data:data,
+					url: "/passport/resetOldPwd",
+					success:success,
+					error:error
+				};
+				Shop.post(opt);
+			}
+			return {
+				resetPwd:resetPwd
+			}
+		}();
+
+		var rest_sumbit = function(){
+
+			function resetMobile(){
+				if(!check_util.check_resetMobile()){
+					return false;
+				}
+				resetMobileAjax.resetMobile();
+			}
+
+			function resetPwd(){
+				if(!check_util.check_resetPwd()){
+					return false;
+				}
+				resetPwdAjxa.resetPwd();
+			}
+			return {
+				resetMobile:resetMobile,
+				resetPwd:resetPwd
+			};
+		}();
+
+		$(':input').keydown(function(){
+			$(this).parent().removeClass('lgHold');
+		});
+
+		$('.sf-password-old').on('blur',function(){
+			check_util.check_pwd($(this));
+		});
+		$('.sf-password-new').on('blur',function(){
+			check_util.check_newPwd($(this));
+		});
+		$('.sf-phone-input').on('blur',function(){
+			check_util.check_mobileRex($(this));
+		});
+		$('.sf-mobileYzm-input').on('blur',function(){
+			check_util.check_yzm($(this));
+		});
+		$('#resetMobile_sumbit').on('click',function(){
+			check_util.check_resetMobile();
+			rest_sumbit.resetMobile();
+		});
+		$('#resetPwd_sumbit').on('click',function(){
+			check_util.check_resetPwd();
+			rest_sumbit.resetPwd();
+		});
+
+		$('.pop-close').on('click',function(){
+			var action = $(this).attr('data-action');
+			switch(action){
+				case 'resetPwd':
+					emptyRestPwd();
+					break;
+				case 'resetMobile':
+					emptyRestMobile();
+					break;
+				case 'emptyHtml':
+					emptyHtml();
+					break;
+			}
+		});
+
+		$('#sf_resetPwd,#sf_resetMobile,#safe_wrapper').keydown(function(event){
+			switch(event.keyCode || event.which){
+				case 13:
+					$(this).find('.reset-sumbit').trigger('click');
+					break;
+				case 27:
+					$(this).focus().find('.pop-close').trigger('click');
+					break;
+			}
+		});
+
+		function emptyRestPwd(){
+			check_util.setFalseFlag();
+			check_util.setFalsePwdFlag();
+			emptyCommon($('#sf_resetPwd :input'));
+		}
+
+		function emptyRestMobile(){
+			$('#step1').show();
+			$('#step2').hide();
+			check_util.setFalseFlag();
+			emptyCommon($('#step1 :input'));
+		}
+
+		function emptyCommon($input){
+			$input.each(function(){
+				$(this).val('');
+			});
+			$.each(check_util.getErrorArr(),function(index,item){
+				item.keydown();
+			});
+			sendMobileYzm.stopCountdownForYzm();
+			sendMobileYzm.setClickSendYzm();
+			check_util.check_send($('.sf-sendMobileYzm'));
+		}
+
+
+		$(".sf-password").click(function(){
+			$("#fullbg,.sfDiv").show();
+			$("#sf_resetPwd").focus();
+		});
+
+		$(".sf-phone").click(function(){
+			$("#fullbg,.sfPhoneDiv").show();
+			$("#sf_resetMobile").focus();
+		});
+
+		$(".sfDl dd:last").css("border-bottom","none");
+
+		check_util.check_send($('.sf-sendMobileYzm'));
+
+		var initHtml = {
+			init:function sfOption(){
+				var sf_cache = {};
+				var _key;
+				function success(html) {
+					sf_cache[_key] = html;
+					var $wrapper = $("#safe_wrapper");
+					$("#safe_detail_wrapper",$wrapper).html(html);
+					$("#fullbg").show();
+					$wrapper.show().focus();
+				}
+				var options = {".sf-email":'/member/safe/email'};
+				for(var key in options){
+					$(key).click(function(){
+						if(sf_cache[key]){
+							success(sf_cache[key]);
+						}else{
+							_key = key;
+							var opt ={
+								dataType: 'html',
+								url:options[key],
+								success:success
+							};
+							Shop.get(opt);
+						}
+					});
+				}
+			}
+		};
+
+		function emptyHtml(){
+			$("#safe_detail_wrapper",$("#safe_wrapper")).empty();
+		}
+		initHtml.init();
+	});
+</script>
+<% include('../common/end') %>

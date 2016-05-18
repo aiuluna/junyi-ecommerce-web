@@ -1,0 +1,277 @@
+<% include('../common/begin') %>
+<link rel="stylesheet" href="css/member.css" type="text/css"/>
+
+<% include('../common/header') %>
+
+<% include('./frame_begin') %>
+
+<h4 class="mbtit">我的优惠券</h4>
+<div class="p20 pre">
+  输入兑换码<input type="text" value="" name="" class="ipt mlr20" id="js_coupon_code"/><a href="javascript:void(0)" class="redbtn f18" id="js_coupon_obtain">兑换</a>
+  <p class="wTip" id="js_coupon_error" style="display:none"></p>
+</div>
+
+<!--领取优惠券-->
+<div class="mtop30" id="js_batch_slider" style="display:none">
+  <div class="picScrollCoupon">
+    <div class="hd">
+      <a href="javascript:void(0)" class="prev"></a>
+      <a href="javascript:void(0)" class="next"></a>
+    </div>
+    <div class="bd" id="js_batch_result">
+
+    </div>
+  </div>
+</div>
+<!---->
+
+<div class="ptop30">
+  <!--<a href="member-coupon-center.html" class="fr red mtop5">领取优惠券 &gt;</a>-->
+
+  <div class="pgSpan f18" id="js_coupon_select">
+    <span class="on" data-value="NOT_USED">可使用</span>
+    <span data-value="USED">已使用</span>
+    <span data-value="EXPIRED">已过期</span>
+  </div>
+  <div class="pgDiv" id="js_coupon_list">
+    <table cellpadding="0" cellspacing="0" width="100%" class="tgtable brdtab">
+      <tr>
+        <th width="240">优惠券名称</th>
+        <th width="110">满足金额</th>
+        <th width="110">面值</th>
+        <th width="260">使用说明</th>
+        <th>有效期</th>
+      </tr>
+    </table>
+    <table cellpadding="0" cellspacing="0" width="100%" class="tgtable" id="js_coupon_result"></table>
+  </div>
+  <div class="rtl" id="js_pagination" style="display:none"></div>
+</div>
+
+<% include('./frame_end') %>
+
+<% include('../common/footer_member') %>
+<script type="text/javascript" src="js/lib/jquery.pagination.js"></script>
+<script type="text/javascript" src="js/lib/jquery.SuperSlide.2.1.2.js"></script>
+<script type="text/javascript" src="js/lib/template.js"></script>
+<script type="application/x-template" id="js_coupon_row_tmpl">
+  <tr>
+    <td width="240"><p class="textover" title="{{coupon.name}}" style="width:240px;">{{coupon.name}}</p></td>
+    <td width="110">{{coupon.amountExceed > 0 ? '¥'+coupon.amountExceed : '无限制'}}</td>
+    <td width="110">¥{{coupon.amountDiscount}}</td>
+    <td width="260">
+      <div class="instructions">
+        <p class="vouOver">{{coupon.description}}</p>
+        <div class="vouDetail">
+          <span class="arrUp"></span>
+          <p>{{coupon.description}}</p>
+        </div>
+      </div>
+    </td>
+    <td>{{coupon.startTime | formatDate:'yy.MM.dd hh:mm'}}-{{coupon.endTime | formatDate:'yy.MM.dd hh:mm'}}</td>
+  </tr>
+</script>
+<script type="application/x-template" id="js_batch_col_tmpl">
+  <li data-rcode="{{batch.redeemCode}}">
+    <div class="cpStyle {{batch.level}} {{batch.countRemaining<=0 || batch.handout >= batch.restrictNumber? 'cpEnd': ''}}">
+      <span class="cpSname textover" title="{{batch.name}}">{{batch.name}}</span>
+      {{if batch.countRemaining <= 0}}
+      <span class="cpOver"></span>
+      <span class="oTip">已领完</span>
+      {{else if batch.handout >= batch.restrictNumber}}
+      <span class="cpHave"></span>
+      <span class="oTip">已领取</span>
+      {{/if}}
+
+      <p class="ptop50">
+        ¥<span class="f40">{{batch.amountDiscount}}</span>
+      </p>
+      <p>
+        【{{if batch.amountExceed > 0}}
+        消费满{{batch.amountExceed}}元使用
+        {{else}}
+        无限制
+        {{/if}}】
+      </p>
+      <p class="f12">{{batch.effectiveStartTime | formatDate:'yy.MM.dd hh:mm'}}-{{batch.effectiveEndTime | formatDate:'yy.MM.dd hh:mm'}}</p>
+    </div>
+  </li>
+</script>
+<script type="text/javascript">
+  $(function() {
+
+    /*使用说明显示tip*/
+    $('#js_coupon_list').on('mouseover', '.instructions', function() {
+      $(this).find(".vouDetail").show();
+      vouOver();
+    }).on('mouseout', '.instructions', function() {
+      $(this).find(".vouDetail").hide();
+      vouOver();
+    });
+
+    function vouOver(){
+      $(".vouDetail").each(function(){
+        var vH = $(this).height();
+        if(vH > 150){
+          $(this).find("p").css({
+            "height":"160px",
+            "overflow-y":"scroll"
+          });
+        }
+      });
+    }
+
+    /*我的优惠券，默认选择可使用*/
+    var rowTmpl = ShopUtil.getTemplateById('js_coupon_row_tmpl');
+    var couponLoader = ShopLoader.init({
+      pageSelector: '#js_pagination',
+      method: 'POST',
+      url: '/member-coupon-my.html',
+      getCriteria: function() {
+        return {
+          status: $.trim($('#js_coupon_select').find('.on').data('value'))
+        }
+      },
+      render:function(json) {
+        var htmlArr = [];
+        var pageData = json.data.pageData;
+
+        if (json.data.totalCount > 0) {
+          for (var i = 0, len = pageData.length; i < len; i++) {
+            var coupon = pageData[i];
+            htmlArr.push(rowTmpl({coupon: coupon, ShopUtil: ShopUtil}));
+          }
+
+          $('#js_coupon_result').html(htmlArr.join(''));
+        } else {
+          $('#js_coupon_result').html('<tr><td colspan="5">暂时没有符合要求的记录</td></tr>');
+        }
+        if(json.data.totalPages > 1) {
+          $('#js_pagination').show();
+        } else {
+          $('#js_pagination').hide();
+        }
+        $('#js_coupon_error').hide();
+      }
+    });
+
+    $('#js_coupon_select').on('click', '.on', function() {
+      couponLoader.search();
+    });
+
+    $('#js_coupon_select .on:first').trigger('click');
+
+    /*兑换优惠券*/
+    $('#js_coupon_obtain').on('click', function() {
+      var rcode = $.trim($('#js_coupon_code').val());
+      if(!rcode) {
+        $('#js_coupon_error').text("请填写正确的兑换码").show();
+        return;
+      }
+
+      var opt = {
+        url:'/coupon/obtain/redeem',
+        data: {rcode : rcode},
+        success:function(coupon) {
+          if(coupon) {
+            couponLoader.search();
+            batchLoader.search();
+            ShopAlert.alert( "恭喜您，领取成功！");
+          }
+        },
+        error: function(json) {
+          $('#js_coupon_error').text((json.error.message)).show();
+        }
+      };
+
+      Shop.post(opt);
+    });
+
+
+    /*领取优惠券*/
+    var colTmpl = ShopUtil.getTemplateById('js_batch_col_tmpl');
+    var batchLoader = ShopLoader.init({
+      pageSelector: '',
+      method: 'POST',
+      url: '/member-coupon-center.html',
+      getCriteria: function() {
+        return {}
+      },
+      render:function(json) {
+        var htmlArr = [];
+        var pageData = json.data.pageData;
+
+        $('#js_batch_result').html('');
+        if (json.data.totalCount > 0) {
+          for (var i = 0, len = pageData.length; i < len; i++) {
+            var batch = pageData[i];
+            var discount = batch.amountDiscount || 0, level = '';
+            if (discount < 50) {
+              level = 'cpyel';
+            } else if (discount >= 50 && discount < 100) {
+              level = 'cpred';
+            } else if (discount >= 100 && discount < 200) {
+              level = 'cpblue';
+            } else {
+              level = 'cpviolet';
+            }
+            batch.level = level;
+            htmlArr.push(colTmpl({batch: batch}));
+          }
+          var ul = $("<ul class='picList'></ul>");
+          ul.html(htmlArr.join(''));
+          ul.appendTo($('#js_batch_result'));
+          $(".picScrollCoupon").trigger('change');
+          $('#js_batch_slider').show();
+        } else {
+          $('#js_batch_result').html('<tr><td colspan="10">暂时没有符合要求的记录</td></tr>');
+          $('#js_batch_slider').hide();
+        }
+      }
+    });
+
+    batchLoader.search();
+
+    $(".picScrollCoupon").on('change', function() {
+      $(this).slide({
+        mainCell:".bd ul",
+        autoPage:true,
+        effect:"leftLoop",
+        autoPlay:false,
+        vis:3,
+        scroll:3,
+        prevCell:".prev",
+        nextCell:".next",
+        pnLoop:true
+      });
+    });
+
+    /*点击领取优惠券*/
+    $('#js_batch_result').on('click', 'li', function() {
+      var icon = $(this).find('.cpHave, .cpOver');
+      if(icon.length) {
+        return;
+      }
+      var rcode = $(this).data('rcode');
+      var opt = {
+        url: '/coupon/obtain/shop',
+        data: {rcode:rcode},
+        success : function () {
+          couponLoader.search();
+          batchLoader.search();
+          ShopAlert.alert("恭喜您，领取成功！");
+
+        },
+        error: function(json) {
+          if(json && json.error) {
+            ShopAlert.alert(json.error.message);
+          }
+        }
+      };
+      Shop.post(opt);
+    });
+
+
+  });
+</script>
+<% include('../common/end') %>

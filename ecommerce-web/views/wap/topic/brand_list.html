@@ -1,0 +1,22 @@
+<%
+for (var j = 0; j < page.pageData.length; ++j) {
+	var product = page.pageData[j];
+%>
+<li>
+	<a href="product-<%=#product.skuId%>.html" class="clearfix">
+		<div class="picImg">
+			<% if (product.activityType === 'ORDER_PROMOTION') { %><span class="actform"><%=product.activityTypeName%></span><% } %>
+			<%=#product_util.renderProductTag(product,'i')%>
+			<%=#product_util.renderProductSaleStatus(product)%>
+			<img data-original="<%=#imageUrl(product.imageUrl,180,180)%>" class="lazy"/>
+		</div>
+		<div class="picInfor">
+			<div class="u-brand light-grey"><%=#product_util.renderProductOriginLogo(product,32,32)%><%=product.productOriginName%>&nbsp;<%=product.freightMethodName%></div>
+			<p class="tit"><%=product.skuName%></p>
+			<p><del class="fr">¥<%=#formatMoney(product.marketPrice)%></del><span class="red f16">¥<%=#formatMoney(product.promotionPrice || product.salePrice)%></span><% if (product.activityType === 'FLASH_SALE' || product.activityType === 'PRODUCT_PROMOTION') { %><span class="actico"><%=#product.activityLabel%></span><% } %></p>
+		</div>
+	</a>
+</li>
+<%
+}
+%>

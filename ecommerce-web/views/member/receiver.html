@@ -1,0 +1,539 @@
+<% include('../common/begin') %>
+
+<link rel="stylesheet" href="css/lq.datetimepick.css" type="text/css"/>
+<link rel="stylesheet" href="css/jquery.bootstrap.popover.css" type="text/css"/>
+<link rel="stylesheet" href="css/jquery.fancybox.css" type="text/css"/>
+<link rel="stylesheet" href="css/member.css" type="text/css"/>
+
+<% include('../common/header') %>
+
+<% include('./frame_begin') %>
+
+<h4 class="mbtit">我的收货地址</h4>
+<div class="mb-line"><a href="javascript:void(0)" class="fr red" id="newadd">新增收货地址+</a>已保存收货地址</div>
+<div class="shAdd">
+	<table cellpadding="0" cellspacing="0" width="100%" id="js_address_table">
+		<tr class="bg-lGrey bbt-e8">
+			<th width="85">收货人</th>
+			<th width="300">收货地址</th>
+			<th width="145">联系电话</th>
+			<th width="185">身份证</th>
+			<th width="190">操作</th>
+		</tr>
+		<%if(addresses && addresses.length > 0) {%>
+		<%
+		for(var i = 0; i < addresses.length; i++){
+			var _addr = addresses[i];
+		%>
+			<tr>
+				<td width="85"><%=_addr.shipTo%></td>
+				<td width="300">
+					<%
+					var _fullAddrArr = [_addr.provinceName, _addr.cityName, _addr.countyName, _addr.address || ''];
+					%>
+					<p class="tleft plr15" style="width: 270px;text-overflow:ellipsis; white-space:nowrap; overflow:hidden;" title="<%=_fullAddrArr.join(' ')%>">
+						<%=_fullAddrArr.join('&ensp;')%>
+					</p>
+				</td>
+				<td width="145"><%=#_addr.mobile%></td>
+				<td width="185"><%=#_addr.idCardNo%></td>
+				<td width="190" data-id="<%=#_addr.id%>" >
+						<span class="mr12"><a href="javascript:void(0)" class="black js-address-action" data-action="view">修改</a> | <a href="javascript:void(0)" data-action="remove" class="black shdel js-address-action ">删除</a></span>
+					<%if(_addr.isDefault == 'N'){%>
+						<span class="cHtml"><a href="javascript:void(0)" data-action="setDefault" class="bemo js-address-action">设为默认地址</a></span>
+					<%}else{%>
+						<span class="cHtml"><i class="almo">默认地址</i></span>
+					<%}%>
+				</td>
+			</tr>
+		<%}%>
+		<%}else{%>
+		<tr><td width="905">还没有添加收货地址</td></tr>
+		<%}%>
+	</table>
+</div>
+<!--编辑收货地址-->
+<div class="plr15">
+	<h4 class="f18 mbtm30" id="add_title">新增收货地址</h4>
+	<h4 class="f18 mbtm30" id="update_title">更新收货地址</h4>
+	<table cellpadding="0" cellspacing="0" width="100%" class="add-tab js-address-form" id="js_address_form">
+		<tr>
+			<th width="125"><em class="red">*</em>收货人：</th>
+			<td>
+				<input type="text" value="" placeholder="请填写使用者真实姓名，长度不超过12个字" class="ipt cName" maxlength="12"/><i class="wrong-tip"></i>
+			</td>
+		</tr>
+		<tr>
+			<th><em class="red">*</em>手机号码：</th>
+			<td>
+				<input type="text" value="" placeholder="请输入手机号码" class="ipt cPhone" maxlength="15"/><i class="wrong-tip"></i>
+			</td>
+		</tr>
+		<tr>
+			<th>固定电话：</th>
+			<td id="telephone">
+				<input type="text" value="" placeholder="区号" class="ipt wd79 js-phone js-phone-zone" maxlength="4"/> - <input type="text" value="" placeholder="电话号码" class="ipt wd170 js-phone js-phone-number" maxlength="10"/> - <input type="text" value="" placeholder="分机号(可选)" class="ipt wd79 js-phone js-phone-ext" maxlength="4"/><i class="wrong-tip"></i>
+			</td>
+		</tr>
+		<tr>
+			<th><em class="red">*</em>所在区域：</th>
+			<td>
+				<div id="js_addr_select">
+					<div class="m_zlxg js-addr-province" id="shengfen">
+						<p title="">选择省份</p>
+						<div class="m_zlxg2">
+							<ul></ul>
+						</div>
+					</div>
+					<div class="m_zlxg js-addr-city" id="chengshi">
+						<p title="">选择城市</p>
+						<div class="m_zlxg2">
+							<ul></ul>
+						</div>
+					</div>
+					<div class="m_zlxg js-addr-county" id="quyu">
+						<p title="">选择区域</p>
+						<div class="m_zlxg2">
+							<ul></ul>
+						</div>
+					</div>
+				</div>
+				<i class="wrong-tip"></i>
+			</td>
+		</tr>
+		<tr>
+			<th valign="top"><em class="red">*</em>详细地址：</th>
+			<td>
+				<textarea maxlength="75" value="" placeholder="无须重复填写省市，小于75字" class="cAdd"></textarea><i class="wrong-tip"></i>
+			</td>
+		</tr>
+		<tr>
+			<th>邮编：</th>
+			<td>
+				<input value="" type="text" number="true" minlength="6" maxlength="6" placeholder="邮政编码为6位有效数字" class="ipt js-zip-code" id="zipCode"/>
+				<i class="wrong-tip"></i>
+			</td>
+		</tr>
+		<tr>
+			<th><em class="red">*</em>身份证号：</th>
+			<td>
+				<input value="" type="text" placeholder="身份证姓名必须与收货人姓名一致" class="ipt cID"/><i class="wrong-tip"></i>
+			</td>
+		</tr>
+		<tr>
+			<th valign="top">身份证正面照：</th>
+			<td>
+				<div class="clearfix js-idcard-top">
+					<div class="cardLeft">
+						<div class="fileBox">
+							<input type="file" size="10" class="fileField3 type-file js-file-upload" name="fileField">
+							<input type="hidden" class="js-idcard-input" id="js_idcard_url_front">
+						</div>
+						<div class="eye" style="display: none;">
+							<a href="javascript:void(0)" class="eyeclose" ></a>
+							<a class="fancybox" href="images/idcardZ.jpg">
+								<img src="images/idcardZ.jpg" class="js-idcard-img1" data-original="images/idcardZ.jpg"/>
+								<span class="bgopacity"></span>
+								<span class="eyeico"></span>
+							</a>
+
+						</div>
+					</div>
+					<div class="cardRight">
+						<p>身份证正面（要求：字迹清晰，四边显示完全）</p>
+						<img src="images/idcardZ.jpg" class="js-idcard-img2" data-original="images/idcardZ.jpg"/>
+					</div>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<th valign="top">身份证反面照：</th>
+			<td>
+				<div class="clearfix js-idcard-top">
+					<div class="cardLeft">
+						<div class="fileBox">
+							<input type="file" size="10" class="fileField3 type-file js-file-upload">
+							<input type="hidden" class="js-idcard-input" id="js_idcard_url_back">
+						</div>
+						<div class="eye" style="display: none;">
+							<a href="javascript:void(0)" class="eyeclose"></a>
+							<a class="fancybox" href="images/idcardF.jpg">
+								<img src="images/idcardF.jpg" class="js-idcard-img1" data-original="images/idcardF.jpg"/>
+								<span class="bgopacity"></span>
+								<span class="eyeico"></span>
+							</a>
+						</div>
+					</div>
+					<div class="cardRight">
+						<p>身份证反面（要求：字迹清晰，四边显示完全）</p>
+						<img src="images/idcardF.jpg" class="js-idcard-img2" data-original="images/idcardF.jpg"/>
+					</div>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<th>&nbsp;</th>
+			<td>
+				<a id="addAddress" href="javascript:void(0)" class="mbBtn mr20" >保存新地址</a>
+				<a id="updateAddress" href="javascript:void(0)" class="mbBtn mr20">更新地址</a>
+				<span class="grey5"><input type="checkbox" value="" name="" class="check"/>设为默认地址</span>
+			</td>
+		</tr>
+	</table>
+</div>
+
+<% include('./frame_end') %>
+
+<% include('../common/footer_member') %>
+<!-- image preview plugin -->
+<script type="text/javascript" src="js/lib/jquery.bootstrap.popover.js"></script>
+<script type="text/javascript" src="js/lib/jquery.fancybox.js"></script>
+<script type="text/javascript" src="js/lib/jquery.ui.widget.js"></script>
+<!-- The File Upload plugin -->
+<%=#outputConditionBegin('if lt IE 9')%>
+<script type="text/javascript" src="js/lib/jquery.iframe-transport.js"></script>
+<%=#outputConditionEnd()%>
+<script type="text/javascript" src="js/lib/jquery.fileupload.js"></script>
+<!-- The File Upload processing plugin -->
+<script type="text/javascript" src="js/lib/jquery.fileupload-process.js"></script>
+<!-- The File Upload validation plugin -->
+<script type="text/javascript" src="js/lib/jquery.fileupload-validate.js"></script>
+<!-- address require shop.common ajax -->
+<script type="text/javascript" src="js/shop.address.js"></script>
+<script type="text/javascript" src="js/shop.ship.address.js"></script>
+<script type="text/javascript">
+$(function(){
+	var changeAction = function(){
+		function addAction(){
+			$("#updateAddress").hide();
+			$("#update_title").hide();
+			$("#addAddress").show();
+			$("#add_title").show();
+		}
+		function updateAction(){
+			$("#updateAddress").show();
+			$("#update_title").show();
+			$("#addAddress").hide();
+			$("#add_title").hide();
+		}
+		return{
+			add:addAction,
+			update:updateAction
+		}
+	}();
+
+
+	changeAction.add();
+
+	var $addrForm = $('#js_address_form');
+	ShopShipAddress.initFieldValidation($addrForm);
+	ShopShipAddress.initAddressSelect({});
+
+var _data = function(){
+
+	function addData(){
+
+		var addrData = $('#js_addr_select').data('$address').getAddress();
+		function setAddr(data, dataKey, type, key) {
+			if (addrData[type] && addrData[type][key]) {
+				data[dataKey] = addrData[type][key];
+			}
+		}
+		function setVal(data, dataKey, selector) {
+			var val = $.trim($(selector).val());
+			if (val) {
+				data[dataKey] = val;
+			}
+		}
+
+		var data = {};
+		setAddr(data, 'provinceId', 'state', 'id');
+		setAddr(data, 'cityId', 'city', 'id');
+		setAddr(data, 'countyId', 'county', 'id');
+		setAddr(data, 'provinceName', 'state', 'name');
+		setAddr(data, 'cityName', 'city', 'name');
+		setAddr(data, 'countyName', 'county', 'name');
+
+		setVal(data, 'realName', '.cName');
+		setVal(data, 'shipTo', '.cName');
+		setVal(data, 'mobile', '.cPhone');
+		setVal(data, 'idCardNo', '.cID');
+		setVal(data, 'address', '.cAdd');
+		setVal(data, 'zipCode', '.js-zip-code');
+		data.isDefault = $('.check').is(':checked')?'Y':'N';
+		$('#telephone').children('input').each(function(index){
+			var number = $(this).val();
+			if(!$.isNumeric(number)){
+				if(index ==1){
+					data.telephone = '';
+				}
+				return;
+			}
+
+			if(index !== 0){
+				data.telephone += '-';
+				data.telephone += number;
+			}else{
+				data.telephone = number;
+			}
+		});
+
+		data.idCardFrontUrl = $('#js_idcard_url_front').val();
+		data.idCardBackUrl = $('#js_idcard_url_back').val();
+
+		return data;
+	}
+	var viewData = function(data,userIdCard){
+		$('.cName').val(data.shipTo);
+		$('.cPhone').val(data.mobile);
+		$('.cID').val(data.idCardNo);
+		$('#zipCode').val(data.zipCode);
+
+		$("#js_addr_select").data('$address').setAddress({
+			state: data.provinceId,
+			city: data.cityId,
+			county: data.countyId
+		});
+		$('.cAdd').val(data.address);
+		if(data.telephone){
+			$.each(data.telephone.split('-'),function(index,item){
+				var v = $('#telephone').children('input').get(index);
+				$(v).val(item);
+			});
+		}
+		data.isDefault === 'Y'&&$('.check').attr("checked","checked");
+		var $form = $('.js-address-form');
+		var uic = userIdCard;
+		var arr = uic ? [uic.idCardFrontUrl, uic.idCardBackUrl] : [];
+		$(_imageOptions.topSelector, $form).each(function(i, v){
+			setImageUrl($(this), arr[i]);
+
+			if (i >= 2) {
+				ShopAlert.alert('出错了', '没有第三张图片需要设置');
+			}
+		});
+	};
+	return {
+		add:addData,
+		view:viewData
+	}
+}();
+var _ajax = function(){
+	function addAddress(){
+		var success = function(result){
+			ShopAlert.alert('新增收货地址','新增成功',function(){
+				location.reload();
+				$('body,html').animate({scrollTop:0},0);
+			});
+		};
+		var opt ={
+			data:_data.add(),
+			url:'/member/user/address/create',
+			success:success
+		};
+		Shop.post(opt);
+	}
+
+	function updateAddress(){
+		var success = function(result){
+			ShopAlert.alert('更新收货地址','更新成功',function(){
+					location.reload();
+					$('body,html').animate({scrollTop:0},0);
+			});
+		};
+		var dataforUpdate = _data.add();
+		dataforUpdate.id = $('#updateAddress').attr('data-id');
+		var opt ={
+			data:dataforUpdate,
+			url:'/member/user/address/update',
+			success:success
+		};
+		Shop.post(opt);
+	}
+
+	function removeAddress(id,ele){
+		var success = function (result) {
+			var $tr = ele.closest("tr");
+			$tr.fadeOut(function(){
+				this.remove();
+				var $table_tr  = $("#js_address_table tr");
+				if($table_tr.length === 1){
+					$("#js_address_table").append('<tr><td width="905">还没有添加收货地址</td></tr>');
+				}
+			});
+		};
+		var opt ={
+			data:{id:id},
+			url:'/member/user/address/delete',
+			success:success
+		};
+		Shop.post(opt);
+	}
+
+	function defaultAddress(id,ele){
+		var success = function (result) {
+			 	var almo = $("<i class='almo'>默认地址</i>");
+			 	var bemo = $("<a href='javascript:void(0)'  data-action='setDefault' class='bemo js-address-action'>设为默认地址</a>");
+			 	var otheralmo = ele.parents("tr").siblings().find(".almo");
+				ele.parent().html(almo);
+				otheralmo.parent(".cHtml").html(bemo);
+		};
+		var opt ={
+			data:{id:id},
+			url:'/member/user/address/default',
+			success:success
+		};
+		Shop.post(opt);
+	}
+
+	function viewAddress(id){
+		var success = function(result){
+			clearForm();
+			changeAction.update();
+			$('#updateAddress').attr('data-id',id);
+			_data.view(result.data.userShippingAddress,result.data.userIdCard);
+			$('html,body').animate({scrollTop: $("#update_title").offset().top}, 500);
+		};
+		var opt ={
+			url:'/member/user/address/view/'+id,
+			success:success
+		};
+		Shop.get(opt);
+	}
+
+	return{
+		add:addAddress,
+		remove:removeAddress,
+		setDefault:defaultAddress,
+		update:updateAddress,
+		view:viewAddress
+	}
+}();
+
+$('#addAddress').on('click',function(){
+	if(ShopShipAddress.validateAddress($addrForm)){
+		_ajax.add();
+	}
+});
+$('#updateAddress').on('click',function(){
+	if(ShopShipAddress.validateAddress($addrForm)){
+		_ajax.update();
+	}
+});
+$('#js_address_table').on('click','.js-address-action',function(){
+	var $this = $(this);
+	var id = $this.closest('td').attr('data-id');
+	var action = $this.data('action');
+	switch (action) {
+		case 'view':
+			_ajax.view(id);
+			break;
+		case 'remove':
+			ShopAlert.confirm('删除收货地址','确认删除', function(yes) {
+				if (yes == 'yes') {
+					_ajax.remove(id, $this);
+				}
+			});
+			break;
+		case 'setDefault':
+			_ajax.setDefault(id, $this);
+			break;
+	}
+});
+$('#newadd').on('click',function(){
+	changeAction.add();
+	$('html,body').animate({scrollTop: $("#add_title").offset().top}, 500);
+	clearForm();
+});
+function clearForm() {
+	var $form = $addrForm;
+	$('.tdHold', $form).removeClass('tdHold');
+	$('input,textarea', $form).val('');
+	$('.eyeclose', $form).trigger('click');
+}
+
+var _imageOptions = {
+	topSelector: '.js-idcard-top',
+	inputSelector: '.js-idcard-input',
+	imageSelector:['img.js-idcard-img1']
+};
+function imageFailHandler($input) {
+	var $top = $input.closest(_imageOptions.topSelector);
+	ShopAlert.alert('上传失败', '上传图片失败', function() {
+		toggleImageWrapper($top, false);
+	});
+}
+
+function resetImageWrapper($top) {
+	toggleImageWrapper($top, false);
+}
+function changeImageUrl($top, arr, previewUrl) {
+	arr = arr || [];
+	$.each(_imageOptions.imageSelector, function(i, v) {
+		var img = $(v, $top);
+		img.attr('src', arr[i] || img.data('original'));
+		img.closest('a').attr('href', previewUrl || img.data('original'));
+	});
+}
+function toggleImageWrapper($top, toggle) {
+	$('.fileBox', $top)[!toggle ? 'show': 'hide']();
+	$('.eye', $top)[toggle ? 'show': 'hide']();
+}
+$('.js-address-form').on('click', '.eyeclose', function() {
+	var $top = $(this).closest(_imageOptions.topSelector);
+	toggleImageWrapper($top, false);
+	setImageUrl($top);
+});
+
+function setImageUrl($top, url) {
+	var input = $(_imageOptions.inputSelector, $top);
+	input.val(url || '');
+	changeImageUrl($top, [
+		url ? '<%=imageUrl("==", 145, 90)%>'.replace("==", url) : null,
+		url ? '<%=imageUrl("==", 290, 180)%>'.replace("==", url) : null,
+	], url ? '<%=imageUrlCrop("==", 600, 380)%>'.replace("==", url) : null);
+
+	toggleImageWrapper($top, !!url);
+}
+$('.js-file-upload').fileupload({
+	url: '/member/image/upload/idcard',
+	dataType: 'text',
+	method:'POST',
+	paramName: 'file',
+	acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
+	maxFileSize: 5242880, /* 5 MB */
+	messages: {
+		maxNumberOfFiles: '只能上传一张图片',
+		acceptFileTypes: '只支持以下图片类型: jpg, jpeg, png',
+		maxFileSize: '文件超过大小 5MB'
+	},
+	done: function (e, data) {
+		var $this = $(this);
+		var $top = $this.closest(_imageOptions.topSelector);
+		if (data.result) {
+			var json = $.parseJSON(data.result);
+			if (json.success) {
+				setImageUrl($top, json.data.url);
+			} else {
+				imageFailHandler($this);
+			}
+		} else {
+			imageFailHandler($this);
+		}
+	},
+	fail: function(e, data){
+		imageFailHandler($(this));
+	}
+}).on('fileuploadprocessalways', function(e, data){
+	if(data.files && data.files.length) {
+		if (data.files[0].error) {
+			ShopAlert.alert('上传失败', '失败原因:&ensp;' + data.files[0].error);
+		}
+	}
+});
+$(".shAdd tr:last").find("td").css("border","none");
+$('.fancybox').fancybox();
+
+});
+</script>
+<% include('../common/end') %>

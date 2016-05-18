@@ -1,0 +1,193 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:void(0)" class="sc-prev" onclick="return historyBack()">&nbsp;</a>
+			完成支付
+		</div>
+	</header>
+	<% } %>
+	<div class="payline">
+		<div class="pL1 clearfix">
+			<span class="payico1"></span>
+			<div class="pL1-right">
+				<p class="f18 black">订单提交成功</p>
+				<p id="js_countdown" data-deadline="<%=#order_util.getOrderExpireTime(order)%>" data-current="<%=#timestamp()%>"></p>
+			</div>
+		</div>
+	</div>
+	<div class="payline">
+		<p class="pL2">支付金额：<span class="red">¥<%=#formatMoney2(order.totalFee+order.adjustFee)%></span></p>
+	</div>
+	<div class="payline">
+		<p class="pL3-tit">选择支付方式</p>
+		<dl class="pLfs" id="js_pay_select">
+			<dd data-type="alipay" data-orderno="<%=order.orderNo%>">
+				<img src="images/alipay.jpg" width="70" height="40" class="fl" />
+				<div class="fs-right">
+					<p>支付宝支付</p>
+					<p class="grey-c9 f12">推荐有支付宝账号的用户使用</p>
+				</div>
+				<i class="paychoose <%=#_isWeixin?'':'becs'%>"></i>
+			</dd>
+			<% if (_isWeixin) { %>
+			<dd data-type="wechat" data-orderno="<%=order.orderNo%>">
+				<img src="images/wxpay.jpg" width="70" height="40" class="fl" />
+				<div class="fs-right">
+					<p>微信支付</p>
+					<p class="grey-c9 f12">推荐安装微信5.0级以上版本使用</p>
+				</div>
+				<i class="paychoose <%=#_isWeixin?'becs':''%>"></i>
+			</dd>
+			<% } %>
+			<dd data-type="allinpay" data-orderno="<%=order.orderNo%>">
+				<img src="images/allinpay.jpg" width="70" height="40" class="fl" />
+				<div class="fs-right">
+					<p>通联支付</p>
+					<p class="grey-c9 f12">银行卡支付</p>
+				</div>
+				<i class="paychoose"></i>
+			</dd>
+			<!--
+			<dd data-type="offline" data-orderno="<%=order.orderNo%>">
+				<img src="images/offlinePay.jpg" width="70" height="40" class="fl" />
+				<div class="fs-right">
+					<p>线下支付</p>
+					<p class="grey-c9 f12">刷卡或现金（仅限部分线下合作商）</p>
+				</div>
+				<i class="paychoose"></i>
+			</dd>
+			-->
+		</dl>
+	</div>
+	<div class="p15"><a href="javascript:void(0)" class="paybtn" id="js_pay_btn">立即支付</a></div>
+</div>
+
+<% include('../common/footer_simple') %>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript">
+$(function() {
+    var jqEl = $('#js_countdown'),
+		deadline = jqEl.attr('data-deadline')-0,
+		currentTimeMillis = jqEl.attr('data-current')-0,
+		remain = deadline - currentTimeMillis,
+		html = '<i class="countdown-remain-m red">-</i>分<i class="countdown-remain-s red"></i>秒';
+	if (remain > 60 * 60 * 1000) html = '<i class="countdown-remain-h red">-</i>小时' + html;
+	if (remain > 24 * 60 * 60 * 1000) html = '<i class="countdown-remain-d red">-</i>天' + html;
+    new CountdownCtrl(jqEl, deadline, onTimeout, {
+		html: '请在' + html + '内完成支付',
+		deadlineMsg: '支付超时，即将跳转到订单详情页',
+		currentTimeMillis: currentTimeMillis
+    }).start();
+
+	function onTimeout() {
+		window.location.href = 'member-orders-view-<%=#order.orderNo%>.html';
+	}
+
+	var $paySelects = $('#js_pay_select');
+	$paySelects.on('click', 'dd', function() {
+		var $this = $(this), $p = $this.find('.paychoose');
+		if (!$p.hasClass('becs')) {
+			$('.paychoose.becs', $paySelects).removeClass('becs');
+			$p.addClass('becs');
+		}
+	});
+
+	$('#js_pay_btn').on('click', function() {
+		var $dd = $('.paychoose.becs', $paySelects).parents('dd');
+		var payType = $dd.data('type');
+		var orderNo = $dd.data('orderno');
+		if (payType === 'alipay') {
+			window.location.href = 'cart-pay-alipay-' + orderNo + '.html';
+		} else if (payType === 'allinpay') {
+			window.location.href = 'cart-pay-allinpay-' + orderNo + '.html';
+		} else if (payType === 'offline') {
+			window.location.href = 'cart-pay-offline-' + orderNo + '.html';
+		}
+		<% if (_isWeixin) { %>
+		if (payType === 'wechat') callWeixinPay();
+		<% } %>
+	});
+});
+<% if (_isWeixin) { %>
+var weixinPayInProgress = false;
+function callWeixinPay() {
+	if (typeof WeixinJSBridge == 'undefined') {
+		ShopPopup.alert('微信支付仅在微信客户端5.0以上版本有效');
+		return;
+	}
+
+	if (weixinPayInProgress) return;
+	weixinPayInProgress = true;
+
+	ShopPopup.popupLoading('支付请求中...');
+	$.ajax({
+		method: 'POST',
+		url: '/wap/cart/pay/wechat',
+		data: {
+			orderNo: '<%=#order.orderNo%>',
+			openId: '<%=#openId%>'
+		},
+		dataType: 'json'
+	}).done(function(json) {
+		weixinPayInProgress = false;
+		ShopPopup.popupLoadingClose();
+		if (json.success) {
+			var data = json.data;
+			if (data.resultCode !== 'SUCCESS') {
+				ShopPopup.alert('支付请求失败');
+				return;
+			}
+			WeixinJSBridge.invoke(
+				'getBrandWCPayRequest',
+				{
+					"appId": data.payParams.appid,
+					"timeStamp": data.payParams.timestampStr,
+					"nonceStr": data.payParams.nonceStr,
+					"package": data.payParams.packageStr,
+					"signType": data.payParams.signType,
+					"paySign": data.payParams.paySign
+				},
+				function(res) {
+					if (!res) return;
+					switch (res.err_msg) {
+					case 'get_brand_wcpay_request:ok':
+						ShopPopup.alert('点击“确定”跳转到订单详情页', function() {
+							window.location.replace('member-orders-view-<%=#order.orderNo%>.html');
+						}, '支付成功');
+						break;
+					case 'get_brand_wcpay_request:fail':
+						reportError(data.payNo, res);
+						ShopPopup.alert('支付发生意外错误', null, '支付失败');
+						break;
+					case 'get_brand_wcpay_request:cancel':
+					default:
+						break;
+					}
+				}
+			);
+		} else {
+			ShopPopup.alert(json.error.message);
+		}
+	}).fail(function() {
+		weixinPayInProgress = false;
+		ShopPopup.popupLoadingClose();
+		ShopPopup.alert('服务器错误，请稍后重试');
+	});
+}
+function reportError(payNo, res) {
+	$.ajax({
+		method: 'POST',
+		url: '/wap/cart/pay/error',
+		data: {
+			payNo: payNo,
+			errorMsg: JSON.stringify(res)
+		}
+	});
+}
+<% } %>
+</script>
+<% include('../common/end') %>

@@ -1,0 +1,84 @@
+<% include('../common/begin') %>
+<link rel="stylesheet" href="css/cart.css" type="text/css"/>
+<% include('../common/header_cart') %>
+
+<!--head-->
+<div id="head" class="wd1090 clearfix">
+	<h1 class="fl"><a href="/"><img src="<%=#staticImgWeb('logo.jpg')%>" alt="" title=""/></a></h1>
+</div>
+<!--content-->
+<div id="content">
+	<div class="wd1090">
+		<div class="payline4">
+			<div class="fr">支付金额：<span class="red f18 weight">¥<%=formatMoney2(order.totalFee+order.adjustFee)%></span></div>
+			<p>订单编号：<%=order.orderNo%></p>
+			<p>请您在提交订单后<span class="red" id="js_order_countdown"><%=order_util.formatOrderExpireTime(order)%></span>内完成支付，否则订单将会自动取消！</p>
+		</div>
+		<div class="wx-pay">
+			<span id="paycode"><img alt="图片渲染失败" src="cart-pay-wechat-qrcode.html" width="256" height="256"/></span>
+		</div>
+		<!--
+		<div style="color:grey;"><a href="cart-checkout-<%=order.orderNo%>.html" target="_self">&lt;上一页</a></div>
+		-->
+	</div>
+</div>
+<% include('../common/footer') %>
+<script type="text/javascript" src="js/shop.alert.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+<script type="text/javascript">
+	$(function() {
+		$("#goTop").hide();
+
+		function checkOrderStatus(){
+			Shop.post({
+				url: '/member/order/status/<%=#order.orderNo%>',
+				success: function(json) {
+					if (json && json.data ) {
+						if (json.data.orderStatus != 'PENDING_PAY' && json.data.payStatus == 'PAID') {
+							window.location.href = 'cart-pay-done-<%=#order.orderNo%>.html';
+						}
+					}
+				}
+			})
+		}
+
+		var delay = 0;
+		var orderNo = '<%=#order.orderNo%>';
+		var futureTime = parseInt('<%=#order_util.getOrderExpireTime(order)%>');
+		var serverTime = parseInt('<%=#order_util.getOrderServerTime()%>');
+		var task = Shop.newCountDownCtrl().create({
+			data: orderNo,
+			futureTime: futureTime,
+			serverTime: serverTime,
+			onTick: function(orderNo, result) {
+
+				var keys = ['day', 'hour', 'minute', 'second'];
+				var units = ['天', '小时', '分', '秒'];
+				var arr = [];
+				for(var i = 0, len = keys.length; i < len; ++i) {
+					var key = keys[i];
+					var val = result[key] || 0;
+					/* 分钟,秒钟 一直显示 */
+					if (val || (key == 'second' || key == 'minute')) {
+						arr[arr.length] = val < 10 ? ('0' + val) : val;
+						arr[arr.length] = units[i];
+					}
+				}
+				$('#js_order_countdown').text(arr.join(''));
+
+				delay++;
+				if (delay >= 30 && delay <= 120 && delay % 15 == 0) {
+					checkOrderStatus();
+				} else if (delay % 30 == 0) {
+					checkOrderStatus();
+				}
+
+			},
+			onTimeout: function(orderNo) {
+				window.location.href = 'member-orders-view-<%=#order.orderNo%>.html';
+			}
+		});
+		task.start();
+	});
+</script>
+<% include('../common/end') %>

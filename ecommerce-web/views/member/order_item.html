@@ -1,0 +1,114 @@
+<%
+var pageData = page.pageData;
+if (pageData && pageData.length) {
+    for(var i = 0, len = pageData.length; i < len; ++i) {
+        var order = pageData[i];
+%>
+
+<div class="order-item">
+<div class="ddTit">
+    <span class=" <%=(order.freightMethodId == 1) ? 'abroad' : 'domestic' %>">
+        <%=order.warehouseName%>&ensp;<%=order.freightMethodName%>
+    </span>
+    <span class="orderNum f12"><i class="grey">订单号：</i><%=#order.orderNo %></span>
+    <span class="singleTime f12"><i class="grey">下单时间：</i><%=#formatDate(order.orderTime, 'YYYY-MM-DD HH:mm:ss')%></span>
+</div>
+<table cellpadding="0" cellspacing="0" width="100%" class="orderTab">
+    <tbody>
+    <tr class="js-order-no" data-order_no="<%=order.orderNo%>">
+        <td width="500" class="ptb0">
+            <table cellpadding="0" cellspacing="0" width="100%" class="intab">
+                <tbody>
+                <%
+                if (order.items && order.items.length) {
+                    for (var j = 0, jlen = order.items.length; j < jlen; ++j) {
+                        var item = order.items[j], extraCss = (j == jlen -1) ? 'no-bottom-border': '';
+                %>
+                <tr>
+                    <td width="310" class="tleft <%=#extraCss%>">
+                        <div class="plr15 clearfix">
+                            <a href="/product-<%=#item.skuId%>.html" target="_blank" class="picImg fl">
+                                <img src="<%=#imageUrl(item.skuImageUrl, 46, 46)%>" height="46" width="46" alt="<%=item.skuName%>" title="<%=item.skuName%>">
+                            </a>
+                            <div class="txtwrap">
+                                <a href="/product-<%=#item.skuId%>.html" target="_blank" class="gdsTit" title="<%=item.skuName%>"><%=item.skuName%></a>
+                            </div>
+                        </div>
+                    </td>
+                    <td width="100" class="<%=#extraCss%>">¥<%=#formatMoney2(item.payPrice)%></td>
+                    <td class="<%=#extraCss%>"><%=#item.quantity%></td>
+                </tr>
+                <%
+                    }
+                } else {
+                %>
+                <tr>
+                    <td colspan="3" class="no-bottom-border">商品清单为空</td>
+                </tr>
+                <%
+                }
+                %>
+                </tbody>
+            </table>
+        </td>
+        <td width="100"><%=order.consignee%></td>
+        <td width="100">
+            <span class="weight">¥<%=#formatMoney2(order.totalFee+order.adjustFee)%></span>
+            <p class="grey f12"><%=#order_util.renderOrderPayType(order.payType)%></p>
+        </td>
+        <td width="100" >
+            <p class="f12">
+                <%=#order_util.renderOrderStatus(order)%>
+            </p>
+        </td>
+        <td>
+            <%=#order_util.renderOrderOperation(order)%>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</div>
+<%
+    }
+} else {
+%>
+
+<div class="nobox ptop160" style="padding:0;margin:50px auto 50px;">
+    <div class="nocon">
+        <p class="f20">您还没有相关的订单</p>
+        <p class="mtop15">可以去看看有哪些想买的，<a href="/" class="nobtn">去逛逛</a></p>
+    </div>
+</div>
+<%
+}
+%>
+
+<script type="text/javascript">
+/* to prevent introduce unnecessary global variables */
+var __init_order_item_popup = function() {
+    <%if(pageData && pageData.length) {%>
+        $('.orderDiv .tabTh').show();
+    <%} else {%>
+        $('.orderDiv .tabTh').hide();
+    <% } %>
+    var pgOpt = {
+        selector: '#js_pagination_orders',
+        pageNumber: parseInt('<%=#page.pageNumber%>'),
+        totalCount: parseInt('<%=#page.totalCount%>'),
+        pageSize: parseInt('<%=#page.pageSize%>'),
+        callback: function (pageNum) {
+            var pagination = $('#js_pagination_orders');
+            var loader = pagination.data('loader');
+            if (loader) {
+                loader.page(pageNum + 1, parseInt('<%=#page.pageSize%>'));
+            } else {
+                if (typeof console == 'object' && typeof console.log == 'function') {
+                    console.log('no loader bind on element #js_pagination_orders');
+                }
+            }
+        }
+    };
+
+    Shop.pagination(pgOpt);
+}();
+</script>

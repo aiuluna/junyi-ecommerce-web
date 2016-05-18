@@ -1,0 +1,72 @@
+<script type="text/javascript">
+if ($.fn.lazyload) {
+	$("img.lazy").lazyload({
+		effect:"show",
+		threshold:200,
+		failure_limit:10
+	});
+}
+
+$(function() {
+	<% if (_cnzz.siteId) { %>
+	var b = document.body;
+	document.write = function(text) {
+		$(b).append(text);
+	};
+	$('.cnzz').attr('id', 'cnzz_stat_icon_<%=#_cnzz.siteId%>');
+	var s2 = document.createElement('script');
+	s2.type = "text/javascript";
+	s2.src = "http://pw.cnzz.com/c.php?id=<%=#_cnzz.siteId%>&l=2";
+	b.appendChild(s2);
+	<% } %>
+
+	<%
+	// 推广链接
+	if (_user) {
+		var userType = _user.type;
+		if (userType === 'DISTRIBUTOR' || userType === 'PROMOTER') {
+	%>
+	userReferralHook(<%=#_user.id%>);
+	<%
+		}
+	}
+	%>
+});
+</script>
+
+<%
+if (_isWeixin) {
+	if (_enableWxShare) {
+%>
+<!--微信分享配置-->
+<script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+<script type="text/javascript" src="js/weixin/sha.js"></script>
+<script type="text/javascript" src="js/weixin/share.js"></script>
+<script type="text/javascript">
+wxShareInit(typeof wxshare_config !== 'undefined' ? wxshare_config : null);
+</script>
+<%
+	}
+%>
+<!--启用/禁用微信分享-->
+<script type="text/javascript">
+if (typeof WeixinJSBridge == "undefined") {
+	if (document.addEventListener) {
+		document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+	} else if (document.attachEvent) {
+		document.attachEvent('WeixinJSBridgeReady', onBridgeReady); 
+		document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+	}
+} else {
+	onBridgeReady();
+}
+function onBridgeReady() {
+	WeixinJSBridge.call("<%=#_enableWxShare?'showOptionMenu':'hideOptionMenu'%>");
+}
+</script>
+<%
+}
+%>
+<span class="cnzz" style="display:none;"></span>
+</body>
+</html>

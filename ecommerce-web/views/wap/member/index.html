@@ -1,0 +1,313 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+
+<div class="wd640">
+    <div class="mbtop">
+        <a href="member-info.html" class="mbhead"><img src="<%=#(user.avatarUrl ? imageUrlCrop(user.avatarUrl, 200, 200) : 'images/defaultAvatar.jpg')%>" width="100%" /></a>
+        <p class="ptop10"><%=(user.name || user.login || user.mobile)%></p>
+        <p class="f12">
+            <%
+                var typeText = '商城会员';
+                if (user.type == 'DISTRIBUTOR') {
+                    typeText = '代理商';
+                } else if ( user.type == 'PROMOTER') {
+                    typeText = '推广员';
+                }
+            %>
+            <%=#typeText%>
+        </p>
+        <a href="member-setting.html" class="setico"></a>
+    </div>
+
+    <% if (user.type === 'PROMOTER') { %>
+    <% if (commission) { %>
+    <div class="bg_white plr15">
+        <p class="mbline"><a href="member-promoter-commission.html"><span class="fr light-grey f12">查看详情<i class="u-rtarr"></i></span><span><i class="agico1"></i>我的佣金</span></a></p>
+        <ul class="yjlist">
+            <li><p class="red f18">¥<%=#formatMoney2(commission.total)%></p><p class="f12">过往金额</p></li>
+            <li><p class="red f18">¥<%=#formatMoney2(commission.settlement)%></p><p class="f12">已提取总额</p></li>
+            <li><p class="red f18">¥<%=#formatMoney2(commission.remaining)%></p><p class="f12">可提取</p></li>
+        </ul>
+    </div>
+    <% } %>
+    <div class="bg_white mb10">
+        <ul class="mbTool">
+            <li>
+                <a href="member-promote.html">
+                    <span class="mbico11"></span>
+                    <div class="tolRight">
+                        <p>推广码</p>
+                        <p class="f12 grey">我的推广码</p>
+                    </div>
+                </a>
+            </li>
+            <li>
+                <a href="member-promoter-account.html">
+                    <span class="mbico12"></span>
+                    <div class="tolRight">
+                        <p>结算账户</p>
+                        <p class="f12 grey">我的结算账户</p>
+                    </div>
+                </a>
+            </li>
+        </ul>
+        <ul class="mbTool">
+            <li>
+                <a href="member-promoter-members.html">
+                    <span class="mbico13"></span>
+                    <div class="tolRight">
+                        <p>下级会员</p>
+                        <p class="f12 grey">去查看</p>
+                    </div>
+                </a>
+            </li>
+            <li>
+                <a href="member-promoter-member_orders.html">
+                    <span class="mbico14"></span>
+                    <div class="tolRight">
+                        <p>会员订单</p>
+                        <p class="f12 grey">去查看</p>
+                    </div>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <% } %>
+
+    <% if (user.type === 'DISTRIBUTOR') { %>
+    <div class="bg_white plr15">
+        <p class="mbline"><a href="member-dist-commission.html"><span class="fr light-grey f12">查看详情<i class="u-rtarr"></i></span><span><i class="agico1"></i>我的佣金</span></a></p>
+        <ul class="yjlist">
+            <li><p class="red f18">¥<%=#formatMoney2(commission.total)%></p><p class="f12">过往金额</p></li>
+            <li><p class="red f18">¥<%=#formatMoney2(commission.settlement)%></p><p class="f12">已提取总额</p></li>
+            <li><p class="red f18">¥<%=#formatMoney2(commission.remaining)%></p><p class="f12">可提取</p></li>
+        </ul>
+    </div>
+    <div class="bg_white mb10">
+        <ul class="mbTool">
+            <li>
+                <a href="member-promote.html">
+                    <span class="mbico11"></span>
+                    <div class="tolRight">
+                        <p>推广码</p>
+                        <p class="f12 grey">我的推广码</p>
+                    </div>
+                </a>
+            </li>
+            <li>
+                <a href="member-dist-account.html">
+                    <span class="mbico12"></span>
+                    <div class="tolRight">
+                        <p>结算账户</p>
+                        <p class="f12 grey">我的结算账户</p>
+                    </div>
+                </a>
+            </li>
+        </ul>
+        <ul class="mbTool">
+            <li>
+                <a href="member-dist-members.html">
+                    <span class="mbico13"></span>
+                    <div class="tolRight">
+                        <p>下级会员</p>
+                        <p class="f12 grey">去查看</p>
+                    </div>
+                </a>
+            </li>
+            <li>
+                <a href="member-dist-member_orders.html">
+                    <span class="mbico14"></span>
+                    <div class="tolRight">
+                        <p>会员订单</p>
+                        <p class="f12 grey">去查看</p>
+                    </div>
+                </a>
+            </li>
+        </ul>
+        <ul class="mbTool">
+            <li>
+                <a href="member-dist-promoter.html">
+                    <span class="mbico15"></span>
+                    <div class="tolRight">
+                        <p>下级推广员</p>
+                        <p class="f12 grey">去查看</p>
+                    </div>
+                </a>
+            </li>
+            <li>
+                <a href="member-dist-promoter_audit.html">
+                    <span class="mbico16"></span>
+                    <div class="tolRight">
+                        <p>推广员审核<span id="dist_promoter_audit" class="dotIco"></span></p>
+                        <p class="f12 grey">待审核：<span id="dist_promoter_audit_num" class="red">0</span></p>
+                    </div>
+                </a>
+            </li>
+        </ul>
+        <ul class="mbTool">
+            <li>
+                <a href="member-dist-commission_audit.html">
+                    <span class="mbico17"></span>
+                    <div class="tolRight">
+                        <p>佣金提取审核<span id="dist_promoter_commission" class="dotIco"></span></p>
+                        <p class="f12 grey">待审核：<span id="dist_promoter_commission_num" class="red">0</span></p>
+                    </div>
+                </a>
+            </li>
+            <li>
+            </li>
+        </ul>
+    </div>
+    <% } %>
+    <div class="bg_white plr15">
+        <p class="mbline"><a href="member-orders-list.html" class="js-status-item"><span class="fr light-grey f12">查看全部订单<i class="u-rtarr"></i></span><span><i class="mbico1"></i>我的订单</span></a></p>
+        <%
+            var _status_arr = [
+                {name: 'PENDING_PAY',  countable: false, text: '待付款', className: 'icon-pay' },
+                {name: 'PENDING_SHIP', countable: false, text: '待发货', className: 'icon-send' },
+                {name: 'PENDING_RECV', countable: false, text: '待收货', className: 'icon-deliver' },
+                {name: 'FINISHED',     countable: false, text: '已完成', className: 'icon-end' },
+                {name: 'CANCELLED',    countable: false, text: '已关闭', className: 'icon-close' }
+            ];
+        %>
+        <ul class="orderact" id="js_status_div">
+            <%
+            for (var i = 0, len = _status_arr.length; i < len; ++i) {
+                var _item = _status_arr[i];
+            %>
+            <li>
+                <a class="js-status-item" href="member-orders-list.html?status=<%=#_item.name%>" data-status="<%=_item.name%>"><% if (_item.countable) {%><i class="actNum"></i><% } %><span class="<%=#_item.className%>"></span><p><%=#_item.text%></p></a>
+            </li>
+            <% } %>
+
+        </ul>
+    </div>
+    <div class="bg_white">
+        <ul class="mbTool">
+            <li>
+                <a href="member-address.html">
+                    <span class="mbico7"></span><div class="tolRight"><p>收货地址</p><p class="f12 grey">我的收货地址</p></div>
+                </a>
+
+            </li>
+            <li>
+                <a href="member-collect.html">
+                    <span class="mbico8"></span><div class="tolRight"><p>收藏商品</p><p class="f12 grey">已收藏: <%=favorite%></p></div>
+                </a>
+            </li>
+        </ul>
+        <ul class="mbTool">
+
+            <li>
+                <a href="member-coupon-my.html">
+                    <span class="mbico18"></span><div class="tolRight"><p>我的优惠券</p><p class="f12 grey">去查看</p></div>
+                </a>
+            </li>
+
+            <li>
+                <a href="member-about.html">
+                    <span class="mbico9"></span><div class="tolRight"><p>关于我们</p><p class="f12 grey">蚂蚁海购</p></div>
+                </a>
+            </li>
+        </ul>
+
+        <%
+        if (user.type === 'MEMBER' && (!user.referralUserId || user.referralUserId == user.distUserId)) {
+        /*
+        1. 代理商的直系会员; 2. 上级推广员为空
+        */
+        %>
+        <ul class="mbTool">
+            <li>
+                <a href="member-promoter-apply.html">
+                    <span class="mbico10"></span><div class="tolRight"><p>推广有礼</p><p class="f12 grey">去申请</p></div>
+                </a>
+            </li>
+            <li></li>
+        </ul>
+        <% } %>
+    </div>
+</div>
+<% if (regCouponCount) { %>
+<!--新人优惠券-->
+<div id="fullbg" style="display:block;"></div>
+<div id="newGift" class="pop" style="display:block;">
+	<a href="javascript:void(0)" class="pClose"></a>
+	<a href="member-coupon-my.html" class="gogift"></a>
+</div>
+<% } %>
+
+<% include('../common/footer') %>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+<script type="text/javascript">
+$(function () {
+	<% if (regCouponCount) { %>
+	BoxAdapt();
+	$('#newGift .pClose').click(function() {
+		$('#fullbg').remove();
+		$('#newGift').remove();
+	});
+	<% } %>
+
+	function getOrderCount() {
+		var handler = function(json){
+			$('a.js-status-item', $('#js_status_div')).each(function(i, v){
+				var $a = $(v);
+				var status = $a.data('status');
+				if (status === 'PENDING_PAY' || status === 'PENDING_SHIP' || status === 'PENDING_RECV') {
+					var $icon = $('.actNum', $a);
+					var count = json.data[status] ? json.data[status] : 0;
+					if (count) {
+						if (!$icon.length) {
+							$a.prepend('<i class="actNum">' + (count > 100 ? '···' : count) + '</i>');
+						}
+					} else {
+						$icon.remove();
+					}
+				}
+			});
+		};
+		Shop.post({
+			url: '/member/orders/count',
+			dataType:'json'
+		}).done(handler);
+	}
+
+	getOrderCount();
+	
+	/*得到未审核数量*/
+	function getApproveCount() {
+		var userObjId = <%=#user.id%>;
+		var userType = '<%=#user.type%>';
+		if (userType === 'DISTRIBUTOR') {  /*代理商*/
+			var opt = {
+		        url: '/member/approve/count',
+		        data: {userId : userObjId},
+		        success : function (json) {
+		        	if (json.success) {
+		        		if(json.data.approvePromoterCount <= 0) {
+		        			$("#dist_promoter_audit").css("display", "none");
+		        		}
+		        		if(json.data.approveDrawCount <= 0) {
+		        			$("#dist_promoter_commission").css("display", "none");
+		        		}
+		        		$("#dist_promoter_audit_num").html(json.data.approvePromoterCount);
+		        		$("#dist_promoter_commission_num").html(json.data.approveDrawCount);
+		        	}
+		        },
+	         	error: function(json) {
+	         		if(json && json.error) {
+	            		ShopAlert.alert(json.error.message);
+	         		}
+	         	}
+	      	};
+	      	Shop.post(opt);
+		}
+	}
+	
+	getApproveCount();
+	
+});
+</script>
+<% include('../common/end') %>

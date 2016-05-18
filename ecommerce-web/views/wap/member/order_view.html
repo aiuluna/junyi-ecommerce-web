@@ -1,0 +1,119 @@
+<% include('../common/begin') %>
+<% include('order_header') %>
+<% include('../common/header') %>
+<div class="wd640">
+    <% if (!_isWeixin) { %>
+    <header>
+        <div class="header clearfix">
+            <a href="javascript:history.back();" class="sc-prev">&nbsp;</a>
+            订单详情
+        </div>
+    </header>
+    <% } %>
+    <dl class="idLine2">
+        <%
+        var __closeReason = '';
+        if (order.orderStatus == 'CANCELLED') {
+            __closeReason = ('（' + order.closeReasonName +'）');
+        }
+        %>
+        <dd><span class="grey">订单状态：</span><p class="red"><%=#order_util.renderSimpleOrderStatus4Wap(order.orderStatus)%><%=#__closeReason%></p></dd>
+        <dd><span class="grey">订单编号：</span><p><%=#order.orderNo%></p></dd>
+        <dd><span class="grey">下单时间：</span><p><%=#formatDate(order.orderTime, 'YYYY-MM-DD HH:mm:ss')%></p></dd>
+        <dd class="clearfix" style="word-wrap: break-word; word-break: break-all;"><span class="grey">买家留言：</span><p><%=order.buyerMemo%></p></dd>
+
+    </dl>
+
+    <div class="odt-div" >
+        <h2 class="h2"><span class="titLine"></span>收货信息</h2>
+        <div class="addr">
+            <div class="addrinfor">
+                <p><i class="aico1"></i><%=order.address.consignee%></p>
+                <p><span class="fr"><i class="aico3"></i><%=#order_util.maskIdCard(order.address.idCardNo)%></span><span><i class="aico2"></i><%=#order_util.maskMobile(order.address.mobile)%></span></p>
+                <p>
+                    <i class="aico4"></i>
+                    <span style="word-wrap: break-word; word-break: break-all;">
+                        <%=order.address.state%><%=order.address.city%><%=order.address.county%>&ensp;<%=order.address.address%>
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="mtop10 bg_white">
+        <h2 class="h2"><span class="titLine"></span>商品信息</h2>
+        <ul class="idList">
+            <%
+            var evalIfThen = function (express, ifVal, thenVal) {
+                return express ? ifVal : thenVal;
+            };
+            if ( order.items &&  order.items.length) {
+            for (var i = 0, len = order.items.length; i < len; ++i) {
+            var item = order.items[i];
+            %>
+            <li>
+                <a href="product-<%=#item.skuId%>.html" class="clearfix">
+                    <div class="picImg">
+                        <img src="<%=imageUrl(item.skuImageUrl, 180, 180)%>" />
+                    </div>
+                    <div class="picInfor">
+                        <p class="tit"><%=item.skuName%></p>
+                        <p class="mb5 f16"><span class="red">¥<%=#formatMoney2(item.payPrice)%></span>*<%=#item.quantity%></p>
+                        <p>
+                            <%if (item.activityLabel) {%>
+                            <span class="actico fr"><%=#item.activityLabel%></span>
+                            <% } %>
+                            <span class="light-grey">适用税率：<%=#formatMoney((item.taxRate || 0) * 100)%>%</span>
+                        </p>
+                    </div>
+                </a>
+            </li>
+            <% } /* end of for */%>
+            <%} else {%>
+            <li>
+                <p>商品清单列表为空</p>
+            </li>
+            <%} %>
+        </ul>
+
+    </div>
+
+    <div class="bg_white mtop10 mb50">
+        <h2 class="h2"><span class="titLine"></span>价格信息</h2>
+        <dl class="priceInfor">
+            <dd><span class="fr f16">¥<%=#formatMoney2(order.totalPayFee)%></span><span class="grey">商品总价：</span></dd>
+            <dd><span class="fr f16">-¥<%=#formatMoney2(order.couponDiscount)%></span><span class="grey">优惠券抵扣：</span></dd>
+            <dd><span class="fr f16">-¥<%=#formatMoney2(order.orderActDiscount)%></span><span class="grey">活动优惠：</span></dd>
+            <dd><span class="fr f16">¥<%=#formatMoney2(order.totalPayTax)%></span><span class="grey">税费：</span></dd>
+            <dd><span class="fr f16">¥<%=#formatMoney2(order.shippingFee)%></span><span class="grey">运费：</span></dd>
+            <dd><span class="fr f16 red">¥<%=#formatMoney2(order.totalFee+order.adjustFee)%></span><span class="grey"><%=#evalIfThen((order.payStatus == 'PAID'), '实付', '应付')%>金额：</span></dd>
+        </dl>
+    </div>
+    <div class="oddt-end js-order-no" id="js_order_wrapper" data-order_no="<%=#order.orderNo%>">
+        <div class="plr15">
+            <%
+            if (_expireInfo && order.orderStatus == 'PENDING_PAY') {
+            %>
+            <p class="fl light-grey">
+                <span class="js-order-count-down" id="js_cd_<%=#order.orderNo%>" <%=#order_util.renderAttrs(_expireInfo)%>></span>
+                <br>
+                超时订单自动取消
+            </p>
+            <%
+            }
+            %>
+            <%=#order_util.renderOrderOperation4Wap(order)%>
+        </div>
+    </div>
+
+
+</div>
+<% include('../common/footer_simple') %>
+<% include('order_footer') %>
+<script type="text/javascript" src="js/normal.js"></script>
+<script type="text/javascript">
+    $(function(){
+        ShopOrder.init4View({orderTableSelector:'#js_order_wrapper'});
+    });
+</script>
+<% include('../common/end') %>

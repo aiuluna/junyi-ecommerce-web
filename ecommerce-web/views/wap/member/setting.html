@@ -1,0 +1,118 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+
+<div class="wd640">
+    <div id="js_setting_index" class="js-page">
+        <% if (!_isWeixin) { %>
+        <header>
+            <div class="header clearfix">
+                <a href="javascript:historyBack()" class="sc-prev">&nbsp;</a>
+                设置
+            </div>
+        </header>
+        <% } %>
+        <dl class="sup-dl">
+            <dd>
+                <a href="javascript:void(0)" id="js_chg_pwd"><i class="stico"></i>修改登录密码</a>
+            </dd>
+            <% if (user.mobile) {%>
+            <dd>
+                <a href="javascript:void(0)" id="js_chg_mbl"><i class="stico"></i>更换手机号</a>
+            </dd>
+            <% } %>
+        </dl>
+        <p class="p15"><a href="passport-logout.html" class="btnL">退出登录</a></p>
+    </div>
+    <!--修改登录密码    Tip:密码修改成功-->
+    <div class="setup js-page" id="js_chg_pwd_page">
+        <% if (!_isWeixin) { %>
+        <header>
+            <div class="header clearfix">
+                <a href="javascript:historyBack()" class="returnOne sc-prev">&nbsp;</a>
+                修改登录密码
+            </div>
+        </header>
+        <% } %>
+        <div class="p15">
+            <dl class="ipt-dl">
+                <dd><input type="password" value="" name="" class="ipt" placeholder="请输入旧的登录密码" id="oldPsw" tabindex="1"/></dd>
+                <dd><input type="password" value="" name="" class="ipt" placeholder="设置新密码，6-16位数字、字母的任意组合" maxlength="16" id="newPsw" tabindex="2"/></dd>
+                <dd><input type="password" value="" name="" class="ipt" placeholder="请再次输入新密码" id="repeatPsw" tabindex="3"/></dd>
+                <dd class="ptop10"><a href="javascript:void(0)" class="btnL" id="js_chg_pwd_btn">确认修改</a></dd>
+            </dl>
+        </div>
+    </div>
+
+    <!--更换手机号 第二步    Tip:手机号码更换成功-->
+    <div class="setup js-page" id="js_chg_mbl_page">
+        <% if (!_isWeixin) { %>
+        <header>
+            <div class="header clearfix">
+                <a href="javascript:historyBack()" class="returnOne sc-prev">&nbsp;</a>
+                更换手机号
+            </div>
+        </header>
+        <% } %>
+        <form class="p15">
+            <dl class="ipt-dl">
+                <dd>
+                    <input type="password" value="" name="" class="ipt" placeholder="请输入登录密码" id="js_chg_mbl_pwd" tabindex="1"/>
+                </dd>
+                <dd>
+                    <input type="text" value="" name="" class="ipt" placeholder="请输入新手机号" id="bdPhone"/>
+                </dd>
+                <dd>
+                    <div class="syzm">
+                        <span class="smipt"><input type="text" value="" name="" class="ipt" placeholder="请输入收到的短信验证码" id="bdVcode"/></span>
+                        <a href="javascript:void(0)" class="sendM" id="btnSendYzm" onclick="sendYzm('resetmobile')">发送验证码</a>
+                    </div>
+                </dd>
+            </dl>
+            <p><a href="javascript:void(0)" class="btnL" id="js_chg_mbl_btn">确认更换</a></p>
+        </form>
+    </div>
+    <!--tip-->
+    <p class="tip">您输入的号码有误，请重新输入</p>
+</div>
+
+<% include('../common/footer_simple') %>
+<script type="text/javascript" src="js/lib/jquery.ba-hashchange.js"></script>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+<script type="text/javascript" src="js/shop.passport.js"></script>
+<script type="text/javascript" src="js/shop.setting.js"></script>
+<script type="text/javascript">
+
+    function setTitle2(hash) {
+        switch (hash) {
+            case '#js_chg_pwd_page':
+                setWindowTitle('修改登录密码');
+                break;
+            case '#js_chg_mbl_page':
+                setWindowTitle('更换手机号');
+                break;
+            default :
+                setWindowTitle('设置');
+        }
+    }
+    function __onHashChange() {
+        var hash = window.location.hash;
+        $('.js-page').hide();
+        var $hash = $(hash);
+        if ($hash.length) {
+            $hash.show();
+        } else {
+            $('#js_setting_index').show();
+        }
+
+        setTitle2(hash);
+    }
+
+    $(window).on('hashchange', __onHashChange);
+    __onHashChange();
+
+    $(function(){
+        ShopSetting.init(__onHashChange);
+    });
+</script>
+<% include('../common/end') %>

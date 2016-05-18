@@ -1,0 +1,109 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:void(0)" class="sc-prev" onclick="return historyBack()">&nbsp;</a>
+			<%=topicCat.productCategoryName%>
+		</div>
+	</header>
+	<% } %>
+	<div class="its">
+		<img src="<%=#imageUrlCrop(topicCat.imageUrl,640,396)%>" width="100%"/>
+	</div>
+	<!--推荐-->
+	<%
+	var topicProducts = products.topicProducts;
+	if (topicProducts && topicProducts.length) {
+		var topicItemMap = {};
+		topicCat.items.forEach(function(item) { topicItemMap[item.skuId] = item; });
+	%>
+	<div class="idLine2">
+		<h2 class="h2"><span class="titLine"></span>推荐</h2>
+		<ul class="listL">
+			<%
+			for (var j = 0; j < topicProducts.length; ++j) {
+				var product = topicProducts[j], item = topicItemMap[product.skuId],
+					itemImageUrl = item.imageUrl ? item.imageUrl : product.imageUrl;
+			%>
+			<li>
+				<a href="product-<%=#product.skuId%>.html">
+					<div class="pre">
+						<%=#product_util.renderProductTag(product,'i')%>
+						<%=#product_util.renderProductSaleStatus(product,true)%>
+						<img data-original="<%=#imageUrl(itemImageUrl)%>" src="<%=#staticImgWap('bg_logo_610x340.gif')%>" class="lazy" width="100%"/>
+					</div>
+					<div class="u-brand light-grey"><%=#product_util.renderProductOriginLogo(product,32,32)%><%=product.productOriginName%>&nbsp;<%=product.freightMethodName%></div>
+					<p class="tit"><%=product.skuName%></p>
+					<p>
+						<del class="fr">¥<%=#formatMoney(product.marketPrice)%></del>
+						<span class="red f16">¥<%=#formatMoney(product.promotionPrice || product.salePrice)%></span>
+						<% if (product.activityType === 'FLASH_SALE' || product.activityType === 'PRODUCT_PROMOTION') { %>
+						<span><i class="dtico1"><%=#product.activityLabel%></i></span>
+						<% } else if (product.activityType === 'ORDER_PROMOTION') { %>
+						<span><i class="dtico1"><%=#product.activityTypeName%></i></span>
+						<% } %>
+					</p>
+				</a>
+			</li>
+			<%
+			}
+			%>
+		</ul>
+	</div>
+	<%
+	}
+	%>
+	<%
+	for (var i = 0; i < productClassList.length; ++i) {
+		var productClass = productClassList[i],
+			page = products['class_' + productClass.id],
+			productsForClass = page.pageData;
+		if (!productsForClass || !productsForClass.length) continue;
+	%>
+	<div class="idLine2">
+		<h2 class="h2">
+			<%if(page.totalPages>1){%><a href="search.html?categoryIdLevel1=<%=#topicCat.productCategoryId%>&classId=<%=#productClass.id%>" class="fr grey">更多商品&gt;</a><%}%>
+			<span class="titLine"></span><%=productClass.name%>
+		</h2>
+		<ul class="dt-list clearfix">
+			<%
+			for (var j = 0; j < productsForClass.length; ++j) {
+				var product = productsForClass[j];
+			%>
+			<li>
+				<a href="product-<%=#product.skuId%>.html">
+					<div class="pre">
+						<%=#product_util.renderProductTag(product,'i')%>
+						<%=#product_util.renderProductSaleStatus(product,true)%>
+						<img data-original="<%=#imageUrl(product.imageUrl,320,320)%>" class="lazy" width="100%"/>
+					</div>
+					<div class="u-brand light-grey"><%=#product_util.renderProductOriginLogo(product,32,32)%><%=product.productOriginName%>&nbsp;<%=product.freightMethodName%></div>
+					<p class="tit"><%=product.skuName%></p>
+					<p>
+						<del class="fr">¥<%=#formatMoney(product.marketPrice)%></del>
+						<span class="red f16">¥<%=#formatMoney(product.promotionPrice || product.salePrice)%></span>
+						<% if (product.activityType === 'FLASH_SALE' || product.activityType === 'PRODUCT_PROMOTION') { %>
+						<span class="actico"><%=#product.activityLabel%></span>
+						<% } else if (product.activityType === 'ORDER_PROMOTION') { %>
+						<span class="actico"><%=#product.activityTypeName%></span>
+						<% } %>
+					</p>
+				</a>
+			</li>
+			<%
+			}
+			%>
+		</ul>
+	</div>
+	<%
+	}
+	%>
+	<p class="nomore">已显示全部内容</p>
+</div>
+
+<% include('../common/footer') %>
+<script type="text/javascript" src="js/lib/jquery.lazyload.js"></script>
+<% include('../common/end') %>

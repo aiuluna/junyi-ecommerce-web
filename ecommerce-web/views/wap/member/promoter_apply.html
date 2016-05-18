@@ -1,0 +1,172 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+
+<% if (requestVO.status === 'AUDIT_REJECTED') { %>
+<!-- 请求被拒绝, 重新申请 -->
+<div class="wd640 js-page" id="esyDiv1">
+    <% if (!_isWeixin) { %>
+    <header>
+        <div class="header clearfix">
+            <a href="javascript:historyBack()" class="sc-prev">&nbsp;</a>
+            推广有礼
+        </div>
+    </header>
+    <% } %>
+    <div class="review">
+        <div class="clearfix">
+            <span class="liico"></span>
+            <div class="li-right">
+                <p class="f18 black">您提交的申请审核未通过！</p>
+            </div>
+        </div>
+        <p>原因说明：<br/><%=requestVO.auditReason%></p>
+    </div>
+    <p class="p15"><a href="javascript:;" class="btnL" id="esybtn">重新申请</a></p>
+</div>
+
+<% } else if (requestVO.status === 'AUDIT_WAITING') { %>
+<!-- 请求审核中 -->
+<div class="wd640 js-page" id="esyDiv1">
+    <% if (!_isWeixin) { %>
+    <header>
+        <div class="header clearfix">
+            <a href="javascript:historyBack()" class="sc-prev">&nbsp;</a>
+            推广有礼
+        </div>
+    </header>
+    <% } %>
+    <div id="win-middle">
+        <span class="examineico"></span>
+        <p class="f16 light-grey lh24">您提交的申请正在审核中<br/>请耐心等待……</p>
+    </div>
+</div>
+
+<% } else {%>
+<!-- 未发现请求/或者请求已经通过; 对于已经通过审核的请求, 后台已经重定向给推广页面啦 -->
+
+<%
+    if (requestVO.userType != 'MEMBER' && _user.type == 'MEMBER') {
+%>
+<!-- 请求审核已经通过审核, 前台仍然是普通会员 -->
+<div class="wd640 js-page" id="esyDiv1">
+    <% if (!_isWeixin) { %>
+    <header>
+        <div class="header clearfix">
+            <a href="javascript:historyBack()" class="sc-prev">&nbsp;</a>
+            推广有礼
+        </div>
+    </header>
+    <% } %>
+    <div id="win-middle">
+        <span class="examineico"></span>
+        <p class="f16 light-grey lh24">
+            您提交的申请已经通过审核
+            <br/>
+            请<a href="passport-forceLogin.html" class="redbtn">重新登录</a>获取更多信息
+            <script type="text/javascript">
+
+            </script>
+        </p>
+    </div>
+</div>
+<%
+    } else {
+%>
+
+<div class="wd640 js-page" id="esyDiv1">
+    <% if (!_isWeixin) { %>
+    <header>
+        <div class="header clearfix">
+            <a href="javascript:historyBack()" class="sc-prev">&nbsp;</a>
+            推广有礼
+        </div>
+    </header>
+    <% } %>
+    <div>
+        <img src="<%=#staticImgWap('countesy.jpg')%>" width="100%" class="mb45"/>
+        <div class="fixed">
+            <a href="javascript:void(0)" class="btnL" id="esybtn">立即申请</a>
+        </div>
+    </div>
+</div>
+<%
+    } // end of if
+%>
+<% } %>
+
+<% if (requestVO.status != 'AUDIT_WAITING') {%>
+
+<% include('./promoter_apply_form') %>
+
+<% } %>
+<% include('../common/footer_simple') %>
+
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+<script type="text/javascript" src="js/shop.account.js"></script>
+<script type="text/javascript">
+    function setTitle2(hash) {
+        switch (hash) {
+            case '#esyDiv2':
+                setWindowTitle('基本信息');
+                break;
+            case '#esyDiv3':
+                setWindowTitle('结算账户');
+                break;
+            case '#esyDiv4':
+                setWindowTitle('结算账户');
+                break;
+            default:
+                setWindowTitle('推广有礼');
+        }
+    }
+
+    var __page_reload = false;
+    function __onHashChange() {
+        var hash = window.location.hash;
+        $('.js-page').hide();
+        var $hash = $(hash);
+        if ($hash.length) {
+            $hash.show();
+        } else {
+            $('#esyDiv1').show();
+        }
+
+        setTitle2(hash);
+
+        if(hash === '#esyDiv1' || hash === '') {
+            if(__page_reload) {
+                window.location.reload();
+                __page_reload = false;
+            }
+        } else {
+            __page_reload = true;
+        }
+
+        setTimeout(function() {
+            $('#js_acct_checkbox').trigger('change')
+        }, 50);
+    }
+
+    $(window).on('hashchange', __onHashChange);
+    __onHashChange();
+
+</script>
+<% if (requestVO.status != 'AUDIT_WAITING') {%>
+<script type="text/javascript">
+    $(function(){
+        ShopAccount.init4Apply({
+            gender: '<%=#requestVO.gender%>'
+        });
+
+        <%if(requestVO.status === 'AUDIT_PASSED' && requestVO.userType != 'MEMBER' && _user.type == 'MEMBER') {%>
+            ShopPopup.alert('您提交的申请已经通过审核 , <br/> 请<a href="javascript:;" class="red">重新登录</a>获取更多信息', function(){
+                location.href = 'passport-forceLogin.html';
+            });
+        <% } %>
+
+    });
+</script>
+<% } %>
+
+<% include('../common/end') %>

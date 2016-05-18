@@ -1,0 +1,33 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="headerImg"><img src="images/idLogo.png" /></div>
+	</header>
+	<% } %>
+	<div id="nav">
+		<a href="/wap/">首页</a>
+		<a href="<%=#headerNav==='brand'?'#':'topic-brand.html'%>" <%=#headerNav==='brand'?'class="on"':''%> >大牌馆</a>
+		<a href="<%=#headerNav==='origin'?'#':'topic-origin.html'%>" <%=#headerNav==='origin'?'class="on"':''%> >产地馆</a>
+		<a href="<%=#headerNav==='cat'?'#':'topic-cat.html'%>" <%=#headerNav==='cat'?'class="on"':''%> >分类专题</a>
+	</div>
+	<div class="idLine1" style="margin-bottom:5px">
+		<%
+		for (var i = 0; i < list.length; ++i) {
+			var item = list[i];
+		%>
+		<a href="<%=#generateLink(item)%>">
+			<img data-original="<%=#imageUrlCrop(item.imageUrl,640,396)%>" src="<%=#staticImgWap('bg_logo_640x396.gif')%>" class="lazy <%=#i===0?'mtop0':''%>" width="100%"/>
+		</a>
+		<%
+		}
+		%>
+	</div>
+	<p class="nomore">已显示全部内容</p>
+</div>
+
+<% include('../common/footer') %>
+<script type="text/javascript" src="js/lib/jquery.lazyload.js"></script>
+<% include('../common/end') %>

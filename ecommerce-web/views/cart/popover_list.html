@@ -1,0 +1,29 @@
+<div class="spacer"></div>
+<% if (cartProducts && cartProducts.length) { %>
+<!--购物车有商品-->
+<p class="plr10"><b class="weight">最新加入的<%=#cartProductsCount>5?'5件':''%>商品</b></p>
+<ul class="cartlist">
+	<%
+	for (var i = 0; i < cartProducts.length; ++i) {
+		var product = cartProducts[i], productQuantity = productQuantityMap[product.skuId];
+	%>
+	<li class="clearfix">
+		<a href="product-<%=#product.skuId%>.html" target="_blank" class="fl">
+			<img src="<%=#imageUrl(product.imageUrl,60,60)%>"/>
+		</a>
+		<div class="cart-sub fr">
+			<a href="product-<%=#product.skuId%>.html" target="_blank" class="cart-tit"><%=product.skuName%></a>
+			<p><a href="javascript:void(0)" class="fr red" onclick="deleteProductFromCart(this)" data-rel="<%=#product.skuId%>">移除</a><span class="red">¥<%=#formatMoney(product.promotionPrice || product.salePrice)%> <i>x</i> <%=#productQuantity%></span></p>
+		</div>
+	</li>
+	<%
+	}
+	%>
+</ul>
+<div class="p10 lh30"><a href="cart.html" target="_blank" class="id-cart-btn fr">去购物车</a>共 <span class="red cart-popover-count"><%=#cartProductsCount%></span> 件商品</div>
+<% } else { %>
+<!--购物车没有商品-->
+<div class="cartnone">
+	购物车还没有商品，<br/>快去挑选心爱的商品吧。
+</div>
+<% } %>

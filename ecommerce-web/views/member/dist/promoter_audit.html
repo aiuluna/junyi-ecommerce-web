@@ -1,0 +1,362 @@
+<% include('../../common/begin') %>
+<link rel="stylesheet" href="css/member.css" type="text/css"/>
+<% include('../../common/header') %>
+
+<% include('../frame_begin') %>
+
+<h4 class="mbtit">推广员审核</h4>
+<div class="tgyjc clearfix" id="js_search_form">
+	<div class="fl clearfix">
+		<span class="fl grey">申请时间：</span>
+		<div class="jssel agentS">
+			<input type="text" value="近一个月内" name="" class="jsk" readonly="readonly">
+			<ul class="condt">
+				<li value="1"><a href="javascript:void(0)">近一个月内</a></li>
+				<li value="2"><a href="javascript:void(0)">近三个月内</a></li>
+				<li value="3"><a href="javascript:void(0)">近半年内</a></li>
+				<li value="4"><a href="javascript:void(0)">全部</a></li>
+			</ul>
+			<input type="hidden" value="" name="" class="selectVal" id="js_search_time_range">
+		</div>
+	</div>
+	<span class="tgyjc3">申请人&nbsp;：&nbsp;&nbsp;<input type="text" name="" value="" id="js_search_login"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 手机号码&nbsp;：&nbsp;&nbsp;<input type="text" name="" value="" id="js_search_mobile"/></span>
+	<div class="fl clearfix">
+		<span class="fl grey">状态：</span>
+		<div class="jssel agentS">
+			<input type="text" value="待审核" name="" class="jsk" readonly="readonly">
+			<ul class="condt">
+				<li value="AUDIT_WAITING"><a href="javascript:void(0)">待审核</a></li>
+				<li value="AUDIT_PASSED"><a href="javascript:void(0)">审核通过</a></li>
+				<li value="AUDIT_REJECTED"><a href="javascript:void(0)">审核失败</a></li>
+			</ul>
+			<input type="hidden" value="" name="" class="selectVal" id="js_search_status">
+		</div>
+	</div>
+	<a href="javascript:;" class="tgicon1" id="js_search_btn">查询</a>
+</div>
+<table cellpadding="0" cellspacing="0" width="100%" class="tgtable brdtab">
+	<tr>
+		<th width="56">序号</th>
+		<th width="120">申请人</th>
+		<th width="70">性别</th>
+		<th width="130">手机号码</th>
+		<th width="180">注册时间</th>
+		<th width="180">申请时间</th>
+		<th width="90">状态</th>
+		<th>操作</th>
+	</tr>
+</table>
+<table cellpadding="0" cellspacing="0" width="100%" class="tgtable" id="js_search_result">
+</table>
+<div class="rtl" id="js_pagination"></div>
+
+<% include('../frame_end') %>
+
+<% include('../../common/footer_member') %>
+<script type="application/x-template" id="js_audit_row_tmpl">
+	<tr>
+		<td width="56">{{record._index}}</td>
+		<td width="120">
+			{{record.userLogin}}{{ if record.userLogin && record.userName }}<br/>{{ /if }}{{record.userName}}
+		</td>
+		<td width="70">{{ShopUtil.renderGender(record.gender) }}</td>
+		<td width="130">{{record.mobile}}</td>
+		<td width="180">{{record.createDate | formatDate:'yyyy-MM-dd hh:mm:ss'}}</td>
+		<td width="180">{{record.requestDate | formatDate:'yyyy-MM-dd hh:mm:ss'}}</td>
+		<td width="90">{{ShopUtil.renderPromoterRequestStatus(record.status) }}</td>
+		<td>
+			{{if record.status == 'AUDIT_WAITING' }}
+			<a class="cation red js-audit" data-request_id="{{record.id}}" href="javascript:void(0)">审核</a>
+			{{else }}
+			<a class="cation red js-view"  data-request_id="{{record.id}}" href="javascript:void(0)">查看</a>
+			{{/if }}
+		</td>
+	</tr>
+</script>
+<script type="application/x-template" id="js_audit_view_tmpl">
+<div class="ctTab pbt15">
+	<table cellpadding="0" cellspacing="0" width="100%" class="agentTab">
+		<tr>
+			<th width="104">申请人：</th>
+			<td style="word-wrap: break-word; word-break: break-all">{{record.userLogin}}({{record.userName}})</td>
+		</tr>
+		<tr>
+			<th>性别：</th>
+			<td>{{ShopUtil.renderGender(record.gender)}}</td>
+		</tr>
+		<tr>
+			<th>手机号：</th>
+			<td>{{record.mobile}}</td>
+		</tr>
+		<tr>
+			<th valign="top">申请理由：</th>
+			<td style="word-wrap: break-word; word-break: break-all">{{record.requestReason}}</td>
+		</tr>
+		<tr>
+			<th valign="top">账户信息：</th>
+			<td style="word-wrap: break-word; word-break: break-all">
+				{{ if record.accountType == 'BANK' }}
+				（银行账户）<br/>
+				{{record.accountName}}   {{record.accountNo}} {{record.bankName}}  {{record.bankSite}}
+				{{ /if }}
+
+				{{ if record.accountType == 'ALI_PAY' }}
+				（支付宝）<br/>
+				{{record.alipayName}}   {{record.alipayNo}}
+				{{ /if }}
+			</td>
+		</tr>
+	</table>
+	</div>
+	<div class="btop-e8">
+		<table cellpadding="0" cellspacing="0" width="100%" class="afterTab">
+			<tr>
+				<th width="104">审核结果：</th>
+				<td>{{ShopUtil.renderPromoterRequestStatus(record.status)}}</td>
+			</tr>
+			<tr>
+				<th>返佣比例：</th>
+				<td>
+					{{ if record.status == 'AUDIT_PASSED' }}
+					{{(record.rate || 0) * 100}}%
+					{{ /if }}
+				</td>
+			</tr>
+			<tr>
+				<th valign="top">原因说明：</th>
+				<td style="word-wrap: break-word; word-break: break-all">{{record.auditReason}}</td>
+			</tr>
+		</table>
+	</div>
+</script>
+<script type="application/x-template" id="js_audit_update_tmpl">
+	<div class="ctTab pbt15">
+		<table cellpadding="0" cellspacing="0" width="100%" class="agentTab">
+			<tr>
+				<th width="104">申请人：</th>
+				<td><p title="{{record.userLogin}}({{record.userName}})">{{record.userLogin}}({{record.userName}})</p></td>
+			</tr>
+			<tr>
+				<th>性别：</th>
+				<td>{{ShopUtil.renderGender(record.gender)}}</td>
+			</tr>
+			<tr>
+				<th>手机号：</th>
+				<td>{{record.mobile}}</td>
+			</tr>
+			<tr>
+				<th valign="top">申请理由：</th>
+				<td>{{record.requestReason}}</td>
+			</tr>
+			<tr>
+				<th valign="top">账户信息：</th>
+				<td>
+					{{ if record.accountType == 'BANK' }}
+					（银行账户）<br/>
+					{{record.accountName}}   {{record.accountNo}} {{record.bankName}}  {{record.bankSite}}
+					{{ /if }}
+
+					{{ if record.accountType == 'ALI_PAY' }}
+					（支付宝）<br/>
+					{{record.alipayName}}   {{record.alipayNo}}
+					{{ /if }}
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="btop-e8">
+		<table cellpadding="0" cellspacing="0" width="100%" class="afterTab" id="js_dist_form">
+			<tr>
+				<th width="104">审核结果：</th>
+				<td>
+					<div class="sex" id="js_audit_radio">
+						<span><input type="radio" value="Y" name="js-audit-result" id="js_accept"><label for="js_accept">通过</label></span>
+						<span><input type="radio" value="N" name="js-audit-result" id="js_reject"><label for="js_reject">不通过</label></span>
+					</div>
+					<input type="hidden" value="{{record.id}}" id="js_audit_id">
+				</td>
+			</tr>
+			<tr>
+				<th>返佣比例：</th>
+				<td><input type="text" value="" required="true" decimal="true" name="" id="js_audit_ratio" class="ipt seeipt"/>%<span class="light-grey ml20">推广员推广返佣比例</span></td>
+			</tr>
+			<tr>
+				<th valign="top">原因说明：</th>
+				<td>
+					<textarea class="tarea" id="js_audit_text" maxlength="100" error="请选择原因说明, 长度不超过100个字符"></textarea>
+					<p class="f12 light-grey">长度限制在100字以内</p>
+				</td>
+			</tr>
+		</table>
+	</div>
+</script>
+
+<script type="text/javascript" src="js/lib/jquery.selectbox.js"></script>
+<script type="text/javascript" src="js/lib/jquery.pagination.js"></script>
+<script type="text/javascript" src="js/lib/template.js"></script>
+<script type="text/javascript">
+	$(function(){
+
+		$('.jssel').selectBox({'selectClassName':'.jsk','selectList':'.condt','selectVal':'.selectVal'});
+		$('.jssel').each(function(index, ele) {
+			var $ele = $(ele);
+			$('.condt li:first', $ele).trigger('click');
+		});
+		ShopUtil.initTemplateHelper();
+
+		var auditRowTmpl = ShopUtil.getTemplateById('js_audit_row_tmpl');
+		var loader = ShopLoader.init({
+			pageSelector: '#js_pagination',
+			url: '/member/distributor/promoter_audit/list',
+			getCriteria: function() {
+				return {
+					login: $.trim($('#js_search_login').val()),
+					mobile: $.trim($('#js_search_mobile').val()),
+					status: $.trim($('#js_search_status').val()),
+					timeRange: ShopUtil.getFinishTimeRange($.trim($('#js_search_time_range').val()))
+				}
+			},
+			render:function(json) {
+				var htmlArr = [];
+				var pageData = json.data.pageData;
+
+				if (json.data.totalCount > 0) {
+					var seq = (json.data.pageNumber - 1) * json.data.pageSize;
+					var fillArr = ShopUtil.fillArr;
+					for (var i = 0, len = pageData.length; i < len; i++) {
+						var order = pageData[i] || {};
+						order._index = seq + 1 + i;
+						fillArr(htmlArr, auditRowTmpl({record: order, ShopUtil : ShopUtil}))
+					}
+
+					$('#js_search_result').html(htmlArr.join(''));
+				} else {
+					$('#js_search_result').html('<tr><td colspan="10">暂无没有符合要求的记录</td></tr>');
+				}
+			}
+		});
+
+		loader.search();
+		$('#js_search_btn').on('click', function() {
+			loader.search();
+		});
+		/* 监听回车 */
+		$('#js_search_form').on('keyup', 'input', function(event) {
+			var keycode = event.which;
+			if (keycode == 13) {
+				loader.search();
+			}
+		});
+
+		var viewTmpl = ShopUtil.getTemplateById('js_audit_view_tmpl');
+
+		function popupAuditRecord(order, forUpdate) {
+			var $popup = ShopAlert.dialog({
+				title: '推广员审核',
+				body: order,
+				className: 's-alert-w-small',
+				autoClose: false,
+				callback: function(yes, $btn) {
+					if (yes == 'yes' && forUpdate === true) {
+
+						if ($popup.isButtonDisabled($btn)) {
+							return false;
+						} else {
+							$popup.disableButtons($btn);
+						}
+
+						var radios = $('#js_audit_radio input:checked');
+						if(radios.length < 1) {
+							ShopAlert.alert('审核失败', '请选择审核结果');
+							$popup.enableButtons($btn);
+							return;
+						}
+
+						var approved = $('#js_audit_radio input:checked').val();
+						var ratio = $.trim($('#js_audit_ratio').val());
+						if (approved == 'Y') {
+							if(!(ratio == 100 || (/^(0*[0-9]\d?){1}$/.test(ratio) && parseInt(ratio) >= 0))) {
+								ShopAlert.alert('审核失败', '请填写正确的佣金比例 0% ~ 100%', function() {
+									$('#js_audit_ratio').focus();
+								});
+								$popup.enableButtons($btn);
+								return;
+							}
+						} else {
+							var text = $.trim($('#js_audit_text').val());
+							if (!text) {
+								ShopAlert.alert('审核失败', '请填写不通过该请求的原因', function() {
+									$('#js_audit_text').focus();
+								});
+								$popup.enableButtons($btn);
+								return;
+							}
+							ratio = "";
+						}
+
+						var btnTxt = $btn.text(), btnClr = $btn.css("background-color");
+						$btn.text('数据提交中...').css("background-color", "#ccc");
+						Shop.post({
+							url: '/member/distributor/promoter_audit/audit',
+							data:{
+								requestId: $('#js_audit_id').val(),
+								approved: approved,
+								ratio: ShopUtil.formatMoney(parseInt(ratio)),
+								reason: $.trim($('#js_audit_text').val())
+							},
+							success: function() {
+								loader.search();
+								$popup.destroy();
+							},
+							error: function(json) {
+								ShopAlert.confirm('操作失败', '失败原因:' + json.error.message);
+							},
+							complete:function(){
+								$btn.text(btnTxt).css("background-color", btnClr);
+								$popup.enableButtons($btn);
+							}
+						});
+					} else {
+						$popup.destroy();
+					}
+				}
+			});
+
+		}
+		$('#js_search_result').on('click', '.js-view', function() {
+			var me = $(this);
+			var requestId = me.data('request_id');
+			if (!$.trim(requestId)) {
+				ShopAlert.alert('出错啦', '请求号不能为空');
+				return;
+			}
+			Shop.post({
+				url:'/member/distributor/promoter_audit/view',
+				data: {requestId: requestId},
+				success:function(json) {
+					popupAuditRecord(viewTmpl({record: json.data, ShopUtil: ShopUtil}));
+				}
+			});
+		});
+
+
+		var auditTmpl = ShopUtil.getTemplateById('js_audit_update_tmpl');
+		$('#js_search_result').on('click', '.js-audit', function() {
+			var me = $(this);
+			var requestId = me.data('request_id');
+			if (!$.trim(requestId)) {
+				ShopAlert.alert('出错啦', '订单号不能为空');
+				return;
+			}
+			Shop.post({
+				url:'/member/distributor/promoter_audit/view',
+				data: {requestId: requestId},
+				success:function(json) {
+					popupAuditRecord(auditTmpl({record: json.data, ShopUtil: ShopUtil}), true);
+				}
+			});
+		});
+
+	});
+</script>
+<% include('../../common/end') %>

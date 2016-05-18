@@ -1,0 +1,16 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:void(0)" class="sc-prev" onclick="return historyBack()">&nbsp;</a>
+			<%=article_title%>
+		</div>
+	</header>
+	<% } %>
+	<div class="mb10"><img src="<%=#staticImgWap('in-preparation.jpg')%>" width="100%" /></div>
+</div>
+<% include('../common/footer') %>
+
+<% include('../common/end') %>

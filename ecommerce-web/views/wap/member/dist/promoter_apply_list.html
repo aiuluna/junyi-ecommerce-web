@@ -1,0 +1,112 @@
+<% include('../../common/begin') %>
+<% include('../../common/header') %>
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:historyBack();" class="sc-prev">&nbsp;</a>
+			推广员审核
+		</div>
+	</header>
+	<% } %>
+	<div class="bg_white">
+		<div class="ymChoose clearfix" id="js_select_trigger">
+			<span class="mbdt">时间范围</span>
+			<input type="hidden" value="4" name="" id="js_select_item">
+			<div class="infcon" id="sexbtn"><span id="chtmlIn">全部</span><i class="u-rtarr"></i></div>
+		</div>
+		<div id="win-middle" style="display: none;">
+			<span class="noIco5"></span>
+			<p class="f16 light-grey">没有待审核记录</p>
+		</div>
+
+		<ul class="odlist lwd30" id="js_item_wrapper">
+		</ul>
+	</div>
+
+</div>
+
+<script type="application/x-template" id="js_item_template">
+	<li>
+		<a href="member-dist-promoter_audit-view-{{request.id}}.html?action={{(request.status === 'AUDIT_WAITING' ? 'audit':  'view')}} ">
+			<div class="odclear clearfix">
+				<div class="odLleft">{{request.userLogin}}<br/>{{request.userName}}</div>
+				<dl class="odLright">
+					<dd><span class="grey">电话：</span>{{request.mobile}}</dd>
+					<dd><span class="grey">性别：</span>{{ShopUtil.renderGender(request.gender) }}</dd>
+					<dd><span class="grey">审核状态：</span><span class="red">{{ShopUtil.renderRequestAuditStatus(request.status) }}</span></dd>
+					<dd><span class="grey">申请时间：</span>{{#ShopUtil.formatDate(request.requestDate, 'yyyy-MM-dd')}}</dd>
+				</dl>
+				<i class="u-rtarrL fr"></i>
+			</div>
+		</a>
+	</li>
+</script>
+<% include('../../common/footer_simple') %>
+<script type="text/javascript" src="js/lib/template.js"></script>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+<script type="text/javascript" src="js/shop.scroll.js"></script>
+
+<script type="text/javascript">
+	$(function() {
+		ShopUtil.initTemplateHelper();
+		var $wrapper = $('#js_item_wrapper');
+		var $noData = $('#win-middle');
+		var itemTmpl = ShopUtil.getTemplateById('js_item_template');
+
+		ShopScroll.init({
+			dataWrapper: $wrapper,
+			emptyWrapper: $noData,
+			method:'POST',
+			url:'/member/distributor/promoter_audit/list',
+			getParams: function() {
+				var param = {timeRange: ShopUtil.getFinishTimeRange($('#js_select_item').val())};
+				return $.extend({pageSize: 8}, param);
+			},
+			afterLoad: function() {
+				$(".odlist").trigger('change');
+			},
+			beforeAppendData: function() {
+				$noData.hide();
+			},
+			afterAppendData: function() {
+			},
+			onDataEnd: function() {
+				$wrapper.append('<li class="nomore">已显示全部内容</li>');
+			},
+			onDataEmpty: function() {
+				$noData.show();
+				$wrapper.html('');
+			},
+			renderItem: function(request) {
+				return itemTmpl({
+					request: request,
+					ShopUtil: ShopUtil
+				});
+			},
+			fail: function() {}
+		});
+
+
+		var selectData = [
+			{id: '1', text: '近一个月'},
+			{id: '2', text: '近三个月'},
+			{id: '3', text: '近半年'},
+			{id: '4', text: '全部'}
+		];
+		ShopSelect.select(
+				selectData,
+				$('#js_select_trigger'),
+				'4', /* 全部 */
+				function($ele) {
+					var $a = $('a', $ele);
+					var value = $a.data('value'), text = $a.text();
+					$('#chtmlIn').text(text);
+					$('#js_select_item').val(value);
+					ShopScroll.reload();
+				}
+		);
+	});
+</script>
+<% include('../../common/end') %>

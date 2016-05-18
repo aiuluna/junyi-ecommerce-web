@@ -1,0 +1,97 @@
+<%
+var navs = {
+	"dist_promoter_audit"     : { link:"member-dist-promoter_audit.html", text:"推广员审核"},
+	"dist_promoter_commission": { link:"member-dist-promoter_commission.html", text:"佣金提取审核"},
+	"dist_promoter"           :	{ link:"member-dist-promoter.html", text:"下级推广员"},
+	"dist_member"             :	{ link:"member-dist-member.html", text:"下级会员 "},
+	"dist_member_orders"      :	{ link:"member-dist-member_orders.html", text:"会员订单"},
+	"dist_account"            :	{ link:"member-dist-account.html", text:"结算账户"},
+	"dist_commission"         :	{ link:"member-dist-commission.html", text:"我的佣金"},
+	"promote"                 : { link:"member-promote.html", text:"我的推广码"},
+	"promoter_member"         : { link:"member-promoter-member.html", text:"下级会员"},
+	"promoter_member_orders"  : { link:"member-promoter-member_orders.html", text:"会员订单"},
+	"promoter_account"        : { link:"member-promoter-account.html", text:"结算账户"},
+	"promoter_commission"     : { link:"member-promoter-commission.html", text:"我的佣金"},
+	"info"                    : { link:"member.html", text:"个人信息"},
+	"orders"                  : { link:"member-orders.html", text:"我的订单"},
+	"legacy_orders"           : { link:"member-legacy_orders.html", text:"历史订单"},
+	"coupons"                 : { link:"member-coupon-my.html", text:"我的优惠券"},
+	"collect"                 : { link:"member-collect.html", text:"我的收藏商品"},
+	"receiver"                : { link:"member-receiver.html ", text:"收货地址"},
+	"safe"                    : { link:"member-safe.html", text:"安全中心"},
+	"promoter_apply"          : { link:"member-promoter-apply.html", text:"推广员申请"}
+};
+
+var buildNav = function (nav, target, span) {
+	return '<dd' + (target === nav ? ' class="on"' : '') + '>' +
+	'<a href="' + navs[target].link + '">' + navs[target].text + '</a>' + (span ? span : '')+
+	'</dd>';
+}
+%>
+<div id="content">
+	<div class="wd1090 ptop30">
+		<div class="clearfix">
+			<div class="mbleft">
+				<h3 class="mbtit">个人中心</h3>
+				<div class="mbimg">
+					<img src="<%=#(_user.avatarUrl ? imageUrlCrop(_user.avatarUrl, 90, 90): 'images/defaultAvatar.jpg')%>"/>
+					<p><%=(_user.name || _user.login || _user.mobile)%></p>
+				</div>
+				<div class="mbNav">
+					<%
+					var userType = _user.type;
+					var isMigrated = _user.isMigrated == 'Y';
+					%>
+					<dl class="dlfirst">
+						<dt>订单中心</dt>
+						<%=#buildNav(nav, 'orders')%>
+						<%=#buildNav(nav, 'collect')%>
+						<%=#buildNav(nav, 'coupons', '<span class="newico"></span>')%>
+						<% if (isMigrated) { %>
+						<%=#buildNav(nav, 'legacy_orders', '<span class="newico"></span>')%>
+						<% } %>
+					</dl>
+					<%
+					if (userType === 'MEMBER' && (!_user.referralUserId || _user.referralUserId == _user.distUserId)) {
+					%>
+					<dl>
+						<dt>推广有礼</dt>
+						<%=#buildNav(nav, 'promoter_apply')%>
+					</dl>
+					<%
+					} else if (userType === 'DISTRIBUTOR') {  // 代理商
+					%>
+					<dl>
+						<dt>推广有礼</dt>
+						<%=#buildNav(nav, 'promote')%>
+						<%=#buildNav(nav, 'dist_commission')%>
+						<%=#buildNav(nav, 'dist_account')%>
+						<%=#buildNav(nav, 'dist_promoter')%>
+						<%=#buildNav(nav, 'dist_member')%>
+						<%=#buildNav(nav, 'dist_member_orders')%>
+						<%=#buildNav(nav, 'dist_promoter_audit','<span id="dist_promoter_audit" class="dotIco"></span>')%>
+						<%=#buildNav(nav, 'dist_promoter_commission', '<span id="dist_promoter_commission" class="dotIco"></span>')%>
+					</dl>
+					<%
+					} else if (userType === 'PROMOTER') {  // 推广员
+					%>
+					<dl>
+						<dt>推广有礼</dt>
+						<%=#buildNav(nav, 'promote')%>
+						<%=#buildNav(nav, 'promoter_commission')%>
+						<%=#buildNav(nav, 'promoter_account')%>
+						<%=#buildNav(nav, 'promoter_member')%>
+						<%=#buildNav(nav, 'promoter_member_orders')%>
+					</dl>
+					<%
+					}
+					%>
+					<dl>
+						<dt>设置</dt>
+						<%=#buildNav(nav, 'info')%>
+						<%=#buildNav(nav, 'receiver')%>
+						<%=#buildNav(nav, 'safe')%>
+					</dl>
+				</div>
+			</div>
+			<div class="mbright">

@@ -1,0 +1,274 @@
+<% include('../common/begin') %>
+<link rel="stylesheet" href="css/cart.css" type="text/css"/>
+<% include('../common/header_cart') %>
+
+<!--head-->
+<div id="head" class="wd1090 clearfix">
+	<h1 class="fl"><a href="/"><img src="<%=#staticImgWeb('logo.jpg')%>" alt="" title=""/></a></h1>
+	<div class="fr flow">
+		<span class="red"><i class="flows1">1</i>我的购物车</span><span class="red"><i class="flows2">2</i>提交订单</span><span><i class="flows3"></i>完成支付</span>
+	</div>
+</div>
+<!--content-->
+<div id="content">
+	<div class="wd1090">
+		<div class="brdbt-e8"><h3 class="cart-h3">选择收货地址</h3></div>
+		<div>
+			<ul class="address-list clearfix" id="js_addr_list">
+				<%
+				var addrList = cartPreOrderInitResponse.addrList,
+					shipAddrId = cartPreOrderInitResponse.shipAddrId;
+				if (addrList && addrList.length) {
+					for (var i = 0, len = addrList.length; i < len; ++i) {
+						var addr = addrList[i];
+				%>
+				<li <%if (addr.id === shipAddrId) { %> class="on" <% } %> data-addr_id="<%=#addr.id%>" data-state_id="<%=#addr.provinceId%>">
+					<div class="alpad">
+						<p class="alname">
+							<span class="cHtml js-addr-set-def-wrapper">
+								<% if (addr.isDefault === 'Y') {%>
+								<i class="almo">默认地址</i>
+								<% } else { %>
+								<a href="javascript:void(0)" class="bemo js-addr-set-def">设为默认</a>
+								<% } %>
+							</span>
+							<strong><%=addr.shipTo%> 收</strong>
+						</p>
+						<p class="f12" style="width: 304px;text-overflow:ellipsis; white-space:nowrap; overflow:hidden;">
+							<span title="<%=addr.provinceName%>&ensp;<%=addr.cityName%>&ensp;<%=addr.countyName%>&ensp;<%=addr.address%>">
+								<%=addr.provinceName%>&ensp;<%=addr.cityName%>&ensp;<%=addr.countyName%><br/>
+								<%=addr.address%><br/>
+							</span>
+
+							<%=order_util.maskIdCard(addr.idCardNo)%><br/>
+							<%=order_util.maskMobile(addr.mobile)%>
+						</p>
+						<span class="aldoing">
+							<a href="javascript:void(0)" class="js-addr-update">修改</a>|<a href="javascript:void(0)" class="aldel js-addr-delete">删除</a>
+						</span>
+					</div>
+				</li>
+				<%   } %>
+				<% }   %>
+			</ul>
+			<a href="javascript:void(0)" class="add-address" id="js_addr_add_btn">+ 新增收货地址</a>
+		</div>
+		<h3 class="cart-h3">商品清单</h3>
+		<table cellpadding="0" cellspacing="0" width="100%" class="order-tab">
+			<tr>
+				<th width="840">
+					<table cellpadding="0" cellspacing="0" width="100%" class="intab">
+						<tr>
+							<th width="420">商品信息</th>
+							<th width="120">重量</th>
+							<th width="120">单价（元）</th>
+							<th width="90">数量</th>
+							<th width="90">小计</th>
+						</tr>
+					</table>
+				</th>
+				<th width="125">商品总额</th>
+				<th width="125">活动优惠</th>
+			</tr>
+			<tr>
+				<td width="840" class="ptb0">
+					<table cellpadding="0" cellspacing="0" width="100%" class="intab">
+						<%
+						for (var i = 0; i < orderProducts.length; ++i) {
+							var product = orderProducts[i], quantity = productQuantityMap[product.skuId];
+						%>
+						<tr>
+							<td width="420" class="tleft">
+								<div class="plr15 clearfix">
+									<a href="/product-<%=product.skuId%>.html" target="_blank">
+										<span class="picImg fl"><img src="<%=#imageUrl(product.imageUrl,50,50)%>"></span>
+										<div class="txtwrap">
+											<span class="gdsTit" title="<%=product.skuName%>"><%=product.skuName%></span>
+											<p class="light-grey">适用税率：<%=#product.isFreeTax?'免税':(formatMoney(product.taxRate*100)+'%')%></p>
+										</div>
+									</a>
+								</div>
+							</td>
+							<td width="120"><%=product_util.formatProductWeight(product.weight)%><%if(product.isFreeShipping){%><p><span class="youh">免运费</span></p><%}%></td>
+							<td width="120">¥<%=#formatMoney2(product.promotionPrice || product.salePrice)%><p><%if(product.activityType==='FLASH_SALE'||product.activityType==='PRODUCT_PROMOTION'){%><span class="youh"><%=product.activityLabel%></span><%}%></td>
+							<td width="90"><%=#quantity%></td>
+							<td width="90">¥<%=#formatMoney2((product.promotionPrice || product.salePrice) * quantity)%></td>
+						</tr>
+						<%
+						}
+						%>
+					</table>
+				</td>
+				<td width="125">¥<%=#formatMoney2(cartPreOrderInitResponse.totalPayFee)%></td>
+				<td width="125">-¥<%=#formatMoney2(cartPreOrderInitResponse.orderActDiscount)%>
+					<%
+					var orderActList = cartPreOrderInitResponse.orderActList;
+					if (orderActList && orderActList.length) {
+						for (var j = 0; j < orderActList.length; ++j) {
+					%><p class="yhdik"><span><%=orderActList[j].label%></span></p><%
+						}
+					}
+					%>
+				</td>
+			</tr>
+		</table>
+		<!--买家留言及优惠券-->
+		<%
+		var applicableCoupons = cartPreOrderInitResponse.applicableCoupons || [],
+			selectVal = '', selectDisplay;
+		if (applicableCoupons.length) {
+			var coupon = applicableCoupons[0];  // 后台已经排过序，默认使用第一个优惠券
+			selectVal = coupon.id + ':' + coupon.amountDiscount;
+			selectDisplay = coupon.name;
+		} else {
+			selectDisplay = '没有可用的优惠券';
+		}
+		%>
+		<div class="scouBrd clearfix">
+			<div class="fl">
+				<div class="duihm">
+					买家留言<textarea maxlength="200" id="js_buyerMemo"></textarea>
+					<p class="lastStr">您还可以输入<i id="js_buyerMemoLeft">200</i>个字</p>
+				</div>
+			</div>
+			<div class="someCoup">
+				<div class="clearfix">
+					<span class="dWidth"><input type="checkbox" id="js_useCouponCheck" class="check" <%if(applicableCoupons.length){%>checked<%}%> /><label for="js_useCouponCheck">使用优惠券</label></span>
+					<div class="jssel dVoucher">
+					    <input type="text" value="<%=selectDisplay%>" class="jsk" readonly="readonly" id="js_couponSelect"/>
+					    <ul class="condt" style="display:none;" id="js_couponSelectOpts">
+							<%
+							for (var i = 0; i < applicableCoupons.length; ++i) {
+								var coupon = applicableCoupons[i];
+							%>
+							<li value="<%=#(coupon.id + ':' + coupon.amountDiscount)%>"><a href="javascript:void(0)"><%=coupon.name%></a></li>
+							<%
+							}
+							%>
+					    </ul>
+						<input type="hidden" id="js_selectedCoupon" value="<%=#selectVal%>" class="selectVal"/>
+					</div>
+				</div>
+				<div class="clearfix" id="voucLine">
+					<span class="dWidth">输入兑换码</span><input type="text" class="vouIpt" id="js_redeemCodeInput"/><a href="javascript:void(0)" class="vouBtn" id="js_redeemBtn">兑换</a>
+					<p class="lg-error" style="display:none" id="js_redeemError"></p>
+				</div>
+			</div>
+		</div>
+		<!--结算信息-->
+		<div class="cartTotal pre">
+			<input type="hidden" id="js_tpw" value="<%=#cartPreOrderInitResponse.totalPayWeight%>"/>
+			<input type="hidden" id="js_couponId" value="<%=#cartPreOrderInitResponse.couponId || -1%>"/>
+			<p>运费：<span class="wd105 grey5" id="shippingFee">¥<%=#formatMoney2(cartPreOrderInitResponse.shippingFee)%></span></p>
+			<p>优惠券抵扣：<span class="wd105 grey5" id="couponDiscount">-¥<%=#formatMoney2(cartPreOrderInitResponse.couponDiscount)%></span></p>
+			<p>税费：<span class="wd105 grey5" id="totalPayTax" title="含运费税费：¥<%=#formatMoney2(cartPreOrderInitResponse.totalShippingTax)%>">¥<%=#formatMoney2(cartPreOrderInitResponse.totalPayTax)%></span></p>
+			<p>应付金额：<span class="wd105 red f18" id="totalFee">¥<%=#formatMoney2(cartPreOrderInitResponse.totalFee)%></span></p>
+			<p><a href="cart.html" class="mr20 grey5">返回购物车修改</a><a href="javascript:void(0)" class="cart-btn" id="submitOrder">确认并提交</a></p>
+		</div>
+	</div>
+</div>
+
+<% include('../common/footer') %>
+<script type="text/javascript" src="js/lib/template.js"></script>
+<script type="text/javascript" src="js/lib/jquery.selectbox.js"></script>
+<script type="text/javascript" src="js/shop.address.js"></script>
+<script type="text/javascript" src="js/shop.alert.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+<script type="text/javascript" src="js/shop.ship.address.js"></script>
+<script type="text/javascript" src="js/shop.cart.order.js"></script>
+
+<script type="application/x-template" id="js_addr_li_template">
+	<li data-addr_id="{{addr.id}}" data-state_id="{{addr.provinceId}}">
+	<div class="alpad">
+		<p class="alname">
+			<span class="cHtml js-addrj-set-def-wrapper">
+				<i class="almo">默认地址</i>
+			</span>
+			<strong>{{addr.shipTo}}&ensp;收</strong>
+		</p>
+		<p class="f12" style="width: 304px;text-overflow:ellipsis; white-space:nowrap; overflow:hidden;">
+			<span title="{{addr.provinceName}}&ensp;{{addr.cityName}}&ensp;{{addr.countyName}}&ensp;{{addr.address}}">
+				{{addr.provinceName}}&ensp;{{addr.cityName}}&ensp;{{addr.countyName}}<br/>
+				{{addr.address}}<br/>
+			</span>
+			{{ShopUtil.maskIdCard(addr.idCardNo)}}<br/>
+			{{ShopUtil.maskMobile(addr.mobile)}}
+		</p>
+		<span class="aldoing">
+			<a href="javascript:void(0)" class="js-addr-update">修改</a>|<a href="javascript:void(0)" class="aldel js-addr-delete">删除</a>
+		</span>
+	</div>
+	</li>
+</script>
+<script type="application/x-template" id="js_addr_form_template">
+	<table cellpadding="0" cellspacing="0" width="100%" class="add-tab">
+		<tr>
+			<th width="125"><em class="red">*</em>收货人：</th>
+			<td>
+				<input type="text" required value="{{addr.shipTo}}" placeholder="请填写使用者真实姓名，长度不超过12个字" class="ipt cName" maxlength="12"/><i class="wrong-tip"></i>
+			</td>
+		</tr>
+		<tr>
+			<th><em class="red">*</em>手机号码：</th>
+			<td>
+				<input type="text" value="{{addr.mobile}}" placeholder="请输入手机号码" class="ipt cPhone"/><i class="wrong-tip"></i>
+			</td>
+		</tr>
+		<tr>
+			<th>固定电话：</th>
+			<td id="js_addr_telephone">
+				<input type="text" value="{{addr.telephone_region}}" placeholder="区号" class="ipt wd79"/> - <input type="text" value="{{addr.telephone_no}}" placeholder="电话号码" class="ipt wd170"/> - <input type="text" value="{{addr.telephone_ext}}" placeholder="分机号(可选)" class="ipt wd79"/>
+			</td>
+		</tr>
+		<tr>
+			<th><em class="red">*</em>所在区域：</th>
+			<td>
+				<div id="js_addr_select">
+					<div class="m_zlxg js-addr-province">
+						<p title="">选择省份</p>
+						<div class="m_zlxg2">
+							<ul></ul>
+						</div>
+					</div>
+					<div class="m_zlxg js-addr-city">
+						<p title="">选择城市</p>
+						<div class="m_zlxg2">
+							<ul></ul>
+						</div>
+					</div>
+					<div class="m_zlxg js-addr-county">
+						<p title="">选择区域</p>
+						<div class="m_zlxg2">
+							<ul></ul>
+						</div>
+					</div>
+				</div>
+				<i class="wrong-tip"></i>
+			</td>
+		</tr>
+		<tr>
+			<th valign="top"><em class="red">*</em>详细地址：</th>
+			<td>
+				<textarea maxlength="75" value="" placeholder="无须重复填写省市，小于75字" class="cAdd">{{addr.address}}</textarea><i class="wrong-tip"></i>
+			</td>
+		</tr>
+		<tr>
+			<th><em class="red">*</em>身份证号：</th>
+			<td>
+				<input value="{{addr.idCardNo}}" type="text" placeholder="身份证姓名必须与收货人姓名一致" class="ipt cID"/><i class="wrong-tip"></i>
+			</td>
+		</tr>
+		<tr>
+			<th>邮编：</th>
+			<td>
+				<input value="{{addr.zipCode}}" type="text" placeholder="邮政编码为6位有效数字" class="ipt js-zip-code" id="zipCode"/>
+			</td>
+		</tr>
+	</table>
+</script>
+
+<script type="text/javascript">
+var _ITEMS = <%=#itemsJSON%>;
+</script>
+
+<% include('../common/end') %>

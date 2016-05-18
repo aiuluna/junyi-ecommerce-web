@@ -1,0 +1,116 @@
+<% include('../common/begin') %>
+<link rel="stylesheet" href="css/member.css" type="text/css"/>
+<link rel="stylesheet" href="css/lq.datetimepick.css" type="text/css"/>
+<% include('../common/header') %>
+
+<% include('./frame_begin') %>
+
+<h4 class="mbtit">推广有礼</h4>
+<div class="imgmbtit1">
+	<img src="<%=#staticImgWeb('promote_flow.png')%>">
+</div>
+<h4 class="mbtit">分享方式</h4>
+<div class="tgi">
+	<div class="content1">
+		<p>方式一</p>
+		<div>微信扫一扫，朋友圈撒红包</div>
+		<div class=" grey">勾搭朋友成为新用户，朋友注册购买后您将得到返现：）</div>
+		<img src="<%=#imageUrl(mapVo['ReferralQrcodeUrl'], 164, 164)%>">
+	</div>
+	<div class="content2">
+		<p>方式二</p>
+		<div>复制链接分享</div>
+		<div class=" grey">将以下链接分享到您的QQ群或朋友圈，朋友注册购买后您将得到返现</div>
+		<div class="inputborder"><!--onclick="copyTo()"-->
+			<input value="<%=#mapVo['referralUrl']%>" name="copy_link" readonly="readonly" id="js_copy_text"/><a href="javascript:void(0)" id="js_copy_btn">复制</a>
+		</div>
+	</div>
+	<div class="content3">
+		<p>方式三</p>
+		<div>任意商品分享</div>
+		<div class=" grey">任意商品详情页点分享有礼，朋友注册购买后您将得到返现</div>
+		<div class="tgia"><a href="/" target="_blank" class="f16">马上去找商品</a></div>
+	</div>
+</div>
+
+<% include('./frame_end') %>
+<script type="text/javascript" src="js/lib/shop.script.loader.js"></script>
+
+<% include('../common/footer_member') %>
+<script type="text/javascript">
+$(function(){
+	/*点击文本框复制其内容到剪贴板上方法 本方法在下面调用*/
+
+	function initClipboard() {
+		var clipboard = new Clipboard('#js_copy_btn', {
+			target: function() {
+				return $("#js_copy_text")[0];
+			}
+		});
+
+		clipboard.on('success', function(e) {
+			alert("已经成功复制到剪帖板上！");
+
+			e.clearSelection();
+		});
+
+		clipboard.on('error', function(e) {
+			alert('复制失败, 请按 Ctrl + C 试试');
+		});
+	}
+
+	/**
+	 * 对于非IE浏览器, 利用clipboard.js来实现
+	 */
+	function init4NonIE() {
+		ShopScriptLoader.onReady = function() {
+			initClipboard();
+		};
+
+		ShopScriptLoader.load(["js/lib/clipboard.min.js"]);
+	}
+
+	function copyToClipboard(txt) {
+		if (window.clipboardData) {
+			window.clipboardData.clearData();
+			window.clipboardData.setData("Text", txt);
+			alert("已经成功复制到剪帖板上！");
+		} else if (navigator.userAgent.indexOf("Opera") != -1) {
+			window.location = txt;
+		} else if (window.netscape) {
+			try {
+				netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+			} catch(e) {
+				alert("被浏览器拒绝！\n请在浏览器地址栏输入'about:config'并回车\n然后将'signed.applets.codebase_principal_support'设置为'true'");
+			}
+			var clip = Components.classes['@mozilla.org/widget/clipboard;1'].createInstance(Components.interfaces.nsIClipboard);
+			if (!clip) return;
+			var trans = Components.classes['@mozilla.org/widget/transferable;1'].createInstance(Components.interfaces.nsITransferable);
+			if (!trans) return;
+			trans.addDataFlavor('text/unicode');
+			var str = new Object();
+			var len = new Object();
+			var str = Components.classes["@mozilla.org/supports-string;1"].createInstance(Components.interfaces.nsISupportsString);
+			var copytext = txt;
+			str.data = copytext;
+			trans.setTransferData("text/unicode", str, copytext.length * 2);
+			var clipid = Components.interfaces.nsIClipboard;
+			if (!clip) return false;
+			clip.setData(trans, null, clipid.kGlobalClipboard);
+			alert("已经成功复制到剪帖板上！");
+		} else {
+			alert('复制失败, 请按 Ctrl + C 试试');
+		}
+	}
+
+	if (window.clipboardData) {
+		$('#js_copy_btn').on('click',function () {
+			var txt = $("#js_copy_text").val();
+			copyToClipboard(txt);
+		});
+	} else {
+		init4NonIE();
+	}
+});
+</script>
+<% include('../common/end') %>

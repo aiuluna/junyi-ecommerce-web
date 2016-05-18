@@ -1,0 +1,171 @@
+<% include('../common/begin') %>
+<link rel="stylesheet" href="css/member.css" type="text/css"/>
+<link rel="stylesheet" href="css/lq.datetimepick.css" type="text/css"/>
+<% include('../common/header') %>
+
+<% include('./frame_begin') %>
+<div class="mbright">
+	<h4 class="mbtit">推广员申请表（结算账户）</h4>
+	<div class="p15 pre">
+		<table width="100%" cellspacing="0" cellpadding="0" class="add-tab">
+			<tbody><tr>
+				<td colspan="2">支付宝账户（至少填写一个账户）</td>
+			</tr>
+			<tr>
+				<th width="125"><em class="red">*</em>支付宝账号：</th>
+				<td>
+					<input type="text" placeholder="请输入支付宝账号" minlength="4" maxlength="100" class="ipt" id="aliCnum" value="" tabindex="1"><p class="lg-error"></p></i>
+				</td>
+			</tr>
+			<tr>
+				<th><em class="red">*</em>账户姓名：</th>
+				<td><input type="text" placeholder="请输入账户姓名" maxlength="20" class="ipt" id="aliName" value="" tabindex="2"><p class="lg-error"></p></td>
+			</tr>
+			<tr>
+				<td colspan="2">银行账户（至少填写一个账户）</td>
+			</tr>
+			<tr>
+				<th><em class="red">*</em>开户人姓名：</th>
+				<td>
+					<input type="text" placeholder="请输入开户人姓名" maxlength="20" class="ipt khName" id="khName" value="" tabindex="3"><p class="lg-error"></p>
+				</td>
+			</tr>
+			<tr>
+				<th><em class="red">*</em>开户行名称：</th>
+				<td><input type="text" placeholder="请输入开户行名称" maxlength="50" class="ipt" id="khBank" value="" tabindex="4"><p class="lg-error"></p></td>
+			</tr>
+			<tr>
+				<th><em class="red">*</em>开户网点：</th>
+				<td><input type="text" placeholder="请输入开户网点" class="ipt" maxlength="100" id="khMesh" value="" tabindex="5"><p class="lg-error"></p></td>
+			</tr>
+			<tr>
+				<th><em class="red">*</em>银行卡号：</th>
+				<td><input type="text" placeholder="请输入银行卡号" class="ipt" id="khCnum" maxlength="24" value="" tabindex="6"><p class="lg-error"></p></td>
+			</tr>
+			<tr>
+				<th>&nbsp;</th>
+				<td><input type="checkbox" value="" name="" class="goux">我已经认真阅读并同意蚂蚁海购的<a href="member-promoter-agreement.html" target="_blank" class="red">《推广员协议》</a></td>
+			</tr>
+			<tr>
+				<th>&nbsp;</th>
+				<td><input type="submit" value="立即申请" name="" class="mbBtn bg-grey" id="tgsub"  disabled="disabled"></td>
+			</tr>
+			</tbody></table>
+		<div class="aliPay-li fanli">
+			<a href="javascript:void(0)" class="pWord">填写范例</a>
+			<div class="pWrite" style="display: none;">
+				<table width="100%" cellspacing="0" cellpadding="0" class="add-tab">
+					<tbody><tr>
+						<th width="110"><em class="red">*</em>支付宝账号：</th>
+						<td>18545655454</td>
+					</tr>
+					<tr>
+						<th><em class="red">*</em>账户姓名：</th>
+						<td>张凯</td>
+					</tr>
+					</tbody></table>
+			</div>
+		</div>
+		<div class="bankPay-li fanli">
+			<a href="javascript:void(0)" class="pWord">填写范例</a>
+			<div class="pWrite" style="display: none;">
+				<table width="100%" cellspacing="0" cellpadding="0" class="add-tab">
+					<tbody><tr>
+						<th width="110"><em class="red">*</em>开户人姓名：</th>
+						<td>张凯</td>
+					</tr>
+					<tr>
+						<th><em class="red">*</em>开户行名称：</th>
+						<td>中国建设银行</td>
+					</tr>
+					<tr>
+						<th valign="top"><em class="red">*</em>开户网点：</th>
+						<td>中国建设银行杭州翠苑分理处</td>
+					</tr>
+					<tr>
+						<th><em class="red">*</em>银行卡号：</th>
+						<td>6217 0098 6789 0987 765</td>
+					</tr>
+					</tbody></table>
+			</div>
+		</div>
+	</div>
+</div>
+<% include('./frame_end') %>
+
+<% include('../common/footer_member') %>
+<script type="text/javascript" src="js/account.apply_next.js"></script>
+<script type="text/javascript">
+$(function(){
+	$('#tgsub').on('click',function(){
+		var name = '<%=#promoter_info.name%>';
+		var mobile = '<%=#promoter_info.mobile%>';
+		var gender = '<%=#promoter_info.gender%>';
+		var reason = '<%=#promoter_info.reason%>';
+
+		var tgflag = (account.tgSub()!==false);
+		var aliPayflag = (account.aliPaySub()!==false);
+		if(!(tgflag||aliPayflag)){
+			account.warn();
+			return;
+		}
+		data={
+			userName:formatInput(name),
+			sexType:formatInput(gender),
+			userMobile:formatInput(mobile),
+			requestReason:formatInput(reason)
+		};
+
+		if(tgflag){
+			data.accountName = formatInput($('#khName').val());
+			data.bankName = formatInput($('#khBank').val());
+			data.bankSite = formatInput($('#khMesh').val());
+			data.accountNo = formatInput($('#khCnum').val());
+			data.accountType = 'BANK';
+		}
+
+		if(aliPayflag){
+			data.alipayNo = formatInput($('#aliCnum').val());
+			data.alipayName = formatInput($('#aliName').val());
+			data.accountType = 'ALI_PAY';
+		}
+
+		if(tgflag&&aliPayflag){
+			delete data.accountType;
+		}
+
+		function formatInput(value){
+			return value.replace(/\s+/g, '');
+		}
+
+		var success = function(result){
+			if(result.success){
+				window.location.href = '/member-promoter-apply.html';
+			}
+		};
+
+		var error = function(result){
+			ShopAlert.alert('提示',result.error.message);
+		};
+
+		var opt ={
+			url:'/member/promoter/apply/submit',
+			data:data,
+			success:success,
+			error:error
+		};
+		Shop.post(opt);
+	});
+
+	$(".goux").change(function(){
+		var tgsub = $(this).parents("tr").siblings("tr").find("#tgsub");
+		tgsub.toggleClass("bg-grey");
+		if (tgsub.attr("disabled")) {
+			tgsub.removeAttr("disabled");
+		} else {
+			tgsub.attr("disabled", "disabled");
+		}
+	});
+});
+</script>
+<% include('../common/end') %>

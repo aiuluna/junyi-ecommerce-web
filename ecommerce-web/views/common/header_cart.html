@@ -1,0 +1,44 @@
+</head>
+<!-- HACK: add onunload to body, see http://stackoverflow.com/questions/158319/cross-browser-onload-event-and-the-back-button -->
+<body onunload="">
+<%
+var homepageConfig = _siteConfig.homepage;
+if (homepageConfig.bannerImage) {
+	var bannerImage = homepageConfig.bannerImage;
+%>
+<a href="<%=#bannerImage.linkUrl ? encodeURI(bannerImage.linkUrl) : 'javascript:void(0)'%>" target="_blank" class="ad"><img src="<%=#imageUrlCrop(bannerImage.imageUrl,1920,80)%>" width="100%"/></a>
+<%
+}
+%>
+<!--top-->
+<div id="top">
+	<div class="wd1090 clearfix">
+		<div class="topleft">
+		<% if (_user) { %>
+			<a href="passport-login.html" class="red">您好，<%=_user.name || _user.login || _user.mobile%>！</a>&nbsp;&nbsp;<a href="passport-logout.html" class="grey">退出</a>
+		<% } else { %>
+			欢迎来到<%=_siteName%><span class="llink">！<a href="passport-login.html" class="grey">请登录</a> | <a href="passport-signup.html" class="red">快速注册</a></span>
+		<% } %>
+		</div>
+		<ul class="topright clearfix">
+			<li><a href="member-orders.html">我的订单</a></li>
+			<li><a href="member.html">会员中心</a></li>
+			<li><a href="help-101.html">帮助中心</a></li>
+			<li><a href="javascript:void(0)" onclick="if(doyoo&&doyoo.util)doyoo.util.openChat('g=10059046')">在线客服</a></li>
+			<li class="liMore">
+				<span class="sep">|</span><a href="#" class="toplevel">更多<i class="arr"></i></a>
+				<div class="dropDown">
+					<a href="#">收藏本站</a>
+					<a href="#" target="_blank" class="brdtop">
+						新浪微博
+						<span class="code"><img src="<%=#staticImgWeb('2dcode-wb.jpg')%>" width="100" height="100"/></span>
+					</a>
+					<a href="#" target="_blank">
+						微信公众号
+						<span class="code"><img src="<%=#staticImgWeb('2dcode-wx.jpg')%>" width="100" height="100"/></span>
+					</a>
+				</div>
+			</li>
+		</ul>
+	</div>
+</div>

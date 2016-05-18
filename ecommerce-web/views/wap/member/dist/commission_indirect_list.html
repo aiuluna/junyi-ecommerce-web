@@ -1,0 +1,111 @@
+<% include('../../common/begin') %>
+<% include('../../common/header') %>
+<div class="wd640">
+    <% if (!_isWeixin) { %>
+    <header>
+        <div class="header clearfix">
+            <a href="javascript:historyBack()" class="sc-prev">&nbsp;</a>
+            非推广佣金
+        </div>
+    </header>
+    <% } %>
+    <div class="bg_white">
+        <div class="ymChoose clearfix">
+            <span class="mbdt">结算时间</span>
+            <input type="hidden" id="js_time_range" value="4"/>
+            <div class="infcon" id="sexbtn"><span id="chtmlIn">全部</span><i class="u-rtarr"></i></div>
+        </div>
+        <div id="win-middle" style="display: none;">
+            <span class="noIco5"></span>
+            <p class="f16 light-grey">没有非推广佣金记录</p>
+        </div>
+
+        <ul class="odlist" id="js_item_wrapper"></ul>
+    </div>
+
+</div>
+<div id="dateOrder"></div>
+
+<script type="application/x-template" id="js_item_template">
+    <li>
+        <a href="member-order-detail-{{#order.orderNo}}.html?commissionType=indirect">
+            <div class="odclear clearfix">
+                <div class="odLleft">¥{{#ShopUtil.formatMoney(order.commissionFee)}}<br/>(返佣)</div>
+                <dl class="odLright">
+                    <dd><span class="grey">订单编号：</span>{{#order.orderNo}}</dd>
+                    <dd><span class="grey">会员：</span>{{#order.buyerLogin}}{{#order.buyerName?"("+order.buyerName+")":""}}</dd>
+                    <dd><span class="grey">结算时间：</span>{{#ShopUtil.formatDate(order.settleTime, 'yyyy-MM-dd')}}</dd>
+                </dl>
+                <i class="u-rtarrL fr"></i>
+            </div>
+        </a>
+    </li>
+</script>
+
+<% include('../../common/footer_simple') %>
+<script type="text/javascript" src="js/lib/template.js"></script>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+<script type="text/javascript" src="js/shop.scroll.js"></script>
+<script type="text/javascript">
+    $(function() {
+        ShopUtil.initTemplateHelper();
+        var $wrapper = $('#js_item_wrapper');
+        var $noData = $('#win-middle');
+        var itemTmpl = ShopUtil.getTemplateById('js_item_template');
+
+        ShopScroll.init({
+            loadAtFirst: false,
+            dataWrapper: $wrapper,
+            emptyWrapper: $noData,
+            method:'POST',
+            url:'/member/distributor/commission/indirect',
+            getParams: function() {
+                var param = {timeRange: ShopUtil.getFinishTimeRange($('#js_time_range').val())};
+                return $.extend({pageSize: 8}, param);
+            },
+            afterLoad: function() {
+                $(".odlist").trigger('change');
+            },
+            beforeAppendData: function() {
+                $noData.hide();
+            },
+            afterAppendData: function() {
+            },
+            onDataEnd: function() {
+                $wrapper.append('<li class="nomore">已显示全部内容</li>');
+            },
+            onDataEmpty: function() {
+                $noData.show();
+                $wrapper.html('');
+            },
+            renderItem: function(order) {
+                return itemTmpl({
+                    order: order,
+                    ShopUtil: ShopUtil
+                });
+            },
+            fail: function() {}
+        });
+
+        var selectData = [
+            {id: '1', text: '近一个月'},
+            {id: '2', text: '近三个月'},
+            {id: '3', text: '近半年'},
+            {id: '4', text: '全部'}
+        ];
+        ShopSelect.select(
+            selectData,
+            $('#sexbtn'),
+            '4', /* 全部 */
+            function($ele) {
+                var $a = $('a', $ele);
+                var value = $a.data('value'), text = $a.text();
+                $('#js_time_range').val(value);
+                $('#chtmlIn').text(text);
+                ShopScroll.reload();
+            }
+        );
+    });
+</script>
+<% include('../../common/end') %>

@@ -1,0 +1,82 @@
+<p class="popTit mbtom15">邮箱验证</p>
+<!--step1-->
+<div id="email_step1" style="display:block;">
+    <div class="tct flow">
+        <span class="red"><i class="flows2">1</i>邮箱验证</span><span><i class="flows3">2</i>完成</span>
+    </div>
+    <table cellpadding="0" cellspacing="0" width="100%" class="sfTab">
+        <tr>
+            <th><em class="red">*</em>邮箱：</th>
+            <td>
+                <input minlength="5" maxlength="40" type="text" value="" style="width:250px" name="" class="ipt" id="email_id"/>
+                <a style="float:right" tabindex="-1" href="javascript:void(0)" class="redbtn" id="sendEmail">发送验证邮箱</a>
+                <p class="lg-error"></p>
+            </td>
+        </tr>
+    </table>
+</div>
+<!--step2-->
+<div id="email_step2" style="display:none;">
+    <div class="tct flow">
+        <span class="red"><i class="flows1">1</i>邮箱验证</span><span class="red"><i class="flows1">2</i>完成</span>
+    </div>
+    <div class="scspad">
+        <p class="scsico">激活邮件已发送至您的邮箱，请前往验证</p>
+    </div>
+    <div class="tct flow">
+        <p class="step2Line" style="margin:0 auto 15px;" ><em id="accept_email"></em><a id="email_back" href="javascript:void(0)" class="red fr" >返回修改</a></p>
+    </div>
+</div>
+<script type="text/javascript">
+var _init_safe_email = function() {
+    function showErrorMessage(selector,message){
+        selector.parent().addClass('lgHold');
+        selector.siblings('.lg-error').html(message);
+    }
+    function removeError(selector){
+        selector.parent().removeClass('lgHold');
+    }
+    function checkEmail(data){
+        var reg = /^([\.a-zA-Z0-9_-])+@([\.a-zA-Z0-9_-])+\.([\.a-zA-Z0-9_-])+$/;
+        if(reg.test(data)){
+            removeError($("#email_id"));
+            return true;
+        }
+        showErrorMessage($("#email_id"),"请填写正确的邮箱地址");
+        return false;
+    }
+
+    $("#email_back").click(function(){
+        $('#email_step1').show();
+        $('#email_step2').hide();
+        $("#email_id").val("").focus();
+        removeError($("#email_id"));
+        $("#sendEmail").click(clickEvent);
+    });
+    var clickEvent = function(){
+        var data = $.trim($("#email_id").val());
+        if(!checkEmail(data)){
+            return;
+        }
+        function success(){
+            $("#accept_email").text("接收邮箱："+$.trim($("#email_id").val()));
+            $('#email_step1').hide();
+            $('#email_step2').show();
+        }
+
+        function error(result){
+            $("#sendEmail").click(clickEvent);
+            showErrorMessage($("#email_id"),result.error.message);
+        }
+        var opt ={
+            url:'/member/safe/sendEmailVerified/'+data,
+            success:success,
+            error:error
+        };
+        $("#sendEmail").unbind("click");
+        showErrorMessage($("#email_id"),"邮件发送中，请稍等");
+        Shop.get(opt);
+    };
+    $("#sendEmail").click(clickEvent);
+}();
+</script>

@@ -1,0 +1,31 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:void(0)" class="sc-prev">&nbsp;</a>
+			限时促销
+		</div>
+	</header>
+	<% } %>
+	<div class="promotion">
+		<img src="<%=#staticImgWap('promotionBg.jpg')%>" width="100%"/>
+		<span class="promtIco1"></span>
+		<div class="promtIco2">
+			活动尚未开始<br/>敬请期待
+		</div>
+	</div>
+</div>
+
+<% include('../common/footer') %>
+<script type="text/javascript">
+$(function(){
+	var wH = $(window).height();
+	var $header = $(".header");
+	var headH = $header.length ? $header.outerHeight() : 0;
+	$(".promotion").css("height",wH-headH-55)
+});
+</script>
+<% include('../common/end') %>

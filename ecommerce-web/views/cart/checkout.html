@@ -1,0 +1,139 @@
+<% include('../common/begin') %>
+<link rel="stylesheet" href="css/cart.css" type="text/css"/>
+<% include('../common/header_cart') %>
+
+<!--head-->
+<div id="head" class="wd1090 clearfix">
+	<h1 class="fl"><a href="/"><img src="<%=#staticImgWeb('logo.jpg')%>" alt="" title=""/></a></h1>
+	<div class="fr flow">
+		<span class="red"><i class="flows1">1</i>我的购物车</span><span class="red"><i class="flows1">2</i>提交订单</span><span class="red"><i class="flows2">3</i>完成支付</span>
+	</div>
+</div>
+<!--content-->
+<div id="content">
+	<div class="wd1090">
+		<div class="payline1">
+			<p class="f18 weight">订单提交成功，现在只差最后一步啦！</p>
+			<p class="grey">请您在提交订单后<span class="red" id="js_order_countdown"><%=order_util.formatOrderExpireTime(order)%></span>内完成支付，否则订单会自动取消！</p>
+		</div>
+		<div class="payline2">
+			<p>
+				<a href="/member-orders.html" target="_blank" class="fr grey">我的订单 ></a>
+				订单编号：<%=#order.orderNo%><span class="ml40">订单商品数量：<%=#order.items.length%></span>
+			</p>
+			<p>收货信息：<%=order.address.state%>&ensp;<%=order.address.city%>&ensp;<%=order.address.county%>&ensp;<%=order.address.address%>&emsp;（<%=order.address.consignee%> 收，<%=order_util.maskMobile(order.address.mobile)%>）</p>
+		</div>
+		<div class="payline3">支付金额：<span class="red f18 weight">¥<%=#formatMoney2(order.totalFee+order.adjustFee)%></span></div>
+		<div class="payline4">
+			<p class="pltit">支付方式</p>
+			<ul class="paymelist clearfix" id="js_pay_select">
+				<li class="on" data-type="alipay" data-order_no="<%=order.orderNo%>">
+					<img src="images/payme1.jpg" alt="支付宝" title="支付宝"/>
+				</li>
+				<li data-type="wechat" data-order_no="<%=order.orderNo%>">
+					<img src="images/payme2.jpg" alt="微信支付" title="微信支付"/>
+				</li>
+				<li data-type="allinpay" data-order_no="<%=order.orderNo%>">
+					<img src="images/payme3.jpg" alt="通联支付" title="通联支付"/>
+				</li>
+			</ul>
+		</div>
+		<div class="payline5">
+			使用<span class="pmethod red" id="js_pay_name">支付宝</span>进行支付&nbsp;&nbsp;<a href="javascript:void(0)" class="cart-btn payBtn" id="js_pay_btn">确认支付</a>
+		</div>
+	</div>
+</div>
+<% include('../common/footer') %>
+<script type="text/javascript" src="js/shop.alert.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+<script type="text/javascript">
+	$(function() {
+		$("#goTop").hide();
+
+		var orderNo = '<%=#order.orderNo%>';
+		var futureTime = parseInt('<%=#order_util.getOrderExpireTime(order)%>');
+		var serverTime = parseInt('<%=#order_util.getOrderServerTime()%>');
+		var task = Shop.newCountDownCtrl().create({
+			data: orderNo,
+			futureTime: futureTime, /* new Date().getTime() + 3600  * 1000*/
+			serverTime: serverTime,
+			onTick: function(orderNo, result) {
+
+				var keys = ['day', 'hour', 'minute', 'second'];
+				var units = ['天', '小时', '分', '秒'];
+				var arr = [];
+				for(var i = 0, len = keys.length; i < len; ++i) {
+					var key = keys[i];
+					var val = result[key] || 0;
+					/* 分钟,秒钟 一直显示; 不显示 */
+					if (val || (key == 'second' || key == 'minute')) {
+						arr[arr.length] = val < 10 ? ('0' + val) : val;
+						arr[arr.length] = units[i];
+					}
+				}
+				$('#js_order_countdown').text(arr.join(''));
+			},
+			onTimeout: function(orderNo) {
+				window.location.href = 'member-orders-view-<%=#order.orderNo%>.html';
+			}
+		});
+		task.start();
+
+		var $paySelects = $('#js_pay_select');
+		$paySelects.on('click', 'li', function() {
+			$('li.on', $paySelects).removeClass('on');
+			var $me = $(this);
+			var payType = $me.data('type');
+			var orderNo = $me.data('order_no');
+			$me.addClass('on');
+			if (payType === 'alipay') {
+				$('#js_pay_name').text('支付宝');
+			}else if (payType === 'wechat') {
+				$('#js_pay_name').text( '微信');
+			}else if (payType === 'allinpay') {
+				$('#js_pay_name').text('通联支付');
+			}
+			var $payBtn = $('#js_pay_btn');
+			$payBtn.data('type', payType);
+			if (payType === 'alipay') {
+				$payBtn.attr('href', 'cart-pay-alipay-' + orderNo + '.html').attr('target', '_new');
+			} else if (payType === 'wechat') {
+				$payBtn.attr('href', 'cart-pay-wechat-' + orderNo + '.html').attr('target', '_self');
+			} else if (payType === 'allinpay') {
+				$payBtn.attr('href', 'cart-pay-allinpay-' + orderNo + '.html').attr('target', '_self');
+			}
+		});
+
+		$('#js_pay_btn').on('click', function() {
+			var $me = $(this);
+			var type = $me.data('type');
+			if (type === 'alipay') {
+				var cb = function(yes) {
+					if (yes === 'yes') {
+						/* 跳转到订单列表页面 */
+						window.location.href = 'member-orders.html';
+					} else {
+						/* 支付出现问题, 或者用户自己关闭 */
+						window.location.reload(true);
+					}
+				};
+				var body = '<div class="erTip">请在第三方支付页面完成付款<br/>付款完成前请不要关闭此窗口</div>';
+				ShopAlert.confirm( '提示', body,  cb, {
+					className: 's-alert-w-420',
+					buttons: {
+						ok : {
+							text: '我已付款成功'
+						},
+						cancel: {
+							text: '付款遇到问题，请重新支付'
+						}
+					}
+				});
+			}
+		});
+
+		/* 默认选中第一种支付方式 */
+		$('li:first', $paySelects).trigger('click');
+	});
+</script>
+<% include('../common/end') %>

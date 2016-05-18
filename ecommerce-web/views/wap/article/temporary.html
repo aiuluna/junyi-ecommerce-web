@@ -1,0 +1,52 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:void(0)" class="sc-prev" onclick="return historyBack()">&nbsp;</a>
+			<%=titleNoPostfix%>
+		</div>
+	</header>
+	<% } %>
+	<div class="its">
+		<img src="<%=#imageUrlCrop(bannerImageUrl,640,240)%>" width="100%"/>
+	</div>
+	<div class="idLine2">
+		<ul class="dt-list clearfix">
+			<%
+			for (var i = 0; i < products.length; ++i) {
+				var product = products[i];
+			%>
+			<li>
+				<a href="product-<%=#product.skuId%>.html">
+					<div class="pre">
+						<%=#product_util.renderProductTag(product,'i')%>
+						<%=#product_util.renderProductSaleStatus(product,true)%>
+						<img data-original="<%=#imageUrl(product.imageUrl,320,320)%>" class="lazy" width="100%"/>
+					</div>
+					<div class="u-brand light-grey"><%=#product_util.renderProductOriginLogo(product,32,32)%><%=product.productOriginName%>&nbsp;<%=product.freightMethodName%></div>
+					<p class="tit"><%=product.skuName%></p>
+					<p>
+						<del class="fr">¥<%=#formatMoney(product.marketPrice)%></del>
+						<span class="red f16">¥<%=#formatMoney(product.promotionPrice || product.salePrice)%></span>
+						<% if (product.activityType === 'FLASH_SALE' || product.activityType === 'PRODUCT_PROMOTION') { %>
+						<span class="actico"><%=#product.activityLabel%></span>
+						<% } else if (product.activityType === 'ORDER_PROMOTION') { %>
+						<span class="actico"><%=#product.activityTypeName%></span>
+						<% } %>
+					</p>
+				</a>
+			</li>
+			<%
+			}
+			%>
+		</ul>
+	</div>
+	<p class="nomore">已显示全部内容</p>
+</div>
+
+<% include('../common/footer') %>
+<script type="text/javascript" src="js/lib/jquery.lazyload.js"></script>
+<% include('../common/end') %>

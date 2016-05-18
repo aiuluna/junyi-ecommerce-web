@@ -1,0 +1,61 @@
+<% include('../../common/begin') %>
+<link rel="stylesheet" href="css/member.css" type="text/css"/>
+<% include('../../common/header') %>
+
+<% include('../frame_begin') %>
+
+<h4 class="mbtit">我的佣金</h4>
+<div class="pgSpan">
+	<span class="on">银行卡账户</span>
+	<%
+	if(accountVO.alipayNo || accountVO.alipayName) {
+	%>
+	<span>支付宝账户</span>
+	<%
+	}
+	%>
+</div>
+<div class="pgDiv">
+	<table width="100%" cellspacing="0" cellpadding="0" class="add-tab">
+		<tr>
+			<th width="90">开户人姓名：</th>
+			<td><%=accountVO.accountName%></td>
+		</tr>
+		<tr>
+			<th>开户行名称：</th>
+			<td><%=accountVO.bankName%></td>
+		</tr>
+		<tr>
+			<th>开户网点：</th>
+			<td><%=accountVO.bankSite%></td>
+		</tr>
+		<tr>
+			<th>银行卡号：</th>
+			<td><%=#accountVO.accountNo%></td>
+		</tr>
+	</table>
+</div>
+<%
+if(accountVO.alipayNo || accountVO.alipayName) {
+%>
+<div class="pgDiv">
+	<table width="100%" cellspacing="0" cellpadding="0" class="add-tab">
+		<tr>
+			<th width="90">支付宝账户：</th>
+			<td><%=accountVO.alipayNo%></td>
+		</tr>
+		<tr>
+			<th>账户姓名：</th>
+			<td><%=accountVO.alipayName%></td>
+		</tr>
+	</table>
+</div>
+
+<%
+}
+%>
+
+<% include('../frame_end') %>
+
+<% include('../../common/footer_member') %>
+<% include('../../common/end') %>

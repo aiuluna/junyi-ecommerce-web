@@ -1,0 +1,23 @@
+{
+  "name": "build",
+  "version": "1.0.0",
+  "description": "Compress js/css resources and package the project",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "build"
+  ],
+  "author": "Lu, Xiaochun",
+  "dependencies": {
+    "archiver": "^0.21.0",
+    "fs-extra": "^0.26.5",
+    "q": "^1.4.1",
+    "qiniu": "^6.1.9",
+    "uglify-js": "^2.6.2",
+    "uglifycss": "0.0.20",
+    "walk": "^2.3.9"
+  }
+}

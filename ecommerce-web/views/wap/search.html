@@ -1,0 +1,122 @@
+<% include('common/begin') %>
+<% include('common/header') %>
+
+<%
+var keywords = homepageConfig.mobile.keywords,
+	placeholder = keywords.length > 0 ? keywords[0] : '请输入商品名称',
+	productFilter = searchFilter;
+%>
+<div class="wd640 scCon" id="pageSearch">
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:void(0)" class="sc-prev" onclick="return historyBack()">&nbsp;</a>
+			<div class="sc-ipt ml40">
+				<span class="srcIpt"><input type="text" id="searchInput" value="<%=searchQuery.q%>" placeholder="<%=placeholder%>"/><i class="srcClose"></i></span><a href="javascript:void(0)" class="srico2" onclick="doSearch()">搜索</a>
+			</div>
+		</div>
+	</header>
+	<% if (searchResult && searchResult.totalCount > 0) { %>
+	<div class="scondit">
+		<a href="javascript:void(0)" class="sc-sale">销量<i class="sc-ico2 hidden"></i></a><a href="javascript:void(0)" class="sc-price">价格<i class="sc-ico2 sc-ico3 hidden"></i></a><a href="javascript:void(0)" class="red" onclick="openFilterPage()">筛选</a>
+	</div>
+	<div class="somekw sx-kw" style="display:none"></div>
+	<ul class="idList" id="productList" data-totalPages="<%=#searchResult.totalPages%>">
+		<% include('./search_result') %>
+	</ul>
+	<p class="nomore" id="loadingLabel"><%=#searchResult.totalPages>1?'加载中...':'已显示全部内容'%></p>
+	<% } %>
+	<div id="win-middle" class="winmidT" <%if(searchResult && searchResult.totalCount > 0){%>style="display:none"<%}%> >
+		<span class="noico"></span>
+		<p class="f16">没有符合要求的商品</p>
+		<p class="f12 light-grey">换个关键字或筛选条件试试吧</p>
+	</div>
+</div>
+<!--筛选条件-->
+<div class="page" id="pageFilter">
+	<div class="header" class="clearfix">
+		<a href="javascript:void(0)" class="sc-prev" onclick="return historyBack()">&nbsp;</a>
+		筛选
+	</div>
+	<dl class="scrDiv">
+		<dd>
+			<p class="sxtit"><i></i>商品类型</p>
+			<div class="sx-condit" id="productClasses" style="display:none">
+				<%
+				for(var classes = productFilter.productClasses, i = 0; i < classes.length; i++) {
+				%>
+				<a href="javascript:void(0)" data-type="class" data-id="<%=#classes[i].id%>"><%=#classes[i].name%></a>
+				<%
+				}
+				%>
+			</div>
+		</dd>
+		<dd>
+			<p class="sxtit"><i></i>商品产地</p>
+			<div class="sx-condit" id="productOrigins" style="display:none">
+				<%
+					for(var origs = productFilter.productOrigins, i = 0; i < origs.length; i++) {
+				%>
+				<a href="javascript:void(0)" data-type="origin" data-id="<%=#origs[i].id%>"><%=#origs[i].name%></a>
+				<%
+					}
+				%>
+			</div>
+		</dd>
+		<dd>
+			<p class="sxtit"><i></i>商品分类</p>
+			<div class="sx-condit" id="productCategories" style="display:none">
+				<%
+				for (var catgs = productFilter.productCategories, i = 0; i < catgs.length; ++i) {
+					var cat = catgs[i];
+					if (cat.level > 1) continue;
+				%>
+				<a href="javascript:void(0)" data-type="category" data-id="<%=#cat.id%>"><%=#cat.name%></a>
+				<%
+				}
+				%>
+			</div>
+		</dd>
+		<dd>
+			<p class="sxtit" id="braBtn"><i></i>商品品牌<span id="braHtml"></span></p>
+		</dd>
+		<dd>
+			<div class="sx-condit mtop10" id="tags">
+				<a href="javascript:void(0)" data-tag="HOT_SALE">热卖</a><a href="javascript:void(0)" data-tag="NEW">新品</a><a href="javascript:void(0)" data-tag="PARTICULAR">精品</a>
+			</div>
+		</dd>
+		<dd>
+			<div class="sx-price">价格区间（元）&nbsp;<input type="tel" id="priceLow"/> ~ <input type="tel" id="priceHigh"/></div>
+		</dd>
+		<dd>
+			<p class="sxL1"><input type="checkbox" id="isPromotion" class="check fr" /><label for="isPromotion">只看优惠商品<label></p>
+		</dd>
+		<dd><p class="sxbtn"><a href="javascript:void(0)" class="sxbtn1 sxClose">取消</a><a href="javascript:void(0)" class="sxbtn2">确定</a></p></dd>
+	</dl>
+</div>
+<!--品牌选择-->
+<div class="page level2" id="pageBrand">
+	<div class="header" class="clearfix">
+		<a href="javascript:void(0)" class="sc-prev" onclick="return historyBack()">&nbsp;</a>
+		商品品牌
+		<a href="javascript:void(0)" class="brsure">确定</a>
+	</div>
+	<ul class="bra-list" id="productBrands">
+		<%
+		for(var brands = productFilter.productBrands, i = 0; i < brands.length; i++) {
+		%>
+		<li><i></i><a href="javascript:void(0)" data-type="brand" data-id="<%=#brands[i].id%>"><%=#brands[i].name%></a></li>
+		<%
+		}
+		%>
+	</ul>
+</div>
+
+<% include('common/footer') %>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.search.js"></script>
+<script type="text/javascript">
+var isWeixin = <%=#_isWeixin?'true':'false'%>;
+var isDefaultPage = false;
+var searchParam = <%=#searchParamJsonStr%>;
+</script>
+<% include('common/end') %>

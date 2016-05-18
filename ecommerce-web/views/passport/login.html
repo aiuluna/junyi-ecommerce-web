@@ -1,0 +1,63 @@
+<% include('../common/begin') %>
+<link rel="stylesheet" href="css/login.css" type="text/css"/>
+<% include('../common/header_passport') %>
+
+<!--content-->
+<div id="loginCon" style="background-image:url(<%=#adsSetting&&adsSetting.imageUrl?imageUrl(adsSetting.imageUrl):staticImgWeb('login_bg.jpg')%>)">
+	<div class="wd1090 clearfix pre">
+		<% if (adsSetting && adsSetting.linkUrl) { %>
+		<a href="<%=#encodeURI(adsSetting.linkUrl)%>" target="_blank" class="lgAd">&nbsp;</a>
+		<% } %>
+		<div id="js_login_box" class="loginBox">
+			<div><a href="passport-signup.html" class="red fr">快速注册</a><h3 class="f18">用户登录</h3></div>
+			<dl class="formDl">
+				<dd>
+					<p class="clearfix">
+						<span class="lgico1"></span>
+						<input type="text" class="js-lgipt" value="<%=#mobile%>" name="login" placeholder="用户名/手机号码/邮箱" id="lgName" tabIndex="1"/>
+					</p>
+					<p class="lg-error"></p>
+				</dd>
+				<dd>
+					<p class="clearfix">
+						<span class="lgico2"></span>
+						<input id="showPwd" class="showPwd lgPassw js-lgipt" name="password_placehoder" type="text" placeholder="请输入密码" tabindex="2"/>
+						<input id="lgPwd" class="pwd lgPassw js-lgipt" name="password" type="password" tabindex="2" style="display:none"/>
+					</p>
+					<p class="lg-error"></p>
+				</dd>
+			</dl>
+			<div class="f12 pre">
+				<a href="passport-forgot.html" class="grey fr">忘记密码？</a>
+				<label><input type="checkbox" value="" name="" id="lgRememberMe"/> 两周内自动登录</label>
+				<p class="gongg">公共场所不建议自动登录，以防账号丢失</p>
+			</div>
+			<input type="submit" value="登&nbsp;&nbsp;&nbsp;&nbsp;录" name="" class="lgSub" id="login"/>
+		</div>
+	</div>
+</div>
+
+<!--用户名不是手机时，弹出该窗口，让老用户绑定手机号-->
+<div id="fullbg"></div>
+<div id="phoneBd">
+	<div><a href="help-503.html" target="_blank" class="red fr">为什么要绑定手机？</a><h3 class="f18">手机号码验证绑定</h3></div>
+	<dl class="lgDl" id="bindBox">
+		<dd>
+			<input type="hidden" name="userId" value="" id="bdUserId"/>
+			<input type="text" value="" name="" id="bdPhone" class="lgipt" placeholder="请输入手机号"/>
+			<p class="lg-error"></p>
+			<p class="lg-warn"></p>
+		</dd>
+		<dd>
+			<input type="text" value="" name="" id="bdVcode" class="lgipt wd180" placeholder="请输入短信验证码"/><a href="javascript:void(0)" class="send" onclick="sendYzmForBind()" id="btnSendYzm">发送验证码</a>
+			<p class="lg-error"></p>
+			<p class="lg-info"></p>
+		</dd>
+		<dd><input type="submit" value="确&nbsp;&nbsp;&nbsp;&nbsp;认" name="" class="lgSub" onclick="bindSub()"/></dd>
+	</dl>
+</div>
+
+<% include('../common/footer_passport') %>
+<script type="text/javascript" src="js/shop.alert.js"></script>
+<script type="text/javascript" src="js/login.js"></script>
+<% include('../common/end') %>

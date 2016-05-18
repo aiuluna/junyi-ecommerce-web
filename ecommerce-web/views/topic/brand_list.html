@@ -1,0 +1,56 @@
+<ul  class="searchList clearfix">
+<%
+for (var j = 0; j < page.pageData.length; ++j) {
+var product = page.pageData[j];
+%>
+<li>
+  <%=#product_util.renderProductTag(product)%>
+  <a href="product-<%=#product.skuId%>.html" target="_blank" class="picImg">
+    <img data-original="<%=#imageUrl(product.imageUrl,210,210)%>" src="images/blank.gif" class="lazy" title="<%=product.skuName%>"/>
+    <%=#product_util.renderProductSaleStatus(product)%>
+  </a>
+  <div class="new-intro">
+    <p class="gbie grey"><span class="red fr"><%=#product.isFreeShipping?'包邮':''%><%=#product.isFreeTax?'免税':''%></span><%=#product_util.renderProductOriginLogo(product,24,24)%><%=product.productOriginName%>&nbsp;<%=product.freightMethodName%></p>
+    <p class="imgtit"><a href="product-<%=#product.skuId%>.html" target="_blank" class="black"><%=product.skuName%></a></p>
+    <p class="schActive">
+      <%
+      if (product.activityType === 'ORDER_PROMOTION') {
+      %>
+      <span class="yel"><i class="favour"><%=#product_util.getOrderPromotionLabelShort(product.activityLabel)%></i><%=#product.activityLabel%></span>
+      <%
+      }
+      %>
+    </p>
+    <p class="ptop15"><del class="fr light-grey">¥<%=#formatMoney(product.marketPrice)%></del><span class="red">¥<i class="f20"><%=#formatMoney(product.promotionPrice || product.salePrice)%></i></span><%if(product.activityType === 'FLASH_SALE' || product.activityType === 'PRODUCT_PROMOTION'){%><span class="favourico small"><i><%=#product.activityLabel%></i></span><%}%></p>
+  </div>
+</li>
+<%
+}
+%>
+
+</ul>
+<div class="rtl" id="js_pagination"></div>
+<script type="text/javascript">
+  var __init_brand_topic = function() {
+    var pgOpt = {
+      selector: "#js_pagination",
+      pageNumber: "<%=page.pageNumber%>",
+      totalCount: "<%=page.totalCount%>",
+      pageSize: "<%=page.pageSize%>",
+      callback: function (pageNum) {
+        var callback = $('#js_html_wrapper').data('$result_callback_func');
+        if(callback && typeof callback === 'function') {
+          callback(pageNum + 1);
+        }
+      }
+    };
+    Shop.pagination(pgOpt);
+  }();
+  $(function() {
+    $("img.lazy").lazyload({
+      effect: "fadeIn",
+      threshold: 200,
+      failure_limit: 10
+    });
+  })
+</script>

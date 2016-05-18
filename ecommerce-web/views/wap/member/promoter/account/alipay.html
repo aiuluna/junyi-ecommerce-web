@@ -1,0 +1,91 @@
+<% include('../../../common/begin') %>
+<% include('../../../common/header') %>
+<div class="wd640" id="setAct">
+    <% if (!_isWeixin) { %>
+    <header>
+        <div class="header clearfix">
+            <a href="javascript:historyBack()" class="sc-prev">&nbsp;</a>
+            支付宝账户
+        </div>
+    </header>
+    <% } %>
+    <a href="javascript:void(0)" class="esy-example">填写示例</a>
+    <dl class="editLine">
+        <dd>
+            <div class="dbox">
+                <span class="grey">支付宝账号：</span>
+                <div class="editS">
+                    <input type="hidden" value="ALI_PAY" id="js_acct_type"/>
+                    <input type="text" value="<%=account.alipayNo%>" id="js_alipay_no" maxlength="20" placeholder="请输入支付宝账号" name="" />
+                </div>
+            </div>
+        </dd>
+        <dd>
+            <div class="dbox">
+                <span class="grey">账户姓名：</span>
+                <div class="editS"><input type="text" value="<%=account.alipayName%>"  id="js_alipay_name" maxlength="20" placeholder="请输入账户姓名" name="" /></div>
+            </div>
+        </dd>
+    </dl>
+    <div class="p15"><a href="javascript:void(0)" class="btnL" id="js_submit_btn">保存修改</a></div>
+</div>
+
+<!--填写示范-->
+<div class="wd640" id="esyDiv4">
+    <% if (!_isWeixin) { %>
+    <header>
+        <div class="header clearfix">
+            <a href="javascript:void(0)" class="sc-prev" id="back3">&nbsp;</a>
+            填写示范
+        </div>
+    </header>
+    <% } %>
+    <div class="idLine2">
+        <h2 class="h2"><span class="titLine"></span>支付宝账户</h2>
+        <dl class="editLine">
+            <dd>
+                <div class="dbox">
+                    <span class="grey">支付宝账号：</span>
+                    <div class="editS">156****0057@qq.com</div>
+                </div>
+            </dd>
+            <dd>
+                <div class="dbox">
+                    <span class="grey">账户姓名：</span>
+                    <div class="editS">比克大魔王</div>
+                </div>
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<% include('../../../common/footer_simple') %>
+<script type="text/javascript" src="js/lib/jquery.ba-hashchange.js"></script>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+<script type="text/javascript" src="js/shop.account.js"></script>
+<script type="text/javascript">
+    $(function(){
+        ShopAccount.init4Acct();
+
+        function __onHashChange() {
+            var hash = window.location.hash;
+            var $hash = $(hash);
+
+            $(".wd640").hide();
+            if ($hash.length) {
+                $("#esyDiv4").show();
+                setWindowTitle('填写示例');
+            } else {
+                $("#setAct").show();
+                setWindowTitle('支付宝账户');
+            }
+        }
+
+        $(window).on('hashchange', __onHashChange);
+        __onHashChange();
+    });
+
+
+</script>
+<% include('../../../common/end') %>

@@ -1,0 +1,207 @@
+<% include('../common/begin') %>
+<link rel="stylesheet" href="css/member.css" type="text/css"/>
+<link rel="stylesheet" href="css/lq.datetimepick.css" type="text/css"/>
+<% include('../common/header') %>
+
+<% include('./frame_begin') %>
+<div id="contentform">
+</div>
+
+
+<% include('./frame_end') %>
+
+<% include('../common/footer_member') %>
+<script type="text/javascript">
+$(function(){
+
+	function showErrorMessage(selector,message){
+		selector.parent().addClass('lgHold');
+		selector.siblings('.lg-error').html(message);
+	}
+
+	var check_util = function(){
+		var patten_name = /^[a-zA-Z\u4e00-\u9fa5]{2,20}$/;
+		var patten_reason = /^[\S\s]{1,200}$/;
+		function check_name($name){
+			if(patten_name.test($name.val().trim())) {
+				return true;
+			}
+			showErrorMessage($name,'2-20位字符组成，可由中文及英文自由组合');
+			return false;
+		}
+
+		function check_reason($reason){
+			if(patten_reason.test($reason.val().trim())) {
+				return true;
+			}
+			showErrorMessage($reason,'200字内，可由中文、英文、标点符号及数字自由组合');
+			return false;
+		}
+
+		function check_input(){
+			var flag = true;
+			$('#contentform .js-pro-action').each(function(){
+				switch($(this).attr('data-action')){
+					case 'name':
+						flag = flag & check_name($(this));
+						break;
+					case 'reason':
+						flag = flag & check_reason($(this));
+						break;
+				}
+			});
+			return flag;
+		}
+
+		return {
+			check_input:check_input
+		}
+	}();
+	var draw = function(){
+		function reject(){
+			$('#contentform').html('<h4 class="mbtit">审核结果</h4>');
+			var html = [];
+			html.push('<div class="tgP">');
+			html.push('您提交的申请审核未通过!');
+			html.push('<div>');
+			html.push('<span class="weight">原因说明：</span>');
+			html.push('<%=#requestVO.auditReason%>');
+			html.push('</div>');
+			html.push('<p class="tct ptop15"><a href="#" class="mbBtn">重新申请</a></p>');
+			html.push('</div>');
+			$('#contentform').append(html.join(''));
+		}
+		function waiting(){
+			$('#contentform').html('<h4 class="mbtit">审核结果</h4>');
+			$('#contentform').append('<div class="tgP">您提交的申请正在审核中，请耐心等待…</div>');
+		}
+
+		function passed(){
+			$('#contentform').html('<h4 class="mbtit">审核结果</h4>');
+			$('#contentform').append('<div class="tgP">您提交的申请已经通过,请<a href="/passport-forceLogin.html" class="red">重新登录</a></div>');
+		}
+
+		function tgyl(){
+			var html=[];
+			html.push('<h4 class="mbtit">推广有礼</h4>');
+			html.push('<img src="<%=#staticImgWeb('promoter_apply.jpg')%>"/>');
+			html.push('<div class="tgP">');
+			html.push('当您在享受本商城的网购服务时，我们欢迎您通过QQ/微信、微博、社区、论坛、博客、 邮件等媒介推荐您的好友来购物！<br/>');
+			html.push('为了感谢您的推荐，如果以下的条件符合，您将获得返佣<br/>');
+			html.push('1.您是本商城的推广员<br/>');
+			html.push('2.您的好友点击了带有您ID的推荐链接后，注册成为本商城的会员或申请成为推广员<br/>');
+			html.push('3.您的好友注册后在本商城进行下单购物，或者你的好友成为推广员后推广的商品被购买<br/>');
+			html.push('快快行动，让您的好友分享您在本商城享受的优质服务和购物乐趣！');
+			html.push('</div>');
+			html.push('<p class="tct"><a href="javascript:void(0)" class="mbBtn">立即申请</a></p>');
+			$('#contentform').html(html.join(''));
+		}
+
+		function apply(data){
+			var html=[];
+			html.push('<div class="mbright">');
+			html.push('<h4 class="mbtit">推广员申请表</h4>');
+			html.push('<div class="p15">');
+			html.push('<table width="100%" cellspacing="0" cellpadding="0" class="add-tab" ');
+			html.push('<tr>');
+			html.push('<th width="125"><em class="red">*</em>姓名：</th>');
+
+			html.push('<td><input type="text" maxlength="20" class="ipt js-pro-action" data-action="name" value=" ');
+			html.push('<%=#requestVO.userName%>');
+			html.push('" id="tgName" tabIndex="1"><p class="lg-error"></p></td>');
+
+			html.push('</tr>');
+			html.push('<tr>');
+			html.push('<th width="125">性别：</th>');
+			html.push('<td>');
+			html.push('<div class="sex">');
+
+			html.push('<span><input type="radio" value="NOT_SET" name="sex" id="secret" <%if(!requestVO.gender||requestVO.gender==="NOT_SET"){%>checked="checked"<%}%> /><label for="secret">保密</label></span>');
+			html.push('<span><input type="radio" value="MALE" name="sex" id="male" <%if(requestVO.gender==="MALE"){%>checked="checked"<%}%>/><label for="male">男</label></span>');
+			html.push('<span><input type="radio" value="FEMALE" name="sex" id="female" <%if(requestVO.gender==="FEMALE"){%>checked="checked"<%}%>/><label for="female">女</label></span>');
+
+			html.push('</div>');
+			html.push('</td>');
+			html.push('</tr>');
+			html.push('<tr>');
+
+			html.push('<th><em class="red">*</em>手机号码：</th>');
+			html.push('<td id="mobile">');
+			html.push('<%=#requestVO.mobile%>');
+			html.push('</td>');
+
+			html.push('</tr>');
+			html.push('<tr>');
+			html.push('<th valign="top"><em class="red">*</em>申请理由：</th>');
+			html.push('<td>');
+			html.push('<textarea maxlength="200" placeholder="请输入您的申请理由" id="tgReason" class="js-pro-action" data-action="reason"></textarea>');
+			html.push('<p style="top:85px" class="lg-error"></p>');
+			html.push('</td>');
+			html.push('</tr>');
+			html.push('<tr>');
+			html.push('<th>&nbsp;</th>');
+			html.push('<td><input type="submit" value="下一步" name="" class="mbBtn" tabIndex="3" id="applyNext"/></td>');
+			html.push('</tr>');
+			html.push('</table>');
+			html.push('</div>');
+			html.push('</div>');
+			$('#contentform').html(html.join(''));
+			$('#contentform .js-pro-action').each(function(){
+				var _$ = $(this);
+				_$.keydown(function(){
+					_$.parent().removeClass("lgHold");
+				});
+			});
+			$('#applyNext').on('click',function(){
+
+				if(!check_util.check_input()){
+					return;
+				}
+
+				var success = function(result){
+					if(result.success){
+						window.location.href = '/member-promoter-apply.html';
+					}
+				};
+				var _name = $('#tgName').val().trim();
+				var _gender = $('.sex :checked').val().trim();
+				var _reason = $('#tgReason').val().trim();
+				var _mobile = $('#mobile').text().trim();
+				var _data = {
+					name:_name,
+					gender:_gender,
+					reason:_reason,
+					mobile:_mobile
+				};
+				var opt ={
+					url:'/member/promoter/apply/next',
+					data:_data,
+					success:success
+				};
+				Shop.post(opt);
+			});
+		}
+
+		return {
+			reject:reject,
+			waiting:waiting,
+			apply:apply,
+			passed:passed,
+			tgyl:tgyl
+		};
+	}();
+	<%if(requestVO.status==='AUDIT_REJECTED'){%>
+		draw.reject();
+	<%}else if(requestVO.status==='AUDIT_WAITING'){%>
+		draw.waiting();
+	<%}else if(requestVO.status==='AUDIT_PASSED'){%>
+		draw.passed();
+	<%}else{%>
+		draw.tgyl();
+	<%}%>
+	$('.tct').on('click',function(){
+		draw.apply();
+	});
+});
+</script>
+<% include('../common/end') %>

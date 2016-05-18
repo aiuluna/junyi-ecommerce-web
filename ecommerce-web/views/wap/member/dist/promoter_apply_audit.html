@@ -1,0 +1,173 @@
+<% include('../../common/begin') %>
+<% include('../../common/header') %>
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:historyBack();" class="sc-prev">&nbsp;</a>
+			推广员申请审核
+		</div>
+	</header>
+	<% } %>
+	<h2 class="h2"><span class="titLine"></span>申请信息</h2>
+	<dl class="idLine2">
+		<dd class="clearfix"><span class="grey">申请人</span><p><%=request.userLogin%><%=request.userName?'('+request.userName+')':''%></p></dd>
+		<dd class="clearfix"><span class="grey">手机号</span><p><%=request.mobile%></p></dd>
+		<dd class="clearfix"><span class="grey">申请时间</span><p><%=#formatDate(request.requestDate, 'YYYY-MM-DD HH:mm:ss')%></p></dd>
+		<dd class="clearfix"><span class="grey">申请理由</span><p><%=request.requestReason%></p></dd>
+	</dl>
+	<h2 class="h2"><span class="titLine"></span>结算账户</h2>
+	<div class="bg_white mtop10" id="setAccount">
+		<div class="pgSpan"><span class="on"><i>银行账户</i></span><span><i>支付宝账户</i></span></div>
+		<div class="pgDiv">
+			<dl class="editLine">
+				<dd>
+					<div class="dbox">
+						<span class="grey">开户人姓名</span>
+						<div class="editS"><%=request.accountName%></div>
+					</div>
+				</dd>
+				<dd>
+					<div class="dbox">
+						<span class="grey">开户银行</span>
+						<div class="editS"><%=request.bankName%></div>
+					</div>
+				</dd>
+				<dd>
+					<div class="dbox">
+						<span class="grey">开户网点</span>
+						<div class="editS"><%=request.bankSite%></div>
+					</div>
+				</dd>
+				<dd>
+					<div class="dbox">
+						<span class="grey">银行卡号</span>
+						<div class="editS"><%=#order_util.formatBankAccount(request.accountNo)%></div>
+					</div>
+				</dd>
+			</dl>
+		</div>
+		<div class="pgDiv" style="display:none;">
+			<dl class="editLine">
+				<dd>
+					<div class="dbox">
+						<span class="grey">支付宝账号</span>
+						<div class="editS"><%=request.alipayNo%></div>
+					</div>
+				</dd>
+				<dd>
+					<div class="dbox">
+						<span class="grey">账户姓名</span>
+						<div class="editS"><%=request.alipayName%></div>
+					</div>
+				</dd>
+			</dl>
+		</div>
+	</div>
+	<div class="bg_white mtop10 plr15">
+		<dl class="mbdl">
+			<dd>
+				<div class="clearfix">
+					<span class="agdt">审核结果</span>
+					<div class="agcon" id="sexbtn"><i class="u-rtarr fr"></i><span id="chtmlIn"></span></div>
+				</div>
+			</dd>
+			<dd>
+				<div class="clearfix">
+					<span class="agdt">返佣比例</span>
+					<div class="agcon"><input type="number" value="" name="" id="ratio" placeholder="推广员推广返佣比例">%</div>
+				</div>
+			</dd>
+			<dd>
+				<div class="clearfix">
+					<span class="agdt">原因说明</span>
+					<div class="agcon"><textarea maxlength="200" placeholder="不通过请说明原因" id="reason"></textarea></div>
+				</div>
+			</dd>
+			<input type="hidden" value="<%=request.id%>" id="requestId">
+		</dl>
+	</div>
+	<p class="p15"><a href="javascript:void(0)" class="btnL" id="js_request_submit">确认</a></p>
+</div>
+
+<input type="hidden" value="" name="" id="js_user_sex">
+
+<% include('../../common/footer_simple') %>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+
+<script type="text/javascript">
+	$(function() {
+		$('#js_request_submit').on('click', function() {
+			var data = {};
+			data.approved = $('#js_user_sex').val();
+			data.ratio =  $('#ratio').val();
+			data.reason = $('#reason').val();
+			data.requestId = $('#requestId').val();
+
+			var ratioNum = parseInt(data.ratio);
+			if(data.approved === 'Y' && (!/^[0-9]+$/.test(data.ratio)  || ratioNum<0 || ratioNum > 100)) {
+				ShopPopup.toast("请输入0-100的整数");
+				return;
+			} else if(data.approved === 'N') {
+				if (!data.reason) {
+					ShopPopup.toast("不通过请输入原因");
+					return;
+				}
+				data.ratio =  "";
+			}
+
+			var success = function(){
+				ShopPopup.toast('保存成功');
+				setTimeout(function () {
+					historyBack();
+				}, 500);
+			};
+			var opt ={
+				data: data,
+				url:'/member/distributor/promoter_audit/audit',
+				success:success,
+				complete: function() {
+					ShopPopup.popupLoadingClose();
+				}
+			};
+			ShopPopup.popupLoading('数据加载中...');
+			Shop.post(opt);
+		});
+
+		var selectData = [
+			{id: 'Y', text: '通过'},
+			{id: 'N', text: '不通过'}
+		];
+		ShopSelect.select(
+				selectData,
+				$('#sexbtn'),
+				'Y', /* 全部 */
+				function($ele) {
+					var $a = $('a', $ele);
+					var value = $a.data('value'), text = $a.text();
+					$('#chtmlIn').text(text);
+					$('#js_user_sex').val(value);
+					if(value === 'N') {
+						$('#ratio').attr('disabled', true);
+					} else {
+						$('#ratio').attr('disabled', false);
+					}
+				}
+		);
+	});
+</script>
+<script type="text/javascript">
+	$(function() {
+		$(".pgSpan span").click(function() {
+			$(this).addClass("on").siblings().removeClass("on");
+			var pgindex = $(this).index();
+			$(".pgDiv").eq(pgindex).show().siblings(".pgDiv").hide();
+		});
+
+		var bankAccount = "<%=(request.accountName || request.bankName || request.bankSite || request.accountNo)%>";
+		var pgindex = bankAccount ? 0 : 1;
+		$(".pgSpan span").eq(pgindex).trigger('click');
+	});
+</script>
+<% include('../../common/end') %>

@@ -1,0 +1,129 @@
+<% include('../common/begin') %>
+<% include('order_header') %>
+<% include('../common/header') %>
+<div class="wd640 js-page" id="js_page_init">
+    <% if (!_isWeixin) { %>
+    <header>
+        <div class="header clearfix">
+            <a href="javascript:historyBack()" class="sc-prev">&nbsp;</a>
+            售后跟踪
+        </div>
+    </header>
+    <% } %>
+
+    <h2 class="h2"><span class="titLine"></span>处理信息</h2>
+    <dl class="idLine2">
+        <% if (service.operateStatus == 'PENDING_PROCESSING') {%>
+        <dd class="clearfix"><span class="grey">处理状态：</span>
+            <p class="red"><%=#order_util.renderSaleServiceStatus(service.operateStatus)%></p>
+        </dd>
+        <% } else {%>
+        <dd class="clearfix"><span class="grey">处理方式：</span>
+            <p><%=#order_util.renderSaleServiceOperationMode(service.operateMode)%></p>
+        </dd>
+        <dd class="clearfix"><span class="grey">处理状态：</span>
+            <p class="red"><%=#order_util.renderSaleServiceStatus(service.operateStatus)%></p>
+        </dd>
+        <dd class="clearfix"><span class="grey">处理时间：</span>
+            <p><%=#formatDate(service.operateTime, 'YYYY-MM-DD HH:mm:ss')%></p>
+        </dd>
+        <dd class="clearfix"><span class="grey">处理说明：</span><p><%=service.operateMemo%></p></dd>
+        <% } %>
+    </dl>
+
+    <h2 class="h2"><span class="titLine"></span>申请信息</h2>
+    <dl class="idLine2">
+        <dd class="clearfix"><span class="grey">售后原因：</span><p><%=service.requestReason%></p></dd>
+        <dd class="clearfix"><span class="grey">物流公司：</span><p id="js_express_view_exp_name"><%=service.refundExpName%></p></dd>
+        <dd class="clearfix"><span class="grey">物流运单号：</span><p id="js_express_view_exp_no"><%=service.refundExpNo%></p></dd>
+        <dd class="clearfix"><span class="grey">申请时间：</span><p><%=#formatDate(service.createDate, 'YYYY-MM-DD HH:mm:ss')%></p></dd>
+        <dd class="clearfix"><span class="grey">详细描述：</span><p><%=service.requestComment%></p></dd>
+        <dd class="clearfix">
+            <span class="grey">凭证照片：</span>
+            <p class="vcImg">
+                <%
+                if(service.imageUrls && service.imageUrls.length) {
+                for (var i = 0, len = service.imageUrls.length; i < len; ++i) {
+                    var url = service.imageUrls[i];
+                %>
+                <a href="<%=#imageUrl(url, 640, 960)%>" target="_self">
+                    <img src="<%=#imageUrl(url, 120, 120)%>"/>
+                </a>
+                <% } %>
+                <% } %>
+        </dd>
+    </dl>
+    <% if (service.operateStatus != 'CLOSED' && service.operateStatus != 'FINISHED') { %>
+    <p class="p15"><a href="javascript:void(0);" id="js_express_edit" class="btnL">补填物流信息</a></p>
+    <%　}　%>
+</div>
+
+<div class="wd640 js-page" id="js_page_second" style="display: none;">
+    <% if (!_isWeixin) { %>
+    <header>
+        <div class="header clearfix">
+            <a href="javascript:historyBack()" class="sc-prev" id="js_express_back">&nbsp;</a>
+            补填物流信息
+        </div>
+    </header>
+    <% } %>
+    <dl class="oddl">
+        <dd>
+            <p>物流公司（选填）：</p>
+            <select id="js_express_select" class="hidden"></select>
+            <div class="odreason" id="sexbtn"><i class="u-rtarr fr"></i><span id="chtmlIn">
+                <% if (service.refundExpName) {%><%=service.refundExpName%><% } else { %>若客服要求寄回商品，请选择物流公司<% } %></span></div>
+            <input type="hidden" id="js_express_code" name="expressCode" value="<%=service.refundExpCode%>"/>
+            <input type="hidden" id="js_express_name" name="expressName" value="<%=service.refundExpName%>"/>
+        </dd>
+        <dd class="hidden" id="js_express_name_dd">
+            <p class="hidden">物流公司（选填）：</p>
+            <input type="text" id="js_express_name2" maxlength="30" name="expressName" value="<%=service.refundExpName%>" placeholder="请输入物流公司" class="ipt" />
+        </dd>
+        <dd>
+            <p>运单编号（选填）：</p>
+            <input type="text" id="js_express_no" maxlength="30" name="expressNo" value="<%=service.refundExpNo%>" placeholder="请填写运单编号" class="ipt" />
+        </dd>
+        <dd class="mtop30">
+            <a href="javascript:void(0);" id="js_express_btn" data-order_no="<%=#service.orderNo%>" class="btnL js-order-no">确认并提交</a>
+        </dd>
+    </dl>
+</div>
+<% include('../common/footer_simple') %>
+<% include('order_footer') %>
+<script type="text/javascript" src="js/lib/jquery.ba-hashchange.js"></script>
+<script type="text/javascript">
+
+    function setTitle2(hash) {
+        switch (hash) {
+            case '#js_page_second':
+                setWindowTitle('补填物流信息');
+                break;
+            default:
+                setWindowTitle('售后跟踪');
+        }
+    }
+
+    function __onHashChange() {
+        var hash = window.location.hash;
+        $('.js-page').hide();
+        var $hash = $(hash);
+        if ($hash.length) {
+            $hash.show();
+        } else {
+            $('#js_page_init').show();
+        }
+
+        setTitle2(hash);
+    }
+
+    $(window).on('hashchange', __onHashChange);
+    __onHashChange();
+
+
+    $(function(){
+        ShopOrder.init4ServiceView();
+    });
+
+</script>
+<% include('../common/end') %>

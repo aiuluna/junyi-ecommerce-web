@@ -1,0 +1,108 @@
+<% include('../../common/begin') %>
+<% include('../../common/header') %>
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:historyBack();" class="sc-prev">&nbsp;</a>
+			下级推广员
+		</div>
+	</header>
+	<% } %>
+	<div class="plr15 bg_white">
+		<input type="hidden" value="<%=promoter.id%>" id="promoterId">
+
+		<dl class="mbdl">
+			<dd>
+				<div class="clearfix">
+					<span class="agdt">用户名</span>
+					<div class="agcon"><%=promoter.login%></div>
+				</div>
+			</dd>
+			<dd>
+				<div class="clearfix">
+					<span class="agdt">姓名</span>
+					<div class="agcon"><%=promoter.name%></div>
+				</div>
+			</dd>
+			<dd>
+				<div class="clearfix">
+					<span class="agdt">手机号</span>
+					<div class="agcon"><%=promoter.mobile%></div>
+				</div>
+			</dd>
+			<dd>
+				<div class="clearfix">
+					<span class="agdt">返佣比例</span>
+					<div class="agcon"><input type="number" value="<%=promoter.commissionRate*100%>" id="rate" name=""  style="width: 60px;">%</div>
+				</div>
+			</dd>
+			<dd>
+				<div class="clearfix">
+					<span class="agdt">下级会员</span>
+					<div class="agcon"><%=promoter.memberCount%>人</div>
+				</div>
+			</dd>
+			<dd>
+				<div class="clearfix">
+					<span class="agdt">推广订单</span>
+					<div class="agcon"><%=promoter.orderCount%></div>
+				</div>
+			</dd>
+			<dd>
+				<div class="clearfix">
+					<span class="agdt">贡献佣金</span>
+					<div class="agcon">¥<%=formatMoney2(promoter.expenditure)%></div>
+				</div>
+			</dd>
+			<dd>
+				<div class="clearfix">
+					<span class="agdt">已提现额</span>
+					<div class="agcon">¥<%=formatMoney2(promoter.drawAmount)%></div>
+				</div>
+			</dd>
+			<dd>
+				<div class="clearfix">
+					<span class="agdt">成为推广员</span>
+					<div class="agcon"><%=formatDate(promoter.sinceFrom, 'YYYY-MM-DD HH:mm:ss') %></div>
+				</div>
+			</dd>
+		</dl>
+	</div>
+	<p class="p15"><a class="btnL">保存修改</a></p>
+</div>
+<% include('../../common/footer_simple') %>
+<script type="text/javascript" src="js/lib/template.js"></script>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+
+<script type="text/javascript">
+	$(function () {
+		$('.btnL').on('touchend', function () {
+			var rate = $('#rate').val();
+			var rateNum = parseInt(rate);
+			if(!/^[0-9]+$/.test(rate)  || rateNum<0 || rateNum > 100) {
+				ShopPopup.toast("请输入0-100的整数");
+				return;
+			}
+
+			var success = function(){
+				ShopPopup.toast('保存成功');
+				setTimeout(function () {
+					historyBack();
+				}, 500);
+			};
+			var data = {
+				rate: rateNum,
+				promoterId: $('#promoterId').val()
+			};
+			var opt ={
+				data: data,
+				url:'/member/distributor/promoter/update/rate',
+				success:success
+			};
+			Shop.post(opt);
+		});
+	});
+</script>
+<% include('../../common/end') %>

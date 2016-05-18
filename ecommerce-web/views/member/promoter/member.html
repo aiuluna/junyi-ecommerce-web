@@ -1,0 +1,138 @@
+<% include('../../common/begin') %>
+<link rel="stylesheet" href="css/member.css" type="text/css"/>
+<% include('../../common/header') %>
+
+<% include('../frame_begin') %>
+
+<h4 class="mbtit">下级会员</h4>
+<div class="tgyjc clearfix" id="js_search_form">
+	<span class="tgyjc3">会员名&nbsp;：&nbsp;&nbsp;<input type="text" id="login" name="login" value=""/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 姓名&nbsp;：&nbsp;&nbsp;<input type="text" name="name" id="name" value=""/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 手机号码&nbsp;：&nbsp;&nbsp;<input type="text" name="mobile" id="mobile" value=""/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+	<div class="fl clearfix">
+		<span class="fl grey">注册时间：</span>
+		<div class="jssel agentS">
+			<input type="text" value="近一周内" name="" class="jsk" readonly="readonly">
+			<ul class="condt">
+				<li value="0"><a href="javascript:void(0)">近一周内</a></li>
+				<li value="1"><a href="javascript:void(0)">近一个月内</a></li>
+				<li value="2"><a href="javascript:void(0)">近三个月内</a></li>
+				<li value="3"><a href="javascript:void(0)">近半年内</a></li>
+				<li value="4"><a href="javascript:void(0)">全部</a></li>
+			</ul>
+			<input type="hidden" value="" name="" class="selectVal" id="js_time_range">
+		</div>
+	</div>
+	<a href="javascript:void(0)"><div class="tgicon1" >查询</div></a>
+</div>
+
+<% include('../frame_end') %>
+<% include('../../common/footer_member') %>
+<script type="text/javascript" src="js/lib/jquery.pagination.js"></script>
+<script type="text/javascript" src="js/lib/template.js"></script>
+<script type="application/x-template" id="js_member_row_tmpl">
+	{{if result}}
+	<table cellpadding="0" cellspacing="0" width="100%" class="tgtable brdtab" id="memberTable_Id_1">
+			<tr>
+				<th width="56">序号</th>
+				<th width="150">会员名</th>
+				<th width="100">姓名</th>
+				<th width="100">电话</th>
+				<th width="80" title="该会员已完成支付且尚未发生售后退款的订单总数">成交订单</th>
+				<th width="100" title="该会员所有成交订单实付金额总和">消费金额</th>
+				<th width="100" title="该会员贡献给我的佣金总和（只统计已确认结算的佣金）">贡献佣金</th>
+				<th width="180">注册时间</th>
+				<th>会员订单</th>
+			</tr>
+		</table>
+		<table cellpadding="0" cellspacing="0" width="100%" class="tgtable" id="memberTable_Id_2">
+			{{each pageData}}
+			<tr>
+				<td width="56">{{$index+index}}</td>
+				<td width="150"><p class="plr15">{{$value.login}}</p></td>
+				<td width="100">{{$value.name}}</td>
+				<td width="100">{{$value.mobile}}</td>
+				<td width="80">{{$value.orderCount}}</td>
+				<td width="100">¥{{$value.expenditure}}</td>
+				<td width="100">¥{{$value.contribution||0}}</td>
+				<td width="180">{{$value.createDate | formatDate:'yyyy-MM-dd hh:mm'}}</td>
+				<td><a href="/member-promoter-member_orders.html?memberId={{$value.id}}" target="_self" class="grey5" >查看</a></td>
+			</tr>
+			{{/each}}
+		</table>
+	<div class="rtl" id="js_pagination"></div>
+	{{else if !firstResult}}
+		<div class="nobox ptop160" id="nomembers" style="padding-top:0">
+			<div class="nocon">
+				<p class="f20">您还没有下级会员哦~</p>
+				<p class="mtop15">快去发展自己的会员吧！<a href="/member-promote.html" class="nobtn">推广有礼</a></p>
+			</div>
+		</div>
+	{{else}}
+		<div class="nobox ptop160" id="nomembers" style="padding-top:0">
+			<div class="nocon">
+				<p class="f20">您还没有下级会员哦</p>
+				<p class="mtop15">换个筛选条件试试吧！</p>
+			</div>
+		</div>
+	{{/if}}
+</script>
+<script type="text/javascript">
+$(function(){
+
+	$('.jssel').selectBox({'selectClassName':'.jsk','selectList':'.condt','selectVal':'.selectVal'});
+	$('.jssel').each(function(index, ele) {
+		var $ele = $(ele);
+		$('.condt li:last', $ele).trigger('click');
+	});
+
+
+	var index = 0;
+	var firstResult = true;
+	var template = ShopUtil.getTemplateById('js_member_row_tmpl');
+	var loader = ShopLoader.init();
+	loader.init({
+		pageSelector: '#js_pagination',
+		url: '/member/promoter/member/search',
+		getCriteria: function () {
+			return {
+				login : $('#login').val(),
+				name  : $('#name').val(),
+				mobile : $('#mobile').val(),
+				timeRange : ShopUtil.getFinishTimeRange($('#js_time_range').val()),
+				pageNumber: 1,
+				pageSize: 20
+			}
+		},
+		render: function (json) {
+			$('#memberTable_Id_1').remove();
+			$('#memberTable_Id_2').remove();
+			$('#nomembers').remove();
+			$('#js_pagination').remove();
+			var htmlArr = [];
+			var page = json.data;
+			var result = page.pageData&&page.totalCount>0;
+			page.result = result;
+			firstResult = index++?firstResult:result;
+			page.firstResult = firstResult;
+			if(result){
+				page.index = page.pageSize*(page.pageNumber-1)+1;
+			}
+			var fillArr = ShopUtil.fillArr;
+			fillArr(htmlArr, template(page));
+			$('#js_search_form').after(htmlArr.join(''));
+		}
+	});
+
+	$('.tgicon1').on('click',function(){
+		loader.search();
+	});
+	loader.search();
+	/* 监听回车 */
+	$('#js_search_form').on('keyup', 'input', function(event) {
+		var keycode = event.which;
+		if (keycode == 13) {
+			loader.search();
+		}
+	});
+});
+</script>
+<% include('../../common/end') %>

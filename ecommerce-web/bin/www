@@ -1,0 +1,106 @@
+#!/usr/bin/env node
+
+var http = require('http'),
+    config = require('../config'),
+    common_data = require('../common_data'),
+    app = require('../app'),
+    logger = require('../logger');
+
+// Initialize common data at the first beginning
+common_data.initialize()
+  .done(startServer, bailout);
+
+function startServer() {
+  var port = normalizePort(process.env.PORT || '3000');
+  app.set('port', port);
+
+  // Create HTTP server.
+  var server = http.createServer(app);
+
+  // Listen on provided port, on all network interfaces.
+  // LxC(2016-03-02): 如果配置文件里面定义了serverHost，则只监听指定的IP过来的请求
+  server.listen(port, config.serverHost);
+  server.on('error', onError);
+  server.on('listening', onListening);
+
+  // Normalize a port into a number, string, or false.
+  function normalizePort(val) {
+    var port = parseInt(val, 10);
+
+    if (isNaN(port)) {
+      // named pipe
+      return val;
+    }
+
+    if (port >= 0) {
+      // port number
+      return port;
+    }
+
+    return false;
+  }
+
+  // Event listener for HTTP server "error" event.
+  function onError(error) {
+    if (error.syscall !== 'listen') {
+      throw error;
+    }
+
+    var bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
+
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+      case 'EACCES':
+        console.error(bind + ' requires elevated privileges');
+        process.exit(1);
+        break;
+      case 'EADDRINUSE':
+        console.error(bind + ' is already in use');
+        process.exit(1);
+        break;
+      default:
+        throw error;
+    }
+  }
+
+  // Event listener for HTTP server "listening" event.
+  function onListening() {
+    var addr = server.address();
+    var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
+    logger.info('Listening on %s (ENV: %s)', bind, app.get('env'));
+  }
+
+  // Listens for kill signal (SIGTERM) and shutdown gracefully
+  process.on('SIGTERM', function() {
+    logger.info('Received kill signal (SIGTERM), shutting down gracefully.');
+    shutdownGracefully(server);
+  });
+  // Send by pm2 for gracefully reload
+  process.on('message', function(msg) {
+    if (msg == 'shutdown') {
+      logger.info('Received `shutdown` message by PM2, shutting down gracefully.');
+      shutdownGracefully(server);
+    }
+  });
+}
+
+function shutdownGracefully(server) {
+  global.gracefullyClosing = true;
+  server.close(function() {
+    console.log('Closed out remaining connections.');
+    process.exit(0);
+  });
+
+  // Shutdown the server forcefully if server fails to terminate after 60 seconds
+  setTimeout(function() {
+    console.error('Could not close connections in time, forcefully shutting down');
+    process.exit(1);
+  }, 60 * 1000);
+}
+
+function bailout(err) {
+  logger.error('Server failed to start', err);
+  // 直接throw出去，uncaughtException会有相应的log；否则后台跑的话，process.exit(1)直接退出了，不会有log
+  //process.exit(1);
+  throw err;
+}

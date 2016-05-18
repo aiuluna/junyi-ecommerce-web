@@ -1,0 +1,203 @@
+<% include('../../common/begin') %>
+<% include('../../common/header') %>
+<%
+    var editable = (!account || !account.accountNo) ? true : false;
+    var readonly = !editable;
+%>
+<div class="wd640 js-page" id="setAct">
+    <% if (!_isWeixin) { %>
+    <header>
+        <div class="header clearfix">
+            <a href="javascript:history.back();" class="sc-prev">&nbsp;</a>
+            银行账户
+        </div>
+    </header>
+    <% } %>
+    <% if (editable) {%>
+    <a href="javascript:void(0)" class="esy-example">填写示例</a>
+    <% } %>
+    <dl class="editLine">
+        <dd>
+            <div class="dbox">
+                <span class="grey">开户人姓名：</span>
+
+                <div class="editS">
+                    <input type="text" value="<%=account.accountName%>" placeholder="请输入开户人姓名" name="" id="khName" <%=#(readonly ? ' readonly="readonly"' : '' )%>/>
+                </div>
+            </div>
+        </dd>
+        <dd>
+            <div class="dbox">
+                <span class="grey">开户银行：</span>
+
+                <div class="editS"><input type="text" value="<%=account.bankName%>" placeholder="请输入开户行名称" name=""
+                                          id="khBank" <%=#(readonly ? ' readonly="readonly"' : '' )%>/>
+                </div>
+            </div>
+        </dd>
+        <dd>
+            <div class="dbox">
+                <span class="grey">开户网点：</span>
+
+                <div class="editS"><input type="text" value="<%=account.bankSite%>" placeholder="请输入开户网点" name=""
+                                          id="khMesh" <%=#(readonly ? ' readonly="readonly"' : '' )%>/>
+                </div>
+            </div>
+        </dd>
+        <dd>
+            <div class="dbox">
+                <span class="grey">银行卡号：</span>
+
+                <div class="editS"><input type="text" value="<%=account.accountNo%>" placeholder="请输入银行卡号" name=""
+                                          maxlength="23" id="khCnum" <%=#(readonly ? ' readonly="readonly"' : '' )%>/></div>
+            </div>
+        </dd>
+    </dl>
+    <%if (editable) { %>
+    <div class="p15"><a href="javascript:void(0)" class="btnL">保存修改</a></div>
+    <% } %>
+</div>
+
+<!--填写示范-->
+<div class="wd640 js-page" id="esyDiv4">
+    <% if (!_isWeixin) { %>
+    <header>
+        <div class="header clearfix">
+            <a href="javascript:void(0)" class="sc-prev" id="back3">&nbsp;</a>
+            填写示范
+        </div>
+    </header>
+    <% } %>
+    <div class="idLine2">
+        <h2 class="h2"><span class="titLine"></span>银行账户</h2>
+        <dl class="editLine">
+            <dd>
+                <div class="dbox">
+                    <span class="grey">开户人姓名：</span>
+
+                    <div class="editS">黄涵杰</div>
+                </div>
+            </dd>
+            <dd>
+                <div class="dbox">
+                    <span class="grey">开户银行：</span>
+
+                    <div class="editS">中国建设银行</div>
+                </div>
+            </dd>
+            <dd>
+                <div class="dbox">
+                    <span class="grey">开户网点：</span>
+
+                    <div class="editS">中国建设银行杭州翠苑分理处</div>
+                </div>
+            </dd>
+            <dd>
+                <div class="dbox">
+                    <span class="grey">银行卡号：</span>
+
+                    <div class="editS">6217 0098 6789 0987 765</div>
+                </div>
+            </dd>
+        </dl>
+    </div>
+</div>
+<!--提示-->
+<p class="tip"></p>
+<% include('../../common/footer_simple') %>
+<script type="text/javascript" src="js/lib/jquery.ba-hashchange.js"></script>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+<script type="text/javascript">
+
+    function __onHashChange() {
+        var hash = window.location.hash;
+        $('.js-page').hide();
+        if (hash == '#setAct' || hash == '#' || hash == '') {
+            $('#setAct').show();
+            setWindowTitle('银行账户');
+        } else if (hash == '#esyDiv4') {
+            $(hash).show();
+            setWindowTitle('填写示范');
+        }
+    }
+    $(window).on('hashchange', __onHashChange);
+
+    $(function () {
+
+        $(".esy-example").click(function() {
+            window.location.hash='#esyDiv4';
+        });
+
+        function formatBankNo(val) {
+            return val ? val.replace(/[^\d]/g, '').replace(/(\d{4})(?=\d)/g, "$1 ") : '';
+        }
+        function trimBankNo(val) {
+            return val ? val.replace(/\s/g, '') : val;
+        }
+        $("#khCnum").on('keyup', function() {
+            $(this).val(formatBankNo($.trim($(this).val())));
+        });
+        $("#khCnum").val(formatBankNo($.trim($("#khCnum").val())));
+        function validate() {
+            var khName = $("#khName"),
+                khBank = $("#khBank"),
+                khMesh = $("#khMesh"),
+                khCnum = $("#khCnum");
+
+            var message = "";
+            if (khName.val() == "") {
+                message = "开户人姓名不能为空，请重新输入";
+                khName.focus();
+            }
+            if (khBank.val() == "") {
+                message = "开户银行不能为空，请重新输入";
+                khBank.focus();
+            }
+            if (khMesh.val() == "") {
+                $(".tip").fadeIn().html("开户网点不能为空，请重新输入");
+                khMesh.focus();
+            }
+            if (khCnum.val() == "") {
+                message = "银行卡号不能为空，请重新输入";
+                khCnum.focus();
+            }
+            if (message) {
+                ShopPopup.toast(message);
+                return false;
+            }
+            return true;
+        }
+
+        function tgSub() {
+            var fields = {accountName: 'khName', bankName: 'khBank', bankSite: 'khMesh', accountNo: 'khCnum'};
+            var data = {};
+            $.each(fields, function (key, value) {
+                data[key] = $('#' + value).val();
+            });
+
+            data.accountNo = trimBankNo(data.accountNo);
+
+            function success() {
+                ShopPopup.toast("更新成功");
+                setTimeout(function () {
+                    historyBack();
+                }, 500);
+            }
+
+            var opt = {
+                data: data,
+                url: 'member/distributor/account/update',
+                success: success
+            };
+            Shop.post(opt)
+        }
+
+        $('#setAct').on('click', '.btnL', function () {
+            if (validate()) {
+                tgSub();
+            }
+        })
+    });
+</script>
+<% include('../../common/end') %>

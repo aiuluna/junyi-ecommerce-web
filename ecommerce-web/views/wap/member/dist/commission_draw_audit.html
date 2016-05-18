@@ -1,0 +1,237 @@
+<% include('../../common/begin') %>
+<% include('../../common/header') %>
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:historyBack()" class="sc-prev">&nbsp;</a>
+			申请审核
+		</div>
+	</header>
+	<% } %>
+	<h2 class="h2"><span class="titLine"></span>申请信息</h2>
+	<dl class="idLine2">
+		<input type="hidden" id="js_draw_id" value="<%=record.id%>">
+		<dd class="clearfix"><span class="grey">申请人</span><p><%=record.userName%><%=record.promoterName?'('+record.promoterName+')':''%></p></dd>
+		<dd class="clearfix"><span class="grey">手机号</span><p><%=record.mobile%></p></dd>
+		<dd class="clearfix"><span class="grey">申请时间</span><p><%=#formatDate(record.requestDate, 'YYYY-MM-DD HH:mm:ss')%></p></dd>
+		<dd class="clearfix"><span class="grey">本次提取</span><p>¥<%=#formatMoney2(record.amount)%></p></dd>
+		<dd class="clearfix"><span class="grey">可提取</span><p>¥<%=#formatMoney2(record.commissionRemaining)%></p></dd>
+	</dl>
+
+	<h2 class="h2"><span class="titLine"></span>结算账户</h2>
+	<div class="bg_white mtop10" id="setAccount">
+		<dl class="editLine">
+			<% if ( record.payType === 'ALI_PAY' ) { %>
+			<dd>
+				<div class="dbox">
+					<span class="grey">支付宝账号</span>
+					<div class="editS"><%=record.alipayNo%></div>
+				</div>
+			</dd>
+			<dd>
+				<div class="dbox">
+					<span class="grey">账户姓名</span>
+					<div class="editS"><%=record.alipayName%></div>
+				</div>
+			</dd>
+			<% } else { %>
+			<dd>
+				<div class="dbox">
+					<span class="grey">开户人姓名</span>
+					<div class="editS"><%=#record.accountName%></div>
+				</div>
+			</dd>
+			<dd>
+				<div class="dbox">
+					<span class="grey">开户银行</span>
+					<div class="editS"><%=#record.bankName%></div>
+				</div>
+			</dd>
+			<dd>
+				<div class="dbox">
+					<span class="grey">开户网点</span>
+					<div class="editS"><%=#record.bankSite%></div>
+				</div>
+			</dd>
+			<dd>
+				<div class="dbox">
+					<span class="grey">银行卡号</span>
+					<div class="editS"><%=#order_util.formatBankAccount(record.accountNo)%></div>
+				</div>
+			</dd>
+
+			<% } %>
+		</dl>
+	</div>
+	<div class="bg_white mtop10 plr15">
+		<dl class="mbdl">
+			<dd>
+				<div class="clearfix">
+					<span class="agdt">发放结果</span>
+					<div class="agcon" id="js_select_btn">
+						<i class="u-rtarr fr"></i>
+						<span id="chtmlIn"></span>
+					</div>
+					<input type="hidden" id="js_draw_passed">
+				</div>
+			</dd>
+			<dd>
+				<div class="clearfix">
+					<span class="agdt">原因说明</span>
+					<div class="agcon"><textarea maxlength="200" placeholder="不通过请说明原因" id="js_draw_reason"></textarea></div>
+				</div>
+			</dd>
+		</dl>
+	</div>
+	<div class="bg_white mtop10 plr15">
+		<h2 class="h2"><span class="titLine"></span>发放凭证</h2>
+		<!--<div class="cred p15">
+			<div class="upload-box">
+				<span id="js_evidence_upload" class="upload-btn" style="">&ensp;</span>
+				<img id="js_evidence_url" src="<%=#imageUrlCrop(user.avatarUrl, 100, 100)%>" width="45" class="roundImg"/><i class="u-rtarr"></i>
+			</div>
+		</div>
+-->
+		<div class="cred p15 upload-box commission-audit-upload" id="js_evidence_btn">
+
+			<!-- 上传图标显示 -->
+			<span class="type-file-box">
+				<img style="position:relative;" id="js_evidence_url">
+				<input type="hidden" id="js_draw_evidence">
+				<input type="button" value="" name="" class="textfield file-btn" id="js_evidence_icon">
+			</span>
+
+			<!-- 上传按钮区域 -->
+			<span id="js_evidence_upload" class="upload-btn">&ensp;</span>
+		</div>
+
+		<p class="p15"><a href="javascript:void(0);" class="btnL" id="js_request_submit">确认</a></p>
+	</div>
+</div>
+
+<% include('../../common/footer_simple') %>
+<script type="text/javascript" src="js/lib/webuploader.html5only.js"></script>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+
+<script type="text/javascript">
+	$(function() {
+
+		var uploader = WebUploader.create({
+
+			/* 选完文件后，是否自动上传。*/
+			auto: false,
+
+			/* 文件接收服务端。*/
+			server: '/member/image/upload/voucher',
+
+			/* 选择文件的按钮。可选。*/
+			/* 内部根据当前运行是创建，可能是input元素，也可能是flash.*/
+			pick: {
+				id: '#js_evidence_upload',
+				multiple: false,
+				innerHTML:'&ensp;'
+			},
+
+			/* 只允许选择图片文件。*/
+			accept: {
+				title: 'Images',
+				extensions: 'gif,jpg,jpeg,png',
+				mimeTypes: 'image/*'
+			}
+		});
+		uploader.on('fileQueued', function (file) {
+			uploader.makeThumb( file, function( error, src ) {
+				$('#js_evidence_icon').hide();
+				$('#js_evidence_url').attr('src', src).show();
+			}, 400, 400);
+		});
+		uploader.on('uploadComplete', function (file) {
+			uploader.reset();
+		});
+		uploader.on('uploadSuccess', function(file, json){
+			if (json.success) {
+				var imgUrl = '<%=imageUrlCrop("==", 800, 800)%>'.replace("==", json.data.url);
+				$('#js_evidence_icon').hide();
+				$('#js_evidence_url').attr('src', imgUrl).show();
+				$('#js_draw_evidence').val(json.data.url);
+				ShopPopup.toastSuccess('上传图像成功');
+				save();
+			} else {
+				ShopPopup.toastError('上传图像失败啦');
+			}
+		});
+		uploader.on('uploadError', function(file){
+			ShopPopup.toastError('上传图像失败啦');
+		});
+
+		var selectData = [
+			{id: 'Y', text: '通过'},
+			{id: 'N', text: '不通过'}
+		];
+		ShopSelect.select(
+				selectData,
+				$('#js_select_btn'),
+				'', /* 全部 */
+				function($ele) {
+					var $a = $('a', $ele);
+					var value = $a.data('value'), text = $a.text();
+					$('#chtmlIn').text(text);
+					$('#js_draw_passed').val(value);
+				}
+		);
+
+
+		function getData() {
+			var keys = {requestId: 'js_draw_id', approved:'js_draw_passed', reason:'js_draw_reason', evidenceFileUrl:'js_draw_evidence'};
+			var data = {};
+			$.each(keys, function(key, selector) {
+				var $field = $('#' +selector);
+				data[key] = $.trim($field.val());
+			});
+			return data;
+		}
+		$('#js_request_submit').on('click', function() {
+			var data = getData();
+			var message = '';
+			if(!data.approved) {
+				message = "请选择是否审核通过";
+				ShopPopup.toast(message);
+				return;
+			}
+			ShopPopup.popupLoading("保存中");
+
+			if(uploader.getFiles() && uploader.getFiles().length > 0) {
+				uploader.upload();
+			} else {
+				save();
+			}
+		});
+
+		function save() {
+			var data = getData();
+			var success = function(){
+				ShopPopup.popupLoadingClose();
+				ShopPopup.toast("保存成功");
+				setTimeout(function () {
+					historyBack();
+				}, 500);
+			};
+			var onError = function(obj) {
+				ShopPopup.popupLoadingClose();
+				ShopPopup.toast(obj.error.message);
+
+			};
+			var opt = {
+				url : '/member/distributor/commission_audit/audit',
+				success: success,
+				error: onError,
+				data: data
+			};
+			Shop.post(opt);
+		}
+	})
+
+</script>
+<% include('../../common/end') %>

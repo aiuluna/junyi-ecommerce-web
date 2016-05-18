@@ -1,0 +1,195 @@
+<% include('common/begin') %>
+<% include('common/header') %>
+
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header><div class="headerImg"><img src="images/idLogo.png" /></div></header>
+	<% } %>
+	<div id="nav">
+		<a href="#" class="on">首页</a><a href="topic-brand.html">大牌馆</a><a href="topic-origin.html">产地馆</a><a href="topic-cat.html">分类专题</a>
+	</div>
+	<%
+	var carousels = homepageConfig.mobile.carousels;
+	if (carousels && carousels.length) {
+	%>
+	<div id="focus" class="focus">
+		<div class="hd">
+			<ul></ul>
+		</div>
+		<!--TODO:这里最好限定一下高度(后台需要保证设置的图片符合尺寸要求)，否则图片加载后会改变布局-->
+		<div class="bd">
+			<ul>
+				<%
+				for (var i = 0; i < carousels.length; ++i) {
+					var carousel = carousels[i];
+				%>
+					<li><a <%=#activityLinkHref(carousel,true)%> ><img src="<%=#staticImgWap('bg_logo_640x240.gif')%>" _src="<%=#imageUrlCrop(carousel.imageUrl,640,450)%>"/></a></li>
+				<%
+				}
+				%>
+			</ul>
+		</div>
+	</div>
+	<%
+	}
+	%>
+	<!--人气专区-->
+	<%
+	var topicActivities = homepageConfig.mobile.topicActivities;
+	if (topicActivities && topicActivities.length) {
+	%>
+	<div class="idLine1">
+		<h2 class="h2"><span class="titLine"></span>人气专区</h2>
+		<%
+		for (var i = 0; i < topicActivities.length; ++i) {
+			var act = topicActivities[i];
+		%>
+		<!--TODO:这里最好限定一下高度(后台需要保证设置的图片符合尺寸要求)，否则图片加载后会改变布局-->
+		<a <%=#activityLinkHref(act,true)%> ><img data-original="<%=#imageUrlCrop(act.imageUrl,640,396)%>" width="100%" src="<%=#staticImgWap('bg_logo_640x396.gif')%>" class="lazy <%=#i===0?'mtop0':''%>"/></a>
+		<%
+		}
+		%>
+	</div>
+	<%
+	} // end of 人气专区
+	%>
+	<!--限时抢购-->
+	<%
+	var flashSaleProducts = products.flashSaleProducts;
+	if (flashSaleProducts && flashSaleProducts.length) {
+	%>
+	<div class="idLine2">
+		<a href="flash-<%=#products.currentOrNext?'current':'next'%>.html">
+			<h2 class="h2"><span class="clockIco"></span>限时抢购</h2>
+			<div class="dTime"><%=#products.currentOrNext?'距离结束':'距离开始'%>
+				<span class="flash-sale-countdown" data-deadline="<%=#products.countdownTime%>" data-current="<%=#timestamp()%>"></span>
+				<i class="d-ico6"></i>
+			</div>
+		</a>
+		<ul class="qList clearfix">
+			<%
+			var count = flashSaleProducts.length > 3 ? 3 : flashSaleProducts.length;
+			for (var i = 0; i < count; ++i) {
+				var product = flashSaleProducts[i];
+			%>
+			<li>
+				<a href="product-<%=#product.skuId%>.html" class="clearfix">
+					<div class="pre">
+						<%=#product_util.renderProductSaleStatus(product)%>
+						<img data-original="<%=#imageUrl(product.imageUrl,200,200)%>" class="lazy" width="100"/>
+					</div>
+					<p class="red f16">¥<%=#formatMoney(product.promotionPrice || product.salePrice)%></p>
+					<p><del>¥<%=#formatMoney(product.marketPrice)%></del></p>
+				</a>
+			</li>
+			<%
+			}
+			%>
+		</ul>
+	</div>
+	<%
+	} // end of 限时抢购
+	%>
+	<!--新品推荐-->
+	<%
+	var newProducts = products.newProducts;
+	if (newProducts && newProducts.length) {
+	%>
+	<div class="idLine3">
+		<h2 class="h2"><span class="titLine"></span>新品推荐</h2>
+		<ul class="idList">
+			<%
+			for (var i = 0; i < newProducts.length; ++i) {
+				var newProduct = newProducts[i];
+			%>
+			<li>
+				<a href="product-<%=#newProduct.skuId%>.html" class="clearfix">
+					<div class="picImg">
+						<% if (newProduct.activityType === 'ORDER_PROMOTION') { %><span class="actform"><%=newProduct.activityTypeName%></span><% } %>
+						<%=#product_util.renderProductSaleStatus(newProduct)%>
+						<img data-original="<%=#imageUrl(newProduct.imageUrl,180,180)%>" class="lazy"/>
+					</div>
+					<div class="picInfor">
+						<div class="u-brand light-grey"><%=#product_util.renderProductOriginLogo(newProduct,32,32)%><%=newProduct.productOriginName%>&nbsp;<%=newProduct.freightMethodName%></div>
+						<p class="tit"><%=newProduct.skuName%></p>
+						<p><del class="fr">¥<%=#formatMoney(newProduct.marketPrice)%></del><span class="red f16">¥<%=#formatMoney(newProduct.promotionPrice || newProduct.salePrice)%></span><% if (newProduct.activityType === 'FLASH_SALE' || newProduct.activityType === 'PRODUCT_PROMOTION') { %><span class="actico"><%=#newProduct.activityLabel%></span><% } %></p>
+					</div>
+				</a>
+			</li>
+			<%
+			}
+			%>
+		</ul>
+	</div>
+	<%
+	} // end of 新品推荐
+	%>
+	<p class="nomore">已显示全部内容</p>
+</div>
+
+<% if (siteNotice) { %>
+<!--活动弹窗-->
+<div id="fullbg" style="display:block;"></div>
+<div class="pop" id="notice" style="display:block;">
+	<a href="javascript:void(0)" class="pClose noCloseico"></a>
+	<p class="notTit"><%=siteNotice.title%></p>
+	<div id="wrapper">
+		<ul id="actover">
+			<li><%=#siteNotice.content%></li>
+		</ul>
+	</div>
+	<p class="tct"><a href="javascript:void(0)" class="pClose actbtn" >我知道了</a></p>
+</div>
+<% } %>
+
+<% include('common/footer') %>
+
+<script type="text/javascript" src="js/lib/jquery.lazyload.js"></script>
+<script type="text/javascript" src="js/lib/TouchSlide.js"></script>
+<script type="text/javascript">
+TouchSlide({ 
+	slideCell:"#focus",
+	titCell:".hd ul",
+	mainCell:".bd ul", 
+	effect:"left", 
+	autoPlay:true,
+	autoPage:true,
+	switchLoad:"_src"
+});
+<% if (flashSaleProducts && flashSaleProducts.length) { %>installCountdownCtrls();<% } %>
+</script>
+
+<% if (siteNotice) { %>
+<script type="text/javascript" src="js/lib/iscroll.js"></script>
+<script type="text/javascript">
+function _onNoticeAdapt() {
+	BoxAdapt();
+	setTimeout(function(){
+		var ao = $("#actover");
+		if (ao.height() > 260) {
+			g_scroller = new iScroll('wrapper');
+		}
+	}, 50);
+}
+function _disableTouchmove(e) { e.preventDefault(); }
+
+var g_act_over = $("#actover"), g_scroller = null;
+g_act_over.find('img').css({width:'100%', height:'auto'});
+
+$(function() {
+	_onNoticeAdapt();
+	document.addEventListener('touchmove', _disableTouchmove, false);
+	$(".pClose").click(function() {
+		$("#fullbg,.pop").hide();
+		if (g_scroller) g_scroller.destroy();
+		document.removeEventListener('touchmove', _disableTouchmove, false);
+	});
+});
+
+$(window).scroll(_onNoticeAdapt);
+$(window).resize(_onNoticeAdapt);
+
+</script>
+<% } %>
+
+<% include('common/end') %>

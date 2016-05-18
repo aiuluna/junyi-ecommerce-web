@@ -1,0 +1,112 @@
+<% include('../common/begin') %>
+<link rel="stylesheet" href="css/lq.datetimepick.css" type="text/css"/>
+<link rel="stylesheet" href="css/jquery.fancybox.css" type="text/css"/>
+<link rel="stylesheet" href="css/jquery.autocomplete.css" type="text/css"/>
+<link rel="stylesheet" href="css/member.css" type="text/css"/>
+<% include('../common/header') %>
+
+<% include('./frame_begin') %>
+<%
+var orderStatus = {"PENDING_PAY":"待付款","PENDING_SHIP":"待发货","PENDING_RECV":"已发货",
+"FINISHED":"已完成","CANCELLED":"已关闭","REFUND_MONEY":"申请退款","REFUND_GOODS":"申请退货","EXCHANGE_GOODS":"申请换货",
+"REFUND_MONEY_FINISH":"已退款","REFUND_GOODS_FINISH":"已退货","REFUND_GOODS_FINISH":"历史订单"};
+%>
+<div class="mbright historyOrder">
+    <h4 class="mbtit">订单详情</h4>
+    <div class="mbBrd">
+        <div class="ztDiv">
+            <p class="f18"><i class="nowico1"></i>当前状态：<span class="red"><%=#orderStatus[order.orderStatus]%></span></p>
+            <%if(order.closeReason&&order.closeReason.length>0){%><p class="pleft25 grey">处理原因：<%=#order.closeReason%></p><%}%>
+        </div>
+    </div>
+
+    <div class="mbBrd">
+        <p class="mbh4"><span class="fr f12"><i class="grey">下单时间：</i><%=#formatDate(order.orderTime, 'YYYY-MM-DD HH:mm:ss')%></span>订单信息</p>
+        <div class="xxDiv">
+            <p><span class="grey">订单编号</span>：<%=#order.orderNo%></p>
+           <%if(order.paymentType){%><p><span class="grey">支付方式</span>：<%=#order.paymentType%></p><%}%>
+            <%if(order.expName){%><p><span class="grey">物流公司</span>：<%=#order.expName%></p><%}%>
+            <%if(order.shipOrderNumber){%><p><span class="grey">发货单号</span>：<%=#order.shipOrderNumber%></p><%}%>
+            <%if(order.buyerMemo){%> <p class="clearfix"><span class="fl"><i class="grey">买家留言</i>：</span><span class="liuMsg"><%=#order.buyerMemo%></span></p><%}%>
+        </div>
+    </div>
+    <!--收货人信息-->
+    <div class="mbBrd">
+        <p class="mbh4">收货人信息</p>
+        <div class="xxDiv">
+            <p><span class="grey">收&nbsp;货&nbsp;人</span>：<%=#order.consignee%></p>
+            <p><span class="grey">详细地址</span>：<%=#order.legacyAddress.state%>&nbsp;<%=#order.legacyAddress.city %>&nbsp;<%=#order.legacyAddress.county %>&nbsp;<%=#order.legacyAddress.address%></p>
+            <%if(order.legacyAddress.zipCode){%><p><span class="grey">邮政编码</span>：<%=#order.legacyAddress.zipCode%></p><%}%>
+            <%if(order.buyerEmail){%><p><span class="grey">电子邮箱</span>：<%=#order.buyerEmail%></p><%}%>
+            <%if(order.legacyAddress.phone){%><p><span class="grey">电话号码</span>：<%=#order.legacyAddress.phone%></p><%}%>
+            <%if(order.legacyAddress.mobile){%><p><span class="grey">手机号码</span>：<%=#order.legacyAddress.mobile%></p><%}%>
+            <%if(order.legacyAddress.idCardNo){%><p><span class="grey">身份证号</span>：<%=#order.legacyAddress.idCardNo%></p><%}%>
+        </div>
+    </div>
+    <!--商品清单-->
+    <div class="mbBrd">
+        <p class="mbh4">商品清单</p>
+        <table cellpadding="0" cellspacing="0" width="100%" class="odtab">
+            <tr>
+                <th width="340">商品信息</th>
+                <th width="125">重量</th>
+                <th width="160">商品单价</th>
+                <th width="130">购买数量</th>
+                <th>小计</th>
+            </tr>
+            <%
+            if (order.items && order.items.length) {
+            for (var j = 0, jlen = order.items.length; j < jlen; ++j) {
+            var item = order.items[j], extraCss = (j == jlen -1) ? 'no-bottom-border': '';
+            %>
+
+            <tr>
+                <td valign="top">
+                    <div class="odgoods plr15 clearfix">
+                        <div class="txtwrap">
+                            <span title="<%=#item.skuName%>" class="gdsTit"><%=#item.skuName%></span>
+                        </div>
+                        <p class="grey">货号：<%=#item.skuCode%></p>
+                    </div>
+                </td>
+                <td valign="top"><%=#item.weight%>g</td>
+                <td valign="top">¥<%=#formatMoney2(item.payPrice)%></td>
+                <td valign="top"><%=#item.quantity%></td>
+                <td valign="top">¥<%=#formatMoney2(item.totalFee)%></td>
+            </tr>
+            <%
+            }
+            } else {
+            %>
+            <tr>
+                <td colspan="3" class="no-bottom-border">商品清单为空</td>
+            </tr>
+            <%}%>
+        </table>
+        <div class="cartTotal">
+            <p>商品总计：<span class="wd105 grey5">¥<%=#formatMoney2(order.totalSaleFee)%></span></p>
+            <p>优惠券抵扣：<span class="wd105 grey5">-¥<%=#formatMoney2(order.couponValue)%></span></p>
+            <p>活动优惠：<span class="wd105 grey5">-¥<%=#formatMoney2(order.reducedPromotionAmount)%></span></p>
+            <% if (order.adjustFee>0) {%>
+                <p>订单调价金额：<span class="wd105 grey5">¥<%=#formatMoney2(order.adjustFee)%></span></p>
+            <% }else{%>
+                <p>订单调价金额：<span class="wd105 grey5">-¥<%=#formatMoney2(0-order.adjustFee)%></span></p>
+            <%}%>
+            <% if (order.tongGuanTax>50) {%>
+                <p>税费：<span class="wd105 grey5">¥<%=#formatMoney2(order.tongGuanTax)%></span></p>
+            <% }else{%>
+                <p>税费：<span class="wd105 grey5"><del>¥<%=#formatMoney2(order.tongGuanTax)%></del></span></p>
+            <%}%>
+            <p>运费：<span class="wd105 grey5">¥<%=#formatMoney2(order.adjustShippingFee)%></span></p>
+            <p>可得积分：<span class="wd105 grey5"><%=#order.orderPoint%></span></p>
+            <p>应付金额：<span class="wd105 red f18">¥<%=#formatMoney2(order.orderTotal)%></span></p>
+        </div>
+    </div>
+
+</div>
+
+
+<% include('./frame_end') %>
+
+<% include('../common/footer_member') %>
+<% include('../common/end') %>

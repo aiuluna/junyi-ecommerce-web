@@ -1,0 +1,193 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+
+<div class="wd640">
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:historyBack();" class="sc-prev">&nbsp;</a>
+					我的优惠券
+			<span class="exchgIco" id="js_coupon_exchange">兑换</span>
+		</div>
+
+	</header>
+
+	<div id="coupons">
+		<div class="pgSpan" id="js_coupon_select">
+			<span class="on" data-value="NOT_USED"><i>未使用</i></span>
+			<span data-value="USED"><i>已使用</i></span>
+			<span data-value="EXPIRED"><i>已过期</i></span>
+		</div>
+		<div class="pgDiv">
+			<ul class="coulist" id="js_item_wrapper">
+			</ul>
+
+			<div id="win-middle" style="display: none;">
+				<span class="noIco8"></span>
+				<p class="f16 light-grey">您还没有优惠券哦</p>
+			</div>
+		</div>
+	</div>
+
+	<div id="gocenter">
+		<a href="javascript:void(0)" id="ruClose"></a>
+		<p class="plr15"><a href="member-coupon-center.html" class="fr">去看看</a>更多优惠券领取信息</p>
+	</div>
+</div>
+
+<!--<div id="fullbg"></div>
+<div class="pop exchgDiv">
+	<div class="p15">
+		<p class="popTit">兑换优惠券</p>
+		<input type="text" value="" name="" class="ipt" id="js_coupon_code" />
+		<p class="tct mtop15"><a href="javascript:void(0)" class="greybtn pClose" id="js_coupon_cancel">取消</a><a href="javascript:void(0)" class="redbtn" id="js_coupon_ok">确定</a></p>
+	</div>
+</div>-->
+
+<% include('../common/footer_simple') %>
+<script type="application/x-template" id="js_item_template">
+	<li>
+		<div class="coupons {{coupon.status === 'EXPIRED'? 'coupons3' : 'coupons2'}} clearfix">
+			{{if coupon.status == 'USED'}}
+			<span class="beUsed"></span>
+			{{ else if coupon.status == 'EXPIRED' }}
+			<span class="beClose"></span>
+			{{/if}}
+			<div class="cpleft">
+				<span class="f28">{{coupon.amountDiscount}}</span>元<br />
+				{{ if coupon.amountExceed > 0}}
+				满{{coupon.amountExceed}}元可用
+				{{ else }}
+				无限制
+				{{/if}}
+			</div>
+			<div class="cpright">
+				<p class="textover">{{coupon.name}}</p>
+				<p class="black mtop20 f12">有效期</p>
+				<p class="f12">{{coupon.startTime | formatDate: 'yy.MM.dd hh:mm'}}<span class="black">至</span>{{coupon.endTime | formatDate: 'yy.MM.dd hh:mm'}}</p>
+			</div>
+		</div>
+		<div class="coupTip">
+			{{coupon.description}}
+		</div>
+	</li>
+</script>
+<script type="text/javascript" src="js/lib/template.js"></script>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+<script type="text/javascript" src="js/shop.scroll.js"></script>
+<script type="text/javascript">
+	$(function(){
+
+		var hasTouch = 'ontouchstart' in window,
+				CLICK_EVT = hasTouch ? 'touchend' : 'click';
+
+		ShopUtil.initTemplateHelper();
+		var $wrapper = $('#js_item_wrapper');
+		var $noOrder = $('#win-middle');
+		var itemTmpl = ShopUtil.getTemplateById('js_item_template');
+		ShopScroll.init({
+			dataWrapper: $wrapper,
+			method:'POST',
+			url:'/member-coupon-my.html',
+			getParams: function() {
+				var status = $('#js_coupon_select .on').data('value');
+				return {pageSize: 8, status : status};
+			},
+			afterLoad: function() {
+				$wrapper.trigger('change');
+			},
+			beforeAppendData: function() {
+				$noOrder.hide();
+			},
+			afterAppendData:function() {
+			},
+			onDataEnd: function() {
+				$wrapper.append('<p class="nomore">已显示全部内容</p>');
+			},
+			onDataEmpty: function() {
+				$noOrder.show();
+				$wrapper.html('');
+			},
+			renderItem: function(coupon) {
+				$(".pgSpan span[data-value="+coupon.status+"]").addClass('on').siblings().removeClass("on");
+				return itemTmpl({
+					coupon: coupon
+				});
+			},
+			fail: function() {}
+		});
+
+
+		$wrapper.on('change', function() {
+
+			$wrapper.find(".coupTip").each(function(){
+				if($(this).height() > 20){
+					$(this).addClass("heightOver");
+                    $('<span class="cparrUp"></span>').appendTo($(this));
+					$(this).on('click',function(e){
+						e.preventDefault();
+						$(this).children(".cparrUp").toggleClass("cparrDown");
+						$(this).toggleClass("heightOver");
+					});
+				}/*else{
+					$(this).children(".cparrUp").hide();
+				}*/
+			});
+		});
+
+		$(".pgSpan span").on(CLICK_EVT, function(){
+			if($(this).hasClass("on")) return;
+			$(this).addClass("on").siblings().removeClass("on");
+			ShopScroll.reload();
+		});
+
+		$("#ruClose").click(function(){
+			$(this).parent().hide();
+		});
+
+		$("#js_coupon_exchange").on(CLICK_EVT, function(){
+			popupRedeemCoupon();
+		});
+
+		function popupRedeemCoupon() {
+			ShopPopup.prompt('兑换优惠券', function(redeemCode) {
+				redeemCode = redeemCode.trim();
+				if (!redeemCode) {
+					ShopPopup.toast('您输入的兑换码有误，请重新输入');
+					popupRedeemCoupon();
+					return;
+				}
+				_redeemCoupon(redeemCode);
+			});
+		}
+
+		var redeemInProgress = false;
+		function _redeemCoupon(redeemCode) {
+			if (redeemInProgress) return;
+			redeemInProgress = true;
+			var opt = {
+				url: '/coupon/obtain/redeem',
+				data: {rcode: redeemCode},
+				success: function (json) {
+					if(json && json.data) {
+						ShopPopup.toast("领取优惠券成功");
+						ShopScroll.reload();
+					} else {
+						ShopPopup.toast("优惠券兑换出错啦");
+                        ShopScroll.reload();
+					}
+				},
+				error: function (json) {
+					if(json && json.error && json.error.message) {
+						ShopPopup.toast(json.error.message);
+					}
+				},
+				complete : function() {
+					redeemInProgress = false;
+				}
+			};
+			Shop.post(opt);
+		}
+	});
+</script>
+<% include('../common/end') %>

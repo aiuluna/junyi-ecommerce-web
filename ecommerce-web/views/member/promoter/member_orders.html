@@ -1,0 +1,133 @@
+<% include('../../common/begin') %>
+<link rel="stylesheet" href="css/member.css" type="text/css"/>
+<% include('../../common/header') %>
+
+<% include('../frame_begin') %>
+
+<h4 class="mbtit">会员订单</h4>
+<div class="tgyjc clearfix" id="js_search_form">
+	<span class="tgyjc3">会员名&nbsp;：&nbsp;&nbsp;<input type="text" id="js_search_login" name="" value=""/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 姓名&nbsp;：&nbsp;&nbsp;<input type="text" id="js_search_name" name="" value=""/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 手机号码&nbsp;：&nbsp;&nbsp;<input type="text" id="js_search_mobile" name="" value=""/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 收货人姓名&nbsp;：&nbsp;&nbsp;<input type="text" id="js_search_consignee" name="" value=""/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+	<a href="javascript:;" class="tgicon1" id="js_search_btn">查询</a>
+</div>
+<table cellpadding="0" cellspacing="0" width="100%" class="tgtable brdtab" >
+	<tr>
+		<th width="56">序号</th>
+		<th width="150">订单编号</th>
+		<th width="110">订单金额</th>
+		<th width="110" title="我可以获得的返佣金额">返佣</th>
+		<th width="80">订单状态</th>
+		<th width="80" title="待结算：订单还未到达结算时间；&#10;已结算：即订单符合结算要求，并已完成结算；&#10;未结算：即订单不符合结算要求，不予结算；">结算状态</th>
+		<th width="110">下单会员</th>
+		<th>时间</th>
+	</tr>
+</table>
+<table cellpadding="0" cellspacing="0" width="100%" class="tgtable" id="js_search_result">
+</table>
+<div class="rtl" id="js_pagination"></div>
+
+<% include('../frame_end') %>
+
+<script type="application/x-template" id="js_order_row_tmpl">
+	<tr>
+		<td width="56">{{order.seq}}</td>
+		<td width="150">
+			<a href="javascript:;" class="numDt js-order-detail" data-order_no="{{#order.orderNo}}">{{#order.orderNo}}</a>
+		</td>
+		<td width="110">¥{{#ShopUtil.formatMoney((order.orderFee|| 0), '0.00')}}</td>
+		<td width="110">¥{{#order.commissionFee}}</td>
+		<td width="80">{{#ShopUtil.getOrderStatus(order.orderStatus)}}</td>
+		<td width="80">{{#(order.orderStatus == 'CANCELLED'? '未结算' :ShopUtil.getSettleStatus(order.settleStatus))}}</td>
+		<td width="110">{{#order.buyerLogin}}<br/>{{#order.buyerName}}</td>
+		<td class="ptleft">
+			<div><span class="grey">下单：</span>{{order.orderTime | formatDate:'yyyy-MM-dd hh:mm'}}</div>
+			<div><span class="grey">完成：</span>{{if order.finishTime}}{{order.finishTime | formatDate:'yyyy-MM-dd hh:mm'}}{{else}}——{{/if}}</div>
+		</td>
+	</tr>
+</script>
+
+<% include('../../common/footer_member') %>
+<script type="text/javascript" src="js/lib/jquery.pagination.js"></script>
+<script type="text/javascript" src="js/lib/template.js"></script>
+<script type="text/javascript">
+	$(function(){
+		ShopUtil.initTemplateHelper();
+
+		var orderRowTmpl = ShopUtil.getTemplateById('js_order_row_tmpl');
+		var loader = ShopLoader.init({
+			pageSelector: '#js_pagination',
+			url: '/member-promoter-member_orders.html',
+			getCriteria: function() {
+				return {
+					login: $.trim($('#js_search_login').val()),
+					mobile: $.trim($('#js_search_mobile').val()),
+					consignee: $.trim($('#js_search_consignee').val()),
+					name: $.trim($('#js_search_name').val())
+				}
+			},
+			render:function(json) {
+				var htmlArr = [];
+				var pageData = json.data.pageData;
+
+				if (json.data.totalCount > 0) {
+					var seq = (json.data.pageNumber - 1) * json.data.pageSize;
+					var fillArr = ShopUtil.fillArr;
+					for (var i = 0, len = pageData.length; i < len; i++) {
+						var order = pageData[i] || {};
+						order.seq = seq + 1 + i;
+						fillArr(htmlArr, orderRowTmpl({order: order, ShopUtil : ShopUtil}))
+					}
+					$('html,body').animate({scrollTop: $("#navigation").offset().top}, 500);
+					$('#js_search_result').html(htmlArr.join(''));
+				} else {
+					$('#js_search_result').html('<tr><td colspan="10">暂时没有符合要求的记录</td></tr>');
+				}
+			}
+		});
+
+		var initParam = {};
+		<% if (memberId) { %>
+			var vmemberId = parseInt('<%=#memberId%>');
+			if(!isNaN(vmemberId)) {
+				initParam.memberId = vmemberId;
+			}
+		<% } %>
+		loader.search(initParam, true);
+		$('#js_search_btn').on('click', function() {
+			loader.search();
+		});
+		/* 监听回车 */
+		$('#js_search_form').on('keyup', 'input', function(event) {
+			var keycode = event.which;
+			if (keycode == 13) {
+				loader.search();
+			}
+		});
+
+		function showOrderDetail(order) {
+			ShopAlert.dialog({
+				title: '订单详情',
+				body: order,
+				className: 's-order-detail-wrapper'
+			});
+		}
+		$('#js_search_result').on('click', '.js-order-detail', function() {
+			var me = $(this);
+			var orderNo = me.data('order_no');
+			if (!$.trim(orderNo)) {
+				ShopAlert.alert('出错啦', '订单号不能为空');
+				return;
+			}
+			Shop.get({
+				url:'/member/order/detail/' + orderNo,
+				dataType:'html',
+				data: {commissionType: 'promoter'},
+				success:function(html) {
+					showOrderDetail(html)
+				}
+			});
+		});
+
+	});
+</script>
+
+<% include('../../common/end') %>

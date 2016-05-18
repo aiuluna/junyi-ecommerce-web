@@ -1,0 +1,149 @@
+<% include('../../common/begin') %>
+<link rel="stylesheet" href="css/member.css" type="text/css"/>
+<% include('../../common/header') %>
+
+<% include('../frame_begin') %>
+
+<h4 class="mbtit">结算账户</h4>
+<div class="pgSpan"><span class="on">银行卡账户</span><span>支付宝账户</span></div>
+<div class="pgDiv">
+	<table width="100%" cellspacing="0" cellpadding="0" class="add-tab">
+		<tr>
+			<th width="105"><em class="red">*</em>开户人姓名：</th>
+			<td>
+				<input type="text" placeholder="请输入开户人姓名" class="ipt" id="khName" value="<%=#accountVO.accountName%>">
+				<p class="lg-error"></p>
+			</td>
+		</tr>
+		<tr>
+			<th><em class="red">*</em>开户行名称：</th>
+			<td><input type="text" placeholder="请输入开户行名称" class="ipt" id="khBank" value="<%=#accountVO.bankName%>"><p class="lg-error"></p></td>
+		</tr>
+		<tr>
+			<th><em class="red">*</em>开户网点：</th>
+			<td><input type="text" placeholder="请输入开户网点" class="ipt" id="khMesh" value="<%=#accountVO.bankSite%>"><p class="lg-error"></p></td>
+		</tr>
+		<tr>
+			<th><em class="red">*</em>银行卡号：</th>
+			<td><input type="text" placeholder="请输入银行卡号" class="ipt" id="khCnum" value="<%=#accountVO.accountNo%>" maxlength="24"><p class="lg-error"></p></td>
+		</tr>
+		<tr>
+			<th>&nbsp;</th>
+			<td><input type="submit" value="保存修改" name="" class="mbBtn" id="tgsub"/></td>
+		</tr>
+	</table>
+	<div class="bankPay-li fanli">
+		<a href="javascript:void(0)" class="pWord">填写范例</a>
+		<div class="pWrite">
+			<table width="100%" cellspacing="0" cellpadding="0" class="add-tab">
+				<tr>
+					<th width="110"><em class="red">*</em>开户人姓名：</th>
+					<td>张凯</td>
+				</tr>
+				<tr>
+					<th><em class="red">*</em>开户行名称：</th>
+					<td>中国建设银行</td>
+				</tr>
+				<tr>
+					<th valign="top"><em class="red">*</em>开户网点：</th>
+					<td>中国建设银行杭州翠苑分理处</td>
+				</tr>
+				<tr>
+					<th><em class="red">*</em>银行卡号：</th>
+					<td>6217 0098 6789 0987 765</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</div>
+<div class="pgDiv">
+	<table width="100%" cellspacing="0" cellpadding="0" class="add-tab">
+		<tr>
+			<th width="105"><em class="red">*</em>支付宝账户：</th>
+			<td><input type="text" placeholder="请输入支付宝账户" class="ipt" id="aliCnum" value="<%=#accountVO.alipayNo%>"><p class="lg-error"></p></td>
+		</tr>
+		<tr>
+			<th><em class="red">*</em>账户姓名：</th>
+			<td><input type="text" placeholder="请输入账户姓名" class="ipt" id="aliName" value="<%=#accountVO.alipayName%>"><p class="lg-error"></p></td>
+		</tr>
+		<tr>
+			<th>&nbsp;</th>
+			<td><input type="submit" value="保存修改" name="" class="mbBtn" id="tgsub2"/></td>
+		</tr>
+	</table>
+	<div class="aliPay-li fanli">
+		<a href="javascript:void(0)" class="pWord">填写范例</a>
+		<div class="pWrite">
+			<table width="100%" cellspacing="0" cellpadding="0" class="add-tab">
+				<tr>
+					<th width="110"><em class="red">*</em>支付宝账号：</th>
+					<td>18545655454</td>
+				</tr>
+				<tr>
+					<th><em class="red">*</em>账户姓名：</th>
+					<td>张凯</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</div>
+
+<% include('../frame_end') %>
+
+<% include('../../common/footer_member') %>
+<script type="text/javascript" src="js/account.apply_next.js"></script>
+<script type="text/javascript">
+	$(function(){
+		$("#khCnum").val($("#khCnum").val().replace(/[^\d]/g, '').replace(/(\d{4})(?=\d)/g, "$1 "));
+		$('#tgsub').click(function(){
+			if(!account.tgSub()){
+				account.warn();
+				return;
+			}
+			var data = {
+				accountName:formatInput('#khName'),
+				bankName: formatInput('#khBank'),
+				bankSite: formatInput('#khMesh'),
+				accountNo: formatInput('#khCnum'),
+				accountType: 'BANK'
+			};
+			submit(data);
+		});
+
+		$('#tgsub2').click(function(){
+			if(!account.aliPaySub()){
+				account.warn();
+				return;
+			}
+			var data = {
+				alipayName: formatInput('#aliName'),
+				AlipayNo: formatInput('#aliCnum'),
+				accountType: 'ALI_PAY'
+			};
+			submit(data);
+		});
+
+		function formatInput(selector){
+			return $(selector).val().replace(/\s+/g, '');
+		}
+
+		function submit(data){
+			Shop.post({
+				type: 'POST',
+				url: 'member/bank/account',
+				data: data,
+				dataType: 'json',
+				success:function(result){
+					if(result.success)
+						ShopAlert.alert('提示', '保存修改成功！');
+					else
+						ShopAlert.alert('提示',result.error.message);
+				},
+				error:function(){
+					ShopAlert.alert('错误','未知错误!');
+				}
+			});
+		}
+	});
+</script>
+<% include('../../common/end') %>

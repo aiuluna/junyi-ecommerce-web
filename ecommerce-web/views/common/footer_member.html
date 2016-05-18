@@ -1,0 +1,63 @@
+<!--footer-->
+<div id="footer">
+	<div class="wd1090">
+		<ul class="ftlist clearfix">
+			<li>
+				<i class="ftico1"></i>
+				<p class="red f18">100%正品保证</p>
+				<p class="grey">蚂蚁海购  诚信经营</p>
+			</li>
+			<li>
+				<i class="ftico2"></i>
+				<p class="red f18">100%海外货源</p>
+				<p class="grey">海外直邮  保税仓储</p>
+			</li>
+			<li>
+				<i class="ftico3"></i>
+				<p class="red f18">7天无忧退货</p>
+				<p class="grey">国内退货  售后无忧</p>
+			</li>
+		</ul>
+		<% include('./_footer_help') %>
+	</div>
+</div>
+<!--goTop-->
+<a href="javascript:void(0)" id="goTop">回到顶部</a>
+
+<script type="text/javascript" src="js/lib/jquery.min.1.9.1.js"></script>
+<script type="text/javascript" src="js/lib/es5-shim.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery.blockUI.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery.selectbox.js"></script>
+<script type="text/javascript" src="js/normal.js"></script>
+<script type="text/javascript" src="js/shop.alert.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+<script type="text/javascript" src="js/shop.member.js"></script>
+<script type="text/javascript">
+$(function() {
+	var userObjId = <%=#_user.id%>;
+	var userType = '<%=#_user.type%>';
+	if (userType === 'DISTRIBUTOR') {  /*代理商*/
+		var opt = {
+	        url: '/member/approve/count',
+	        data: {userId : userObjId},
+	        success : function (json) {
+	        	if (json.success) {
+	        		if(json.data.approvePromoterCount <= 0) {
+	        			$("#dist_promoter_audit").css("display", "none");
+	        		}
+	        		if(json.data.approveDrawCount <= 0) {
+	        			$("#dist_promoter_commission").css("display", "none");
+	        		}
+	        	}
+	        },
+         	error: function(json) {
+         		if(json && json.error) {
+            		ShopAlert.alert(json.error.message);
+         		}
+         	}
+      	};
+      	Shop.post(opt);
+	}
+      
+})
+</script>

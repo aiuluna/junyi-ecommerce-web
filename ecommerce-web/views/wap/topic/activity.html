@@ -1,0 +1,85 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:void(0)" class="sc-prev" onclick="return historyBack()">&nbsp;</a>
+			<%=activity.name%>
+		</div>
+	</header>
+	<% } %>
+	<% if(activity.mobileImageUrl) { %>
+	<div class="its">
+		<img src="<%=#imageUrlCrop(activity.mobileImageUrl,640,396)%>" width="100%"/>
+	</div>
+	<% } %>
+	<% if (page.totalCount) { %>
+	<div class="idLine3">
+		<h2 class="h2"><span class="titLine"></span>以下商品“<%=#activity.activityLabel%>”</h2>
+		<ul class="idList" id="productList" data-totalPages="<%=#page.totalPages%>">
+			<% include('./activity_list') %>
+		</ul>
+	</div>
+	<% } %>
+	<p class="nomore" id="loadingLabel"><%=#page.totalPages>1?'加载中...':'已显示全部内容'%></p>
+</div>
+
+<% include('../common/footer') %>
+<script type="text/javascript" src="js/lib/jquery.lazyload.js"></script>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<% if (page.totalPages > 1) { %>
+<script type="text/javascript">
+$(function() {
+	var $doc = $(document),
+		$win = $(window),
+		jqProductList = $('#productList'),
+		currentPage = 1,
+		totalPages = jqProductList.attr('data-totalPages')-0;
+	$win.scroll(function(){
+		var dh = $doc.height();
+		var wh = $win.height();
+		var st = $doc.scrollTop();
+		if ((dh-wh) - st <= 30) loadData();
+	});
+	var loading = false;
+	<%
+		var typeAlias = '';
+		switch (activity.activityType) {
+			case 'PRODUCT_PROMOTION':
+				typeAlias = 'p';
+				break;
+			case 'ORDER_PROMOTION':
+				typeAlias = 'o';
+				break;
+			case 'FLASH_SALE':
+				typeAlias = 'flash';
+				break;
+		}
+	%>
+	function loadData() {
+		if (currentPage >= totalPages) return;
+		if (loading) return;
+		loading = true;
+		$.ajax({
+			method: 'POST',
+			url: '/wap/topic/act/<%=#typeAlias%>/<%=#activity.id%>',
+			data: { pageNumber: currentPage + 1 }
+		}).done(function(html) {
+			loading = false;
+			if (++currentPage >= totalPages) $('#loadingLabel').html('已显示全部内容');
+			jqProductList.append(html).find("img.lazy").lazyload({
+				effect:"show",
+				threshold:200,
+				failure_limit:10
+			});
+		}).fail(function() {
+			loading = false;
+			ShopPopup.toastError('加载失败');
+		});
+	}
+});
+</script>
+<% } %>
+<% include('../common/end') %>

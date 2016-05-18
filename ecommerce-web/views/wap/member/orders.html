@@ -1,0 +1,96 @@
+<% include('../common/begin') %>
+<% include('order_header') %>
+<% include('../common/header') %>
+<div class="wd640">
+    <% if (!_isWeixin) { %>
+    <header>
+        <div class="header clearfix">
+            <a href="javascript:history.back();" class="sc-prev">&nbsp;</a>
+            <%=# ( status == 'CANCELLED' ? '已关闭订单' : '我的订单') %>
+        </div>
+    </header>
+    <% } %>
+    <ul class="odTit" id="js_status_list" <%=#(status == 'CANCELLED' ? 'style="display: none;"' : '')%>>
+        <% if ( status == 'CANCELLED') { %>
+        <li class="on"><a data-status="<%=#status%>" href="javascript:;">已关闭</a></li>
+        <% } else {%>
+            <%
+            var _status_arr = [
+                {name: 'ALL',  text: '全部' },
+                {name: 'PENDING_PAY',  text: '待付款' },
+                {name: 'PENDING_SHIP', text: '待发货' },
+                {name: 'PENDING_RECV', text: '待收货' },
+                {name: 'FINISHED',     text: '已完成' }
+            ];
+            var _status = status || 'ALL';
+            for(var i = 0, len = _status_arr.length; i < len; ++i) {
+                var _item = _status_arr[i];
+            %>
+        <li class="<%if (_status == _item.name) {%>on<% } %>"><a data-status="<%=#_item.name%>" href="javascript:;"><%=_item.text%></a></li>
+            <% } %>
+        <% } %>
+    </ul>
+    <div id="win-middle" style="display: none;">
+        <span class="noIco5"></span>
+        <p class="f16 light-grey">您还没有相关订单</p>
+        <a href="/" class="goShopping">去逛逛</a>
+    </div>
+    <div id="js_order_wrapper"></div>
+</div>
+
+<script type="application/x-template" id="js_order_item_template">
+    <div class="odDiv js-order-item js-order-no" data-order_no="{{order.orderNo}}">
+        <a href="member-orders-view-{{order.orderNo}}.html" class="js-view-order" style="font-size: 14px;color: #333;">
+        <p class="odtop"><span class="fr red">{{#order_util.getSimpleOrderStatus4Wap(order.orderStatus)}}</span><span class="grey">{{#order.orderNo}}</span></p>
+        <ul class="mblist">
+            {{ if order.items }}
+            {{each order.items as item}}
+            <li>
+                <div class="picImg">
+                    <img src="{{#item.skuImageUrl}}" width="90"/>
+                </div>
+                <div class="picInfor">
+                    <p class="tit">{{item.skuName}}</p>
+                    <p class="f15 lh24"><span><i class="red">¥{{#ShopUtil.formatMoney(item.payPrice)}}</i> * {{#item.quantity}}</span></p>
+                    <p>
+                        {{if item.activityLabel }}
+                        <span class="fr actico">{{item.activityLabel}}</span>
+                        {{/if}}
+                        <span class="light-grey f12">适用税率：{{#ShopUtil.formatMoney(item.taxRate * 100)}}%</span>
+                    </p>
+                </div>
+            </li>
+            {{/each}}
+            {{else}}
+            <li>商品清单为空</li>
+            {{/if}}
+        </ul>
+        </a>
+        <p class="odline">共<span class="red">{{#order.itemCount}}</span>件商品  {{if order.payStatus == 'PAID'}}实付{{else}}应付{{/if}}金额：<span class="red">¥{{#ShopUtil.formatMoney(order.totalFee + order.adjustFee)}}</span></p>
+        <p class="odline">
+            {{ if order._expireInfo }}
+            <span style="display: none;"
+                  class="js-order-count-down"
+                  id="js_cd_{{#order.orderNo}}" {{#order_util.renderAttrs(order._expireInfo, 'data-')}}></span>
+            {{ /if }}
+            {{#order_util.getOrderOperation4Wap(order)}}
+        </p>
+    </div>
+</script>
+<% include('../common/footer_simple') %>
+<% include('order_footer') %>
+<script type="text/javascript" src="js/normal.js"></script>
+<script type="text/javascript">
+
+    $(function(){
+        /* 这行是 Opera 的补丁, 少了它 Opera 是直接用跳的而且画面闪烁 by willin */
+        var $body = (window.opera) ? (document.compatMode == "CSS1Compat" ? $('html') : $('body')) : $('html,body');
+        function scrollTo($ele, duration) {
+            $body.animate({scrollTop: $ele.offset().top}, duration || 10);
+        }
+        ShopUtil.initTemplateHelper();
+        ShopOrder.init4List({orderTableSelector:'#js_order_wrapper'});
+    });
+
+</script>
+<% include('../common/end') %>

@@ -1,0 +1,87 @@
+<% include('../common/begin') %>
+<% include('order_header') %>
+<% include('../common/header') %>
+<div class="wd640">
+    <% if (!_isWeixin) { %>
+    <header>
+        <div class="header clearfix">
+            <a href="javascript:historyBack()" class="sc-prev">&nbsp;</a>
+            物流跟踪
+        </div>
+    </header>
+    <% } %>
+    <div id="js_order_view_express">
+    <%
+    if (list && list.length) {
+    %>
+        <div class="pgSpan">
+            <%
+            for (var i = 0, len = list.length; i < len; ++i) {
+
+            %>
+            <span <% if ( i == 0 ) {%>class="on" <% } %> data-log_tab="<%=#i%>">包裹<%=#(i + 1)%></span>
+            <%
+            }
+            %>
+        </div>
+        <%
+        for (var i = 0, len = list.length; i < len; ++i) {
+            var express = list[i];
+        %>
+
+        <div class="pgDiv" data-log_tab="<%=#i%>">
+            <dl class="idLine2">
+                <dd class="clearfix"><span class="grey">物流公司：</span><p><%=express.expName%></p></dd>
+                <dd class="clearfix"><span class="grey">物流状态：</span><p class="red"><%=express.status%></p></dd>
+                <dd class="clearfix"><span class="grey">运单编号：</span><p><%=express.expNo%></p></dd>
+            </dl>
+            <div class="idLine2">
+                <h2 class="h2"><span class="titLine"></span>物流跟踪</h2>
+                <dl class="logistics">
+                    <%
+                    if (express.details && express.details.length) {
+                        for (var j = 0, jlen = express.details.length; j < jlen; ++j) {
+                            var item = express.details[j];
+
+                            var v_slot_clz = '';
+                            if (j == jlen - 1) {
+                                v_slot_clz = 'red logOn';
+                            } else if (j == 0) {
+                                v_slot_clz = 'logFirst';
+                            }
+                    %>
+                    <dd class="<%=#v_slot_clz%>"><%=item.content%><p class="light-grey"><%=formatDate(item.createDate, 'YYYY-MM-DD HH:mm:ss')%></p></dd>
+                    <%
+                        }
+                    }
+                    %>
+                </dl>
+            </div>
+        </div>
+        <%
+        }
+        %>
+
+    <%
+    } else {
+    %>
+        <div id="win-middle">
+            <span class="noIco5"></span>
+            <p class="f16 light-grey">您还没有订单的物流信息</p>
+        </div>
+    <%
+    }
+    %>
+    </div>
+</div>
+<% include('../common/footer_simple') %>
+<% include('order_footer') %>
+<script type="text/javascript" src="js/normal.js"></script>
+<script type="text/javascript">
+
+    $(function(){
+        ShopOrder.init4Express({orderTableSelector:'#js_order_wrapper'});
+    });
+
+</script>
+<% include('../common/end') %>

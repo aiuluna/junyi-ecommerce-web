@@ -1,0 +1,67 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+
+<div class="wd640" id="pageLogin">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:void(0)" class="sc-prev" onclick="return historyBack()">&nbsp;</a>
+			登录
+		</div>
+	</header>
+	<% } %>
+	<div class="p15" <%=#_isWeixin?'style="margin-top:25px"':''%> >
+		<form id="login">
+			<dl class="ipt-dl">
+				<dd class="clearfix">
+					<span class="lgico1"></span>
+					<div class="lgdiv"><input type="text" name="login" value="<%=#mobile%>" class="ipt" placeholder="会员名/手机号码/邮箱" id="bdLogin" tabindex="1"/></div>
+				</dd>
+				<dd class="clearfix">
+					<span class="lgico2"></span>
+					<div class="lgdiv"><input type="password" name="password" class="ipt" placeholder="请输入密码" id="bdPassw" tabindex="2"/></div>
+				</dd>
+			</dl>
+			<p class="mb5"><a href="javascript:void(0)" class="btnL" onclick="loginSub()">登录</a></p>
+			<p><a href="passport-forgot.html" class="fr grey6 btn">忘记密码</a><a href="passport-signup.html" class="grey6 btn">快速注册</a></p>
+		</form>
+	</div>
+</div>
+<div class="page" id="pageBind">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:void(0)" class="sc-prev" onclick="return historyBack()">&nbsp;</a>
+			绑定手机号
+		</div>
+	</header>
+	<% } %>
+	<div class="p15">
+		<form>
+			<dl class="ipt-dl" style="margin-bottom:0">
+				<dd>老用户绑定手机号</dd>
+				<dd>
+					<input type="hidden" name="userId" value="" id="bdUserId"/>
+					<input type="text" name="login" class="ipt" placeholder="请输入您的手机号码" id="bdPhone" tabindex="1"/>
+				</dd>
+				<dd>
+					<div class="syzm">
+						<span class="smipt"><input type="text" name="mobileCode" class="ipt" placeholder="请输入收到的短信验证码" tabindex="2" id="bdVcode"/></span>
+						<a href="javascript:void(0)" class="sendM" id="btnSendYzm" onclick="sendYzmForBind()">发送验证码</a>
+					</div>
+				</dd>
+			</dl>
+			<p><a href="javascript:void(0)" class="btnL" onclick="bindSub()">确认</a></p>
+		</form>
+	</div>
+</div>
+
+<% include('../common/footer_simple') %>
+<script type="text/javascript" src="js/lib/jquery.ba-hashchange.js"></script>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.passport.js"></script>
+<script type="text/javascript">
+$(window).on('hashchange', loginOnHashChanged);
+loginOnHashChanged();
+</script>
+<% include('../common/end') %>

@@ -1,0 +1,56 @@
+<% include('common/begin') %>
+<% include('common/header') %>
+
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:void(0)" class="sc-prev" onclick="return historyBack()">&nbsp;</a>
+			<%=#currentOrNext ? '本期限时抢购' : '下期限时抢购'%>
+		</div>
+	</header>
+	<% } %>
+	<%
+	for (var m = 0; m < flashSaleProductsArr.length; ++m) {
+		var o = flashSaleProductsArr[m], flashSaleProducts = o.flashSaleProducts, countdownTime = o.countdownTime;
+	%>
+	<div class="idLine3 pre">
+		<h2 class="h2"><span class="titLine"></span><%=#currentOrNext?'距离活动结束':'距离活动开始'%></h2>
+		<div class="dTime">
+			<span class="flash-sale-countdown" data-deadline="<%=#countdownTime%>" data-current="<%=#timestamp()%>"></span>
+		</div>
+		<ul class="idList">
+			<%
+			for (var i = 0; i < flashSaleProducts.length; ++i) {
+				var product = flashSaleProducts[i], isLast = (i === flashSaleProducts.length - 1);
+			%>
+			<li <%=#isLast?'style="border-bottom:1px solid #d8d8d8"':''%> >
+				<a href="product-<%=#product.skuId%>.html" class="clearfix" <%=#isLast?'style="border-bottom:none"':''%> >
+					<div class="picImg">
+						<%=#product_util.renderProductSaleStatus(product)%>
+						<img data-original="<%=#imageUrl(product.imageUrl,180,180)%>" class="lazy"/>
+					</div>
+					<div class="picInfor">
+						<div class="u-brand light-grey"><%=#product_util.renderProductOriginLogo(product,32,32)%><%=product.productOriginName%>&nbsp;<%=product.freightMethodName%></div>
+						<p class="tit"><%=product.skuName%></p>
+						<p><del class="fr">¥<%=#formatMoney(product.marketPrice)%></del><span class="red f16">¥<%=#formatMoney(product.promotionPrice || product.salePrice)%></span></p>
+					</div>
+				</a>
+			</li>
+			<%
+			}
+			%>
+		</ul>
+	</div>
+	<%
+	}
+	%>
+	<p class="nomore">已显示全部内容</p>
+</div>
+
+<% include('common/footer') %>
+<script type="text/javascript" src="js/lib/jquery.lazyload.js"></script>
+<script type="text/javascript">
+installCountdownCtrls();
+</script>
+<% include('common/end') %>

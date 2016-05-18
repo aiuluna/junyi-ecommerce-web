@@ -1,0 +1,31 @@
+<% if (recommendProducts && recommendProducts.length) { %>
+<div class="section">
+	<h3><a href="javascript:void(0)" class="change" onclick="recommendProductsSwitch()">换一换</a><img src="images/tit-ico1.png">猜你喜欢</h3>
+	<ul class="dtlist clearfix">
+		<%
+		var len = recommendProducts.length;
+		if (len > 4) len = 4;
+		for (var i = 0; i < len; ++i) {
+			var product = recommendProducts[i];
+		%>
+		<li>
+			<a href="product-<%=#product.skuId%>.html" target="_blank" class="picImg">
+				<img data-original="<%=#imageUrl(product.imageUrl,210,210)%>" src="images/blank.gif" class="lazy" title="<%=product.skuName%>"/>
+				<%=#product_util.renderProductSaleStatus(product)%>
+			</a>
+			<div class="new-intro">
+				<p class="imgtit">
+					<a href="product-<%=#product.skuId%>.html" target="_blank" class="black"><%=product.skuName%></a>
+				</p>
+				<p>
+					<span class="fr light-grey"><del>¥<%=#formatMoney(product.marketPrice)%></del></span>
+					<span class="red extprice">¥<i class="f20"><%=#formatMoney(product.promotionPrice || product.salePrice)%></i></span>
+				</p>
+			</div>
+		</li>
+		<%
+		}
+		%>
+	</ul>
+</div>
+<% } %>

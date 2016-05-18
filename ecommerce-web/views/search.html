@@ -1,0 +1,172 @@
+<% include('common/begin') %>
+<% include('common/header') %>
+
+<!--content-->
+<div id="content">
+	<div class="wd1090">
+	<%
+	if (searchResult && searchResult.totalCount) {
+		var productFilter = searchFilter;
+	%>
+		<!--搜索条件-->
+		<dl class="searchNav">
+			<dd>
+				<span class="f16 red weight" id="span_keywords"><%=searchQuery.q%> </span>搜索到 <i class="red" id="js_totalCount"><%=#searchResult.totalCount%></i> 个相关商品
+			</dd>
+			<dd class="clearfix" id="js_param_selected" style="display: none;">
+				<span class="grey fl wd70">已选条件：</span><div class="yixuan"></div>
+			</dd>
+
+			<%
+			if (productFilter && productFilter.productClasses && productFilter.productClasses.length) {
+			%>
+			<dd class="clearfix">
+				<span class="grey fl wd70">商品类型：</span>
+				<div class="screen js-param-field" id="js_param_class">
+				<%
+				for(var classes = productFilter.productClasses, i = 0; i < classes.length; i++) {
+				%>
+					<a href="javascript:void(0)" data-type="class" data-id="<%=#classes[i].id%>"><%=#classes[i].name%></a>
+				<%
+				}
+				%>
+				</div>
+			</dd>
+			<%
+			}
+			%>
+
+			<%
+			if (productFilter && productFilter.productOrigins && productFilter.productOrigins.length) {
+			%>
+			<dd class="clearfix">
+				<span class="grey fl wd70">产地：</span>
+				<div class="screen js-param-field" id="js_param_origin">
+				<%
+				for(var origs = productFilter.productOrigins, i = 0; i < origs.length; i++) {
+				%>
+					<a href="javascript:void(0)" data-type="origin" data-id="<%=#origs[i].id%>"><%=#origs[i].name%></a>
+				<%
+				}
+				%>
+				</div>
+			</dd>
+			<%
+			}
+			%>
+
+			<%
+			if (productFilter && productFilter.productCategories && productFilter.productCategories.length) {
+			%>
+			<dd class="clearfix">
+				<span class="grey fl wd70">商品分类：</span>
+				<div class="screen js-param-field" id="js_param_category">
+				<%
+				for (var catgs = productFilter.productCategories, i = 0; i < catgs.length; ++i) {
+					var cat = catgs[i];
+					if (cat.level > 1) continue;
+				%>
+					<a href="javascript:void(0)" data-type="category" data-id="<%=#cat.id%>"><%=#cat.name%></a>
+				<%
+				}
+				%>
+				</div>
+			</dd>
+			<%
+			}
+			%>
+
+			<%
+			if (productFilter && productFilter.productBrands && productFilter.productBrands.length) {
+			%>
+			<dd class="clearfix">
+				<span class="grey fl wd70">品牌：</span>
+				<div class="screen brand js-param-field" id="js_param_brand">
+				<%
+				for(var brands = productFilter.productBrands, i = 0; i < brands.length; i++) {
+				%>
+					<a href="javascript:void(0)" data-type="brand" data-id="<%=#brands[i].id%>"><%=#brands[i].name%></a>
+				<%
+				}
+				%>
+				</div>
+				<a href="javascript:void(0)" class="ppMore">更多<i></i></a>
+				<a href="javascript:void(0)" class="ppUp">收起<i></i></a>
+			</dd>
+			<%
+			}
+			%>
+			<dd class="clearfix">
+				<span class="grey fl wd70">排序：</span>
+				<div class="grey5 clearfix">
+					<div class="sort fl" id="js_param_sort">
+						<span data-sort="sale_price">价格<i></i></span>
+						<span data-sort="sale_count">销量<i></i></span>
+					</div>
+					<div class="fl" id="js_param_price_range">
+						<span class="range">¥<input type="text" class="js-range-from" value="" name="" tabindex="1"/></span>
+						&ensp;-&ensp;
+						<span class="range">¥<input type="text" class="js-range-to" value="" name="" tabindex="2"/></span>
+						<a href="javascript:;" class="rgque" id="js_param_price_btn">确认</a>
+					</div>
+					<div class="fl discount" id="js_param_discount">
+						<span><input type="checkbox" value="" name="" id="c1"/><label for="c1">仅显示促销商品</label></span>
+						<span><input type="checkbox" value="" name="" id="c2"/><label for="c2">热卖</label></span>
+						<span><input type="checkbox" value="" name="" id="c3"/><label for="c3">精品</label></span>
+						<span><input type="checkbox" value="" name="" id="c4"/><label for="c4">新品</label></span>
+					</div>
+				</div>
+			</dd>
+		</dl>
+		<!--搜索结果-->
+		<div id="js_search_result">
+			<% include('search_result') %>
+		</div>
+		<!--最近浏览-->
+		<div>
+			<% include('./product_recent_viewed') %>
+		</div>
+		<!--猜你喜欢-->
+		<div id="recommendProductsDiv">
+			<% include('./product_recommend') %>
+		</div>
+	<%
+	} else {  // if (searchResult && searchResult.totalCount)
+	%>
+		<!--搜索结果为空-->
+		<div class="nobox">
+			<div class="nocon">
+				<p class="f20">抱歉，没有找到与<span class="red">“<%=searchQuery.q%>”</span>相关的物品</p>
+				<p class="deep-grey mtop30">建议您：</p>
+				<p>1、看看输入的文字是否有误</p>
+				<p>2、拆分要搜索的关键词，分成几个词语再次搜索</p>
+			</div>
+		</div>
+	<%
+	}  // end .. if (searchResult && searchResult.totalCount)
+	%>
+	</div>
+</div>
+
+<% include('common/footer') %>
+
+<script type="text/javascript" src="js/lib/jquery.SuperSlide.2.1.2.js"></script>
+<script type="text/javascript" src="js/lib/jquery.lazyload.js"></script>
+<script type="text/javascript" src="js/lib/jquery.pagination.js"></script>
+<script type="text/javascript" src="js/shop.alert.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+<script type="text/javascript" src="js/shop.search.js"></script>
+<script type="text/javascript">
+$(function () {
+	ShopSearch.init({
+		originId: '<%=#searchQuery.originId%>',
+		classId: '<%=#searchQuery.classId%>',
+		brandId: '<%=#searchQuery.brandId%>',
+		categoryId: '<%=#searchQuery.categoryIdLevel1%>',
+		productName: '<%=searchQuery.q%>',
+		fulltextWildcardSearch: '<%=fulltextWildcardSearch%>'
+	});
+});
+</script>
+
+<% include('common/end') %>

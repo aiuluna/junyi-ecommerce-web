@@ -1,0 +1,107 @@
+<% include('../../common/begin') %>
+<% include('../../common/header') %>
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:historyBack();" class="sc-prev">&nbsp;</a>
+			详情
+		</div>
+	</header>
+	<% } %>
+	<h2 class="h2"><span class="titLine"></span>申请信息</h2>
+	<dl class="idLine2">
+		<dd class="clearfix"><span class="grey">申请人</span><p><%=request.userLogin%><%=request.userName?'('+request.userName+')':''%></p></dd>
+		<dd class="clearfix"><span class="grey">手机号</span><p><%=request.mobile%></p></dd>
+		<dd class="clearfix"><span class="grey">申请时间</span><p><%=#formatDate(request.requestDate, 'YYYY-MM-DD HH:mm:ss')%></p></dd>
+		<dd class="clearfix"><span class="grey">申请理由</span><p><%=request.requestReason%></p></dd>
+	</dl>
+	<h2 class="h2"><span class="titLine"></span>结算账户</h2>
+	<div class="bg_white" id="setAccount">
+
+		<div class="pgSpan"><span class="on"><i>银行账户</i></span><span><i>支付宝账户</i></span></div>
+		<div class="pgDiv">
+			<dl class="editLine">
+				<dd>
+					<div class="dbox">
+						<span class="grey">开户人姓名</span>
+						<div class="editS"><%=request.accountName%></div>
+					</div>
+				</dd>
+				<dd>
+					<div class="dbox">
+						<span class="grey">开户银行</span>
+						<div class="editS"><%=request.bankName%></div>
+					</div>
+				</dd>
+				<dd>
+					<div class="dbox">
+						<span class="grey">开户网点</span>
+						<div class="editS"><%=request.bankSite%></div>
+					</div>
+				</dd>
+				<dd>
+					<div class="dbox">
+						<span class="grey">银行卡号</span>
+						<div class="editS"><%=#order_util.formatBankAccount(request.accountNo)%></div>
+					</div>
+				</dd>
+			</dl>
+		</div>
+		<div class="pgDiv" style="display:none;">
+			<dl class="editLine">
+				<dd>
+					<div class="dbox">
+						<span class="grey">支付宝账号</span>
+						<div class="editS"><%=request.alipayNo%></div>
+					</div>
+				</dd>
+				<dd>
+					<div class="dbox">
+						<span class="grey">账户姓名</span>
+						<div class="editS"><%=request.alipayName%></div>
+					</div>
+				</dd>
+			</dl>
+		</div>
+	</div>
+	<div class="bg_white mtop10 plr15">
+		<dl class="mbdl">
+			<dd>
+				<div class="clearfix">
+					<span class="agdt">审核结果</span>
+					<div class="agcon"><%=#order_util.renderPromoterRequestStatus(request.status)%></div>
+				</div>
+			</dd>
+			<dd>
+				<div class="clearfix">
+					<span class="agdt">返佣比例</span>
+					<div class="agcon"><%=(request.rate || 0) * 100%>%</div>
+				</div>
+			</dd>
+			<dd>
+				<div class="clearfix">
+					<span class="agdt">原因说明</span>
+					<div class="agcon"><%=#request.auditReason%></div>
+				</div>
+			</dd>
+		</dl>
+	</div>
+</div>
+
+<% include('../../common/footer_simple') %>
+<script type="text/javascript">
+	$(function() {
+		var bankAccount = "<%=(request.accountName || request.bankName || request.bankSite || request.accountNo)%>";
+		var pgindex = 0;
+		if(bankAccount) {
+			pgindex = 0;
+		} else {
+			pgindex = 1;
+		}
+
+		$(".pgSpan span").eq(pgindex).addClass("on").siblings().removeClass("on");
+		$(".pgDiv").eq(pgindex).show().siblings(".pgDiv").hide();
+	});
+</script>
+<% include('../../common/end') %>

@@ -1,0 +1,21 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:void(0)" class="sc-prev" onclick="return historyBack()">&nbsp;</a>
+			付款成功
+		</div>
+	</header>
+	<% } %>
+	<div id="win-middle">
+		<span class="okico"></span>
+		<p class="f16">订单支付成功，我们将尽快为您发货</p>
+		<p class="mtop30"><a href="member-orders-view-<%=#orderNo%>.html" class="normbtn">订单详情</a><a href="/wap/" class="redbtn">继续购物</a></p>
+	</div>
+</div>
+
+<% include('../common/footer_simple') %>
+<% include('../common/end') %>

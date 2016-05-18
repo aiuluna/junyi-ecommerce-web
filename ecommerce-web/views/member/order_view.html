@@ -1,0 +1,212 @@
+<% include('../common/begin') %>
+<link rel="stylesheet" href="css/lq.datetimepick.css" type="text/css"/>
+<link rel="stylesheet" href="css/jquery.fancybox.css" type="text/css"/>
+<link rel="stylesheet" href="css/jquery.autocomplete.css" type="text/css"/>
+<link rel="stylesheet" href="css/member.css" type="text/css"/>
+<% include('../common/header') %>
+
+<% include('./frame_begin') %>
+
+<h4 class="mbtit">订单详情</h4>
+<div id="js_order_wrapper">
+    <!--进度状态-->
+    <%=#order_util.renderOrderStatusProgressBar(order)%>
+    <!--订单状态描述/响应操作-->
+    <div class="mbBrd">
+        <div class="ztDiv js-order-no" data-order_no="<%=order.orderNo%>">
+            <%=#order_util.renderOrderOperation4View(order)%>
+        </div>
+    </div>
+</div>
+<!--物流信息-->
+<%=#order_util.renderOrderExpressInfo(order)%>
+<!--订单信息-->
+<div class="mbBrd">
+    <p class="mbh4">
+        <span class="fr f12">
+            <i class="grey">下单时间：</i><%=formatDate(order.orderTime, 'YYYY-MM-DD HH:mm:ss')%>
+        </span>
+        订单信息
+    </p>
+    <div class="xxDiv">
+        <p><span class="grey">收&nbsp;货&nbsp;人</span>：<%=order.address.consignee%>&nbsp;&nbsp;<%=#order_util.maskMobile(order.address.mobile)%></p>
+        <p><span class="grey">身份证号</span>：<%=#order_util.maskIdCard(order.address.idCardNo)%></p>
+        <p><span class="grey">所在区域</span>：<%=order.address.state%><%=order.address.city%><%=order.address.county%><%=order.address.address%></p>
+        <p><span class="grey">订&nbsp;单&nbsp;号</span>：<%=#order.orderNo%></p>
+        <p class="clearfix">
+            <span class="fl"><i class="grey">买家留言</i>：</span>
+            <span class="liuMsg"><%=order.buyerMemo%></span>
+        </p>
+    </div>
+</div>
+
+<!--商品清单-->
+<div class="mbBrd">
+    <p class="mbh4">商品清单</p>
+    <table cellpadding="0" cellspacing="0" width="100%" class="odtab">
+        <tbody><tr>
+            <th width="340">商品信息</th>
+            <th width="115">重量</th>
+            <th width="115">商品单价</th>
+            <th width="115">购买数量</th>
+            <th width="115">小计</th>
+            <th>优惠</th>
+        </tr>
+        <%
+        if ( order.items &&  order.items.length) {
+            for (var i = 0, len = order.items.length; i < len; ++i) {
+                var item = order.items[i];
+        %>
+
+        <tr>
+            <td valign="top">
+                <div class="odgoods plr15 clearfix">
+                    <a class="picImg fl" target="_blank" href="/product-<%=item.skuId%>.html">
+                        <img src="<%=imageUrl(item.skuImageUrl, 46, 46)%>" width="46" height="46" alt="<%=item.skuName%>" title="<%=item.skuName%>">
+                    </a>
+                    <div class="txtwrap">
+                        <a title="<%=item.skuName%>" class="gdsTit" target="_blank" href="/product-<%=item.skuId%>.html">
+                            <%=item.skuName%>
+                        </a>
+                    </div>
+                </div>
+            </td>
+            <td valign="top"><%=#item.weight%>g</td>
+            <td valign="top">¥<%=#formatMoney2(item.payPrice)%></td>
+            <td valign="top"><%=#item.quantity%></td>
+            <td valign="top">¥<%=#formatMoney2(item.totalFee)%></td>
+            <td valign="top"><%=item.activityLabel%></td>
+        </tr>
+        <%
+            }
+        } else {
+        %>
+        <tr><td colspan="6">商品清单列表为空</td></tr>
+        <%
+        }
+        %>
+        </tbody></table>
+    <div class="cartTotal">
+        <p>商品总计：<span class="wd105 grey5">¥<%=#formatMoney2(order.totalPayFee)%></span></p>
+        <p>优惠券抵扣：<span class="wd105 grey5">-¥<%=#formatMoney2(order.couponDiscount)%></span></p>
+        <p>活动优惠：<span class="wd105 grey5">-¥<%=#formatMoney2(order.orderActDiscount)%></span></p>
+        <p>税费：<span class="wd105 grey5">
+            <% if (order.totalPayTax <= 0) {%>
+            <del>¥<%=#formatMoney2(order.totalTax)%></del>
+            <% } else {%>
+            ¥<%=#formatMoney2(order.totalPayTax)%>
+            <% }%>
+        </span></p>
+        <p>运费：<span class="wd105 grey5">¥<%=#formatMoney2(order.shippingFee)%></span></p>
+        <p><%if (order.payStatus == 'PAID') {%>实付<%} else { %>应付<%}%>金额(含调价)：<span class="wd105 red f18">¥<%=#formatMoney2(order.totalFee+order.adjustFee)%></span></p>
+    </div>
+</div>
+
+<% include('./frame_end') %>
+
+<% include('../common/footer_member') %>
+<!--模板-->
+<script type="application/x-template" id="js_template_order_cancel">
+    <div class="cline1 clearfix">
+        <span class="fl">请选择取消订单的理由：</span>
+        <div class="jssel cancjs">
+            <input type="text" value="我不想买了" name="" id="js_order_cancel_reason" class="jsk" readonly="readonly">
+            <ul class="condt" style="display: none;">
+                <li value="0"><a href="javascript:;">买错了</a></li>
+                <li value="1"><a href="javascript:;">我不想买了</a></li>
+                <li value="2"><a href="javascript:;">信息填写错误</a></li>
+                <li value="3"><a href="javascript:;">付款遇到问题</a></li>
+                <li value="4"><a href="javascript:;">重复下单</a></li>
+                <li value="5"><a href="javascript:;">商品价格太贵</a></li>
+                <li value="6"><a href="javascript:;">不能开具发票</a></li>
+                <li value="7"><a href="javascript:;">其他理由</a></li>
+            </ul>
+            <input type="hidden" value="" name="" class="selectVal">
+        </div>
+    </div>
+</script>
+<script type="application/x-template" id="js_template_service_apply">
+    <div class="ctTab pbt15">
+        <table cellpadding="0" cellspacing="0" width="100%">
+            <tbody>
+            <tr>
+                <th width="104"><em class="red">*</em>售后原因：</th>
+                <td>
+                    <div class="jssel cancjs">
+                        <input type="text" value="商品破损" name="" class="jsk" id="js_service_apply_reason" readonly="readonly" tabindex="1">
+                        <ul class="condt">
+                            <li value="0"><a href="javascript:void(0)">商品破损</a></li>
+                            <li value="1"><a href="javascript:void(0)">商品错发/漏发</a></li>
+                            <li value="2"><a href="javascript:void(0)">商品需要维修</a></li>
+                            <li value="3"><a href="javascript:void(0)">商品质量问题</a></li>
+                            <li value="4"><a href="javascript:void(0)">假冒商品</a></li>
+                            <li value="5"><a href="javascript:void(0)">未收到货</a></li>
+                            <li value="7"><a href="javascript:void(0)">其他原因</a></li>
+                        </ul>
+                        <input type="hidden" value="" name="" class="selectVal">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th>物流公司：</th>
+                <td><input maxlength="50" type="text" value="" name="" id="js_service_apply_express_name" class="ipt" tabindex="2">
+                    <input type="hidden" value="" name="" id="js_service_apply_express_code" >
+                    <p class="ctTip">若客服要求退货退款，请留下公司信息</p></td>
+            </tr>
+            <tr>
+                <th>物流运单号：</th>
+                <td><input maxlength="50" type="text" value="" name="" class="ipt" tabindex="3" id="js_service_apply_express_no" >
+
+                    <p class="ctTip">若客服要求退货退款，请留下运单号</p></td>
+            </tr>
+            <tr>
+                <th valign="top">详细描述：</th>
+                <td>
+                    <textarea maxlength="200" class="ctarea" tabindex="4" id="js_service_apply_comment" ></textarea>
+
+                    <p class="ctTip">请详细描述问题，方便客服进行沟通，200字以内</p>
+                </td>
+            </tr>
+            <tr>
+                <th valign="top">上传凭证：</th>
+                <td>
+                    <div class="voucher" id="js_service_apply_voucher_wrapper">
+                    </div>
+                    <p class="f12 light-grey">图片大小不超过5MB，最多3张，支持GIF、JPG、JPEG、PNG格式</p>
+
+                    <div class="type-file-box">
+                        <input type="button" value="选择照片" name="" class="textfield file-btn">
+                        <input name="fileField" type="file" class="fileField-two type-file" size="10" tabindex="-1" id="js_upload_file">
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</script>
+<script type="text/javascript" src="js/lib/slimscroll.js"></script>
+<script type="text/javascript" src="js/lib/jquery.fancybox.pack.js"></script>
+<script type="text/javascript" src="js/lib/jquery.ui.widget.js"></script>
+<script type="text/javascript" src="js/lib/jquery.fileupload.loadimage.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery.fileupload.canvas2blob.min.js"></script>
+<!-- The File Upload plugin -->
+<%=#outputConditionBegin('if lt IE 9')%>
+<script type="text/javascript" src="js/lib/jquery.iframe-transport.js"></script>
+<%=#outputConditionEnd()%>
+<script type="text/javascript" src="js/lib/jquery.fileupload.js"></script>
+<script type="text/javascript" src="js/lib/jquery.fileupload-process.js"></script>
+<script type="text/javascript" src="js/lib/jquery.fileupload-validate.js"></script>
+<script type="text/javascript" src="js/lib/jquery.fileupload-image.js"></script>
+<script type="text/javascript" src="js/lib/jquery.pagination.js"></script>
+<script type="text/javascript" src="js/lib/jquery.autocomplete.js"></script>
+<script type="text/javascript" src="js/shop.order.js"></script>
+<script type="text/javascript">
+
+    $(function(){
+        ShopOrder.init4View({
+            orderTableSelector:'#js_order_wrapper'
+        });
+    });
+
+</script>
+<% include('../common/end') %>

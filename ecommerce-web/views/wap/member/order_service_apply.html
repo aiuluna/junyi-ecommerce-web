@@ -1,0 +1,86 @@
+<% include('../common/begin') %>
+<% include('order_header') %>
+<% include('../common/header') %>
+<div class="wd640">
+    <% if (!_isWeixin) { %>
+    <header>
+        <div class="header clearfix">
+            <a href="javascript:historyBack()" class="sc-prev">&nbsp;</a>
+            申请售后
+        </div>
+    </header>
+    <% } %>
+    <dl class="oddl">
+        <dd>
+            <p><em class="red">*</em>售后原因：</p>
+            <div class="odreason" id="js_service_reason_btn">
+                <i class="u-rtarr fr"></i>
+                <span class="js-service-reason-text">请选择售后原因</span>
+                <input type="hidden" id="js_service_apply_reason" value="" name="reason" />
+            </div>
+        </dd>
+       <!-- <dd>
+            <p>物流公司（选填）：</p>
+            <input type="text" id="js_service_apply_express_name" value="" name="" placeholder="若客服要求寄回商品，请留下物流公司信息" class="ipt" />
+        </dd>
+-->
+        <dd>
+            <p>物流公司（选填）：</p>
+            <select id="js_express_select" class="hidden"></select>
+            <div class="odreason" id="sexbtn"><i class="u-rtarr fr"></i><span id="chtmlIn">
+                <% if (service.refundExpName) {%><%=service.refundExpName%><% } else { %>若客服要求寄回商品，请选择物流公司<% } %></span></div>
+            <input type="hidden" id="js_express_code" name="expressCode" value="<%=service.refundExpCode%>"/>
+            <input type="hidden" id="js_express_name" name="expressName" value="<%=service.refundExpName%>"/>
+        </dd>
+        <dd class="hidden" id="js_express_name_dd">
+            <p class="hidden">物流公司（选填）：</p>
+            <input type="text" id="js_express_name2" maxlength="30" name="expressName" value="<%=service.refundExpName%>" placeholder="请输入物流公司" class="ipt" />
+        </dd>
+
+        <dd>
+            <p>运单编号（选填）：</p>
+            <input type="text" id="js_service_apply_express_no"  value="" name="" placeholder="请填写运单编号" class="ipt" />
+        </dd>
+        <dd>
+            <p>详细描述（选填）：</p>
+            <div class="clearfix"><textarea id="js_service_apply_comment" class="txtarea" maxlength="200" placeholder="请详细描述问题，方便客服跟进处理^-^"></textarea></div>
+        </dd>
+        <dd>
+            <p>上传凭证（选填，最多上传三张）：</p>
+            <div class="voucher" id="js_voucher_wrapper">
+                <!--
+                <span><a href="javascript:void(0)" class="imgClose"></a><img src="images/tmp/mid1.jpg"></span>
+                <span><a href="javascript:void(0)" class="imgClose"></a><img src="images/tmp/small1.jpg"></span>
+                -->
+                <span class="textfield file-btn" id="js_voucher_pick"></span>
+            </div>
+        </dd>
+        <dd class="mtop10">
+            <a href="javascript:;" data-order_no="<%=#service.orderNo%>" id="js_service_submit_btn" class="btnL">提交申请</a>
+        </dd>
+    </dl>
+
+</div>
+
+<select id="js_service_reason_select" style="display: none;">
+    <option>商品破损</option>
+    <option>商品错发/漏发</option>
+    <option>商品需要维修</option>
+    <option>商品质量问题</option>
+    <option>假冒商品</option>
+    <option>未收到货</option>
+    <option>其他原因</option>
+</select>
+
+<% include('../common/footer_simple') %>
+<% include('order_footer') %>
+<script type="text/javascript" src="js/shop.order.service.js"></script>
+<script type="text/javascript">
+
+    $(function(){
+        ShopOrderService.initServiceApply();
+        ShopOrder.init4ServiceView();
+    });
+
+</script>
+<% include('../common/end') %>

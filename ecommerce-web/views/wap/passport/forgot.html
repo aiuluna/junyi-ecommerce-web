@@ -1,0 +1,33 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:void(0)" class="sc-prev" onclick="return historyBack()">&nbsp;</a>
+			忘记密码
+		</div>
+	</header>
+	<% } %>
+	<div class="p15" <%=#_isWeixin?'style="margin-top:25px"':''%> >
+		<form>
+			<dl class="ipt-dl">
+				<dd><input type="text" name="login" class="ipt" placeholder="请输入您的手机号" id="bdPhone" tabindex="1"/></dd>
+				<dd>
+					<div class="syzm">
+						<span class="smipt"><input type="text" name="mobileCode" class="ipt" placeholder="请输入收到的短信验证码" tabindex="2" id="bdVcode"/></span>
+						<a href="javascript:void(0)" class="sendM" id="btnSendYzm" onclick="sendYzm('resetpwd')">发送验证码</a>
+					</div>
+				</dd>
+				<dd class="pre"><input type="password" name="password" class="ipt password" placeholder="设置密码，6-16位数字、字母的任意组合" id="bdPassw" tabindex="3"/><i class="eyeClose"></i></dd>
+			</dl>
+			<p><a href="javascript:void(0)" class="btnL" onclick="resetPwdSub()">确认</a></p>
+		</form>
+	</div>
+</div>
+
+<% include('../common/footer_simple') %>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.passport.js"></script>
+<% include('../common/end') %>

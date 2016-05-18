@@ -1,0 +1,380 @@
+<% include('../../common/begin') %>
+<link rel="stylesheet" href="css/jquery.fancybox.css" type="text/css"/>
+<link rel="stylesheet" href="css/member.css" type="text/css"/>
+<% include('../../common/header') %>
+
+<% include('../frame_begin') %>
+
+<h4 class="mbtit">我的佣金</h4>
+<div class="tgy clearfix">
+	<div class="tgyj2"> 
+		<p> 过往总额</p>
+		<div>¥<%=#commission.total%></div>
+	</div>
+	<div class="tgyj2 pd1">
+		<p>已提现总额</p>
+		<div>¥<%=#commission.settlement%></div>
+	</div>
+	<div class="tgyj2 pd2">
+		<p> 可提取金额</p>
+		<div>¥<%=#commission.remaining%></div>
+	</div>
+</div>
+<div class="yjbox"></div>
+<div class="pgSpan f18" id="js_tab_wrapper">
+	<span class="on" data-type="direct" data-for="direct">推广佣金</span>
+	<span data-type="indirect" data-for="indirect">非推广佣金</span>
+	<span data-type="settle" data-for="settle">佣金结算</span></div>
+<div id="js_data_wrapper">
+<div class="pgDiv">
+	<div class="tgyjc clearfix">
+		<div class="fl clearfix">
+			<span class="fl grey">结算时间：</span>
+			<div class="jssel agentS">
+				<input type="text" value="近一个月内" name="" class="jsk" readonly="readonly">
+				<ul class="condt">
+					<li value="1"><a href="javascript:void(0)">近一个月内</a></li>
+					<li value="2"><a href="javascript:void(0)">近三个月内</a></li>
+					<li value="3"><a href="javascript:void(0)">近半年内</a></li>
+					<li value="4"><a href="javascript:void(0)">全部</a></li>
+				</ul>
+				<input type="hidden" value="" name="" class="selectVal" id="js_search_time_range_direct">
+			</div>
+		</div>
+		<a href="javascript:;" class="tgicon1" id="js_search_btn_direct">查询</a>
+		<a class="tgiconmg" href="javascript:;" id="js_excel_btn_direct"><div class="tgicon">EXCEL导出</div></a>
+		<form style="display: none;" id="js_form_direct" target="_blank" method="post" action="/member/distributor/commission/direct/excel">
+			<input name="timeRange" type="hidden"/>
+		</form>
+	</div>
+	<table cellpadding="0" cellspacing="0" width="100%" class="tgtable brdtab">
+		<tr>
+			<th width="56">序号</th>
+			<th width="160">订单编号</th>
+			<th width="80">会员</th>
+			<th width="80">收货人</th>
+			<th width="100">上级推广员</th>
+			<th width="145">完成时间</th>
+			<th width="145">结算时间</th>
+			<th width="90">订单金额</th>
+			<th>佣金</th>
+		</tr>
+	</table>
+	<table cellpadding="0" cellspacing="0" width="100%" class="tgtable" id="js_search_result_direct">
+	</table>
+	<div class="rtl" id="js_pagination_direct">
+	</div>
+</div>
+
+<div class="pgDiv">
+	<div class="tgyjc clearfix">
+		<div class="fl clearfix">
+			<span class="fl grey">结算时间：</span>
+			<div class="jssel agentS">
+				<input type="text" value="近一个月内" name="" class="jsk" readonly="readonly">
+				<ul class="condt">
+					<li value="1"><a href="javascript:void(0)">近一个月内</a></li>
+					<li value="2"><a href="javascript:void(0)">近三个月内</a></li>
+					<li value="3"><a href="javascript:void(0)">近半年内</a></li>
+					<li value="4"><a href="javascript:void(0)">全部</a></li>
+				</ul>
+				<input type="hidden" value="" name="" class="selectVal" id="js_search_time_range_indirect">
+			</div>
+		</div>
+		<a href="javascript:;" class="tgicon1" id="js_search_btn_indirect">查询</a>
+		<a class="tgiconmg" href="javascript:;" id="js_excel_btn_indirect"><div class="tgicon">EXCEL导出</div></a>
+		<form style="display: none;" id="js_form_indirect" target="_blank" method="post" action="/member/distributor/commission/indirect/excel">
+			<input name="timeRange" type="hidden"/>
+		</form>
+	</div>
+	<table cellpadding="0" cellspacing="0" width="100%" class="tgtable brdtab">
+		<tr>
+			<th width="56">序号</th>
+			<th width="160">订单编号</th>
+			<th width="80">会员</th>
+			<th width="80">收货人</th>
+			<th width="100">收货区域</th>
+			<th width="145">完成时间</th>
+			<th width="145">结算时间</th>
+			<th width="90">订单金额</th>
+			<th>佣金</th>
+		</tr>
+	</table>
+	<table cellpadding="0" cellspacing="0" width="100%" class="tgtable" id="js_search_result_indirect">
+	</table>
+	<div class="rtl" id="js_pagination_indirect">
+	</div>
+</div>
+<div class="pgDiv">
+	<table cellpadding="0" cellspacing="0" width="100%" class="tgtable brdtab">
+		<tr>
+			<th width="56">序号</th>
+			<th width="90">操作人</th>
+			<th width="90">发放金额</th>
+			<th width="100">结算月份</th>
+			<th width="160">发放时间</th>
+			<th width="330">说明</th>
+			<th>详情</th>
+		</tr>
+	</table>
+	<table cellpadding="0" cellspacing="0" width="100%" class="tgtable" id="js_search_result_settle">
+	</table>
+	<div class="rtl" id="js_pagination_settle"></div>
+</div>
+</div>
+
+<!--售后跟踪-->
+
+<% include('../frame_end') %>
+
+<% include('../../common/footer_member') %>
+<script type="application/x-template" id="js_order_row_tmpl_direct">
+	<tr>
+		<td width="56">{{order._index}}</td>
+		<td width="160"><a href="javascript:void(0)" data-commission_type="direct" data-order_no="{{#order.orderNo}}" class="numDt js-order-detail">{{#order.orderNo}}</a></td>
+		<td width="80">{{order.buyerLogin}}<br/>{{order.buyerName}}</td>
+		<td width="80">{{order.consignee}}</td>
+		<td width="100">{{order.promoterLogin}}<br/>{{order.promoterName}}</td>
+		<td width="145">{{order.finishTime | formatDate: 'yyyy-MM-dd hh:mm:ss'}} </td>
+		<td width="145">{{order.settleTime | formatDate: 'yyyy-MM-dd hh:mm:ss'}} </td>
+		<td width="90">¥{{ShopUtil.formatMoney(order.orderFee, '0.00')}}</td>
+		<td>¥{{ShopUtil.formatMoney(order.commissionFee, '0.00')}}</td>
+	</tr>
+</script>
+<script type="application/x-template" id="js_order_row_tmpl_indirect">
+	<tr>
+		<td width="56">{{order._index}}</td>
+		<td width="160"><a href="javascript:void(0)" data-commission_type="indirect" data-order_no="{{#order.orderNo}}" class="numDt js-order-detail">{{#order.orderNo}}</a></td>
+		<td width="80">{{order.buyerLogin}}<br/>{{order.buyerName}}</td>
+		<td width="80">{{order.consignee}}</td>
+		<td width="100">{{ if order.regions }}
+{{ each order.regions as addr i}}{{#(i > 0 ? '&ensp;':'')}}{{addr.name || ''}}{{ /each }}
+{{ /if }}
+		</td>
+		<td width="145">{{order.finishTime | formatDate: 'yyyy-MM-dd hh:mm:ss'}} </td>
+		<td width="145">{{order.settleTime | formatDate: 'yyyy-MM-dd hh:mm:ss'}} </td>
+		<td width="90">¥{{ShopUtil.formatMoney(order.orderFee, '0.00')}}</td>
+		<td>¥{{ShopUtil.formatMoney(order.commissionFee, '0.00')}}</td>
+	</tr>
+</script>
+<script type="application/x-template" id="js_order_row_tmpl_settle">
+	<tr>
+		<td width="56">{{record._index}}</td>
+		<td width="90">{{record.paymentOperatorName}}</td>
+		<td width="90">¥{{ShopUtil.formatMoney(record.amount, '0.00')}}</td>
+		<td width="100">{{record.stmtYear}}-{{record.stmtMonth}}</td>
+		<td width="160">{{record.paymentDate | formatDate: 'yyyy-MM-dd hh:mm:ss'}}</td>
+		<td width="330"><span title="{{record.remark}}">{{ShopUtil.ellipsis(record.remark, 20)}}</span></td>
+		<td><a href="javascript:void(0)" data-settle_no="{{record.id}}" class="aftersales grey5 js-commission-detail">查看</a></td>
+	</tr>
+</script>
+
+<script type="text/javascript" src="js/lib/jquery.selectbox.js"></script>
+<script type="text/javascript" src="js/lib/jquery.fancybox.pack.js"></script>
+<script type="text/javascript" src="js/lib/jquery.pagination.js"></script>
+<script type="text/javascript" src="js/lib/template.js"></script>
+
+<script type="text/javascript">
+	$(function(){
+
+		ShopUtil.initTemplateHelper();
+
+		function disableExcel(type){
+			switch(type) {
+				case 'direct':
+					$('#js_excel_btn_' + type).data('disabled', true).css({background:'darkgray'});
+					break;
+				case 'indirect':
+					$('#js_excel_btn_' + type).data('disabled', true).css({background:'darkgray'});
+					break;
+			}
+		}
+		function enableExcel(type){
+			switch(type) {
+				case 'direct':
+					$('#js_excel_btn_' + type).data('disabled', false).css({background:'white'});
+					break;
+				case 'indirect':
+					$('#js_excel_btn_' + type).data('disabled', false).css({background:'white'});
+					break;
+			}
+		}
+
+		disableExcel('direct');
+		disableExcel('indirect');
+
+		var defaultLoaderConfig = {
+			onBeforeLoad: function(){
+				ShopUtil.block($('#js_data_wrapper'));
+			},
+			onAfterLoad: function() {
+				ShopUtil.unblock($('#js_data_wrapper'));
+			}
+		};
+
+		$('.jssel').selectBox({'selectClassName':'.jsk','selectList':'.condt','selectVal':'.selectVal'});
+		$('.jssel').each(function(index, ele) {
+			var $ele = $(ele);
+			$('.condt li:first', $ele).trigger('click');
+		});
+
+		function renderTable(json, tableId, rowTmpl, rowKey, cols, msg) {
+			var htmlArr = [];
+			var pageData = json.data.pageData;
+
+			if (json.data.totalCount > 0) {
+				var seq = (json.data.pageNumber - 1) * json.data.pageSize;
+				var fillArr = ShopUtil.fillArr;
+				for (var i = 0, len = pageData.length; i < len; i++) {
+					var order = pageData[i] || {};
+					order._index = seq + 1 + i;
+					var item = { ShopUtil : ShopUtil };
+					item[rowKey] = order;
+					fillArr(htmlArr, rowTmpl(item))
+				}
+
+				$('#' + tableId).html(htmlArr.join(''));
+			} else {
+				$('#' + tableId).html('<tr><td colspan="' + cols + '">' + msg + '</td></tr>');
+			}
+		}
+
+		var loaders = {};
+		var orderRowTmplDirect = ShopUtil.getTemplateById('js_order_row_tmpl_direct');
+		var directLoader = ShopLoader.init($.extend(defaultLoaderConfig, {
+			pageSelector: '#js_pagination_direct',
+			url: '/member/distributor/commission/direct',
+			getCriteria: function() {
+				return {
+					timeRange: ShopUtil.getFinishTimeRange($('#js_search_time_range_direct').val())
+				}
+			},
+			render:function(json) {
+				renderTable(json, 'js_search_result_direct', orderRowTmplDirect, 'order', 9, '暂无没有符合要求的记录')
+			}
+		}));
+
+		$('#js_search_btn_direct').on('click', function() {
+			directLoader.search();
+			enableExcelBtn('direct');
+		});
+
+		loaders.direct = directLoader;
+
+		var orderRowTmplIndirect = ShopUtil.getTemplateById('js_order_row_tmpl_indirect');
+		var indirectLoader = ShopLoader.init($.extend(defaultLoaderConfig, {
+			pageSelector: '#js_pagination_indirect',
+			url: '/member/distributor/commission/indirect',
+			getCriteria: function() {
+				return {
+					timeRange: ShopUtil.getFinishTimeRange($('#js_search_time_range_indirect').val())
+				}
+			},
+			render:function(json) {
+				renderTable(json, 'js_search_result_indirect', orderRowTmplIndirect, 'order', 9, '暂无没有符合要求的记录');
+			}
+		}));
+
+		$('#js_search_btn_indirect').on('click', function() {
+			indirectLoader.search();
+			enableExcelBtn('indirect');
+		});
+
+		loaders.indirect = indirectLoader;
+
+		var orderRowTmplSettle = ShopUtil.getTemplateById('js_order_row_tmpl_settle');
+		loaders.settle = ShopLoader.init($.extend(defaultLoaderConfig, {
+			pageSelector: '#js_pagination_settle',
+			url: '/member/distributor/commission/settle',
+			getCriteria: function() { return {} },
+			render:function(json) {
+				renderTable(json, 'js_search_result_settle', orderRowTmplSettle, 'record', 7, '暂无没有符合要求的记录');
+			}
+		}));
+
+		function showOrderDetail(order) {
+			ShopAlert.dialog({
+				title: '订单详情',
+				body: order,
+				className: 's-order-detail-wrapper'
+			});
+		}
+
+		function showCommissionDetail(html) {
+			ShopAlert.dialog({
+				title: '结算详情',
+				body: html,
+				className: 's-order-detail-wrapper'
+			});
+		}
+		$('#js_search_result_direct,#js_search_result_indirect').on('click', '.js-order-detail', function() {
+			var me = $(this);
+			var orderNo = me.data('order_no'), commissionType = me.data('commission_type');
+			if (!$.trim(orderNo)) {
+				ShopAlert.alert('出错啦', '订单号不能为空');
+				return;
+			}
+			Shop.get({
+				url:'/member/order/detail/' + orderNo,
+				dataType:'html',
+				data: {commissionType: commissionType},
+				success:function(html) {
+					showOrderDetail(html)
+				}
+			});
+		});
+
+		$('#js_search_result_settle').on('click', '.js-commission-detail', function() {
+			var me = $(this);
+			var orderNo = me.data('settle_no');
+			if (!$.trim(orderNo)) {
+				ShopAlert.alert('出错啦', '结算号不能为空');
+				return;
+			}
+			Shop.post({
+				url:'/member/distributor/commission/settle/detail/' + orderNo,
+				dataType:'html',
+				success:function(html) {
+					showCommissionDetail(html);
+				}
+			});
+		});
+
+		function enableExcelBtn(type) {
+
+			if (type == 'direct' || type == 'indirect'){
+				$('input[name=timeRange]', $('#js_form_' + type)).val(ShopUtil.getFinishTimeRange($('#js_search_time_range_' + type).val()));
+				enableExcel(type);
+			}
+		}
+
+		var tabWrapper = $('#js_tab_wrapper');
+		tabWrapper.on('click', 'span', function() {
+			var me = $(this);
+			var type = me.data('type');
+			if (type && loaders[type] && !me.data('loaded')) {
+				me.data('loaded', true);
+				loaders[type].search();
+				enableExcelBtn(type);
+			}
+		});
+		$('span:first', tabWrapper).trigger('click');
+
+		$('#js_excel_btn_direct').on('click', function() {
+			var $me = $(this);
+			if (!$me.data('disabled')) {
+				$('#js_form_direct').submit();
+			}
+		});
+
+		$('#js_excel_btn_indirect').on('click', function() {
+			var $me = $(this);
+			if (!$me.data('disabled')) {
+				$('#js_form_indirect').submit();
+			}
+		});
+
+
+	});
+</script>
+<% include('../../common/end') %>

@@ -1,0 +1,43 @@
+<script type="text/javascript">
+if ($.fn.lazyload) {
+	$("img.lazy").lazyload({
+		effect: "fadeIn",
+		threshold: 200,
+		failure_limit: 10,
+		placeholder: 'data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=='
+	});
+}
+$(function() {
+	/*延迟加载在线客服*/
+	var b = document.body;
+	document.write = function(text) {
+		$(b).append(text);
+	};
+	var s = document.createElement('script');
+	s.type = "text/javascript";
+	s.src = "http://lead.soperson.com/10038793/10056232.js";
+	b.appendChild(s);
+
+	<% if (_cnzz.siteId) { %>
+	$('.cnzz').attr('id', 'cnzz_stat_icon_<%=#_cnzz.siteId%>');
+	var s2 = document.createElement('script');
+	s2.type = "text/javascript";
+	s2.src = "http://pw.cnzz.com/c.php?id=<%=#_cnzz.siteId%>&l=2";
+	b.appendChild(s2);
+	<% } %>
+
+	<%
+	// 推广链接
+	if (_user) {
+		var userType = _user.type;
+		if (userType === 'DISTRIBUTOR' || userType === 'PROMOTER') {
+	%>
+	userReferralHook(<%=#_user.id%>);
+	<%
+		}
+	}
+	%>
+});
+</script>
+</body>
+</html>

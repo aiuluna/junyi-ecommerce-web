@@ -1,0 +1,338 @@
+<% include('common/begin') %>
+<link rel="stylesheet" href="css/login.css" type="text/css"/>
+<% include('common/header') %>
+
+<%
+var productSummary = productDetail.productSummary;
+%>
+<!--content-->
+<div id="content">
+	<div class="wd1090">
+		<p class="grey6 ptb10"><a href="/" class="grey6"><%=_siteName%></a> &gt; <%=productSummary.skuName%></p>
+		<div class="clearfix">
+			<div class="dt-left">
+				<div class="box">
+				    <div class="tb-booth tb-pic"><a href="javascript:void(0)"><img src="<%=#imageUrl(productDetail.imageUrl1,400,350)%>" alt="" rel="<%=#imageUrl(productDetail.imageUrl1)%>" class="jqzoom"/></a></div>
+				    <div class="tb-div" id="G-scroll">
+					<% var imageCount = 1; %>
+					    <div class="scrollWarp">
+						    <ul class="tb-thumb clearfix" id="thumblist">
+						        <li class="tb-selected">
+						            <div class="tb-pic tb-s40"><a href="javascript:void(0)"><img src="<%=#imageUrl(productDetail.imageUrl1,60,60)%>" mid="<%=#imageUrl(productDetail.imageUrl1,400,350)%>" big="<%=#imageUrl(productDetail.imageUrl1)%>"></a></div>
+						        </li>
+								<% if (productDetail.imageUrl2) { imageCount++; %>
+						        <li>
+						            <div class="tb-pic tb-s40"><a href="javascript:void(0)"><img  src="<%=#imageUrl(productDetail.imageUrl2,60,60)%>" mid="<%=#imageUrl(productDetail.imageUrl2,400,350)%>" big="<%=#imageUrl(productDetail.imageUrl2)%>"></a></div>
+						        </li>
+								<% } %>
+								<% if (productDetail.imageUrl3) { imageCount++; %>
+						        <li>
+						            <div class="tb-pic tb-s40"><a href="javascript:void(0)"><img src="<%=#imageUrl(productDetail.imageUrl3,60,60)%>" mid="<%=#imageUrl(productDetail.imageUrl3,400,350)%>" big="<%=#imageUrl(productDetail.imageUrl3)%>"></a></div>
+						        </li>
+								<% } %>
+								<% if (productDetail.imageUrl4) { imageCount++; %>
+						        <li>
+						            <div class="tb-pic tb-s40"><a href="javascript:void(0)"><img src="<%=#imageUrl(productDetail.imageUrl4,60,60)%>" mid="<%=#imageUrl(productDetail.imageUrl4,400,350)%>" big="<%=#imageUrl(productDetail.imageUrl4)%>"></a></div>
+						        </li>
+								<% } %>
+								<% if (productDetail.imageUrl5) { imageCount++; %>
+						        <li>
+						            <div class="tb-pic tb-s40"><a href="javascript:void(0)"><img src="<%=#imageUrl(productDetail.imageUrl5,60,60)%>" mid="<%=#imageUrl(productDetail.imageUrl5,400,350)%>" big="<%=#imageUrl(productDetail.imageUrl5)%>"></a></div>
+						        </li>
+								<% } %>
+						    </ul>
+					    </div>
+					    <a href="javascript:void(0)" class="prev">左</a>
+                		<a href="javascript:void(0)" class="<%=#imageCount > 4 ? 'next-on' : 'next'%>">右</a>
+					</div>
+				</div>
+			</div>
+			<div class="dt-right">
+			<%
+			var freightMethodName = product_util.getFreightMethodNameWithBr(productSummary.freightMethodName);
+			if (freightMethodName) {
+			%>
+				<span class="<%=#productSummary.freightMethodId === 1 ? 'blueico' : 'redico'%>"><%=#freightMethodName%></span>
+			<%
+			}
+			%>
+				<p class="gbie grey"><%=#product_util.renderProductOriginLogo(productSummary,28,28)%><%=productSummary.productOriginName%>&nbsp;</p>
+				<p class="dt-h3"><%=productSummary.skuName%></p>
+				<p class="dt-intro" <%if(productSummary.shortDescription && productSummary.shortDescription.length > 80){%>title="<%=productSummary.shortDescription%>"<%}%> ><%=productSummary.shortDescription%></p>
+				<%
+				var activityType = productSummary.activityType;
+				%>
+				<dl class="dt-dl">
+					<% if (activityType === 'FLASH_SALE' || activityType === 'PRODUCT_PROMOTION') { %>
+					<dd class="dtbrd">
+						<div class="dttime-div">
+							<i class="timeico"></i>&nbsp;&nbsp;剩余时间：<span id="activityCountdown"></span>
+						</div>
+					</dd>
+					<dd class="clearfix">
+						<span class="label">促销价</span>
+						<div class="dline1">
+							<span class="f18 red vt2"><i class="vt5">¥</i><i class="f30 weight"><%=#formatMoney(productSummary.promotionPrice)%></i></span><span class="favourico big"><i><%=productSummary.activityLabel%></i></span>
+							<span class="light-grey">蚂蚁海购原价：<del>¥<%=#formatMoney(productSummary.salePrice)%></del>&nbsp;&nbsp;国内参考价：<del>¥<%=#formatMoney(productSummary.marketPrice)%></del></span>
+						</div>
+					</dd>
+					<% } else { %>
+					<dd class="dtbrd clearfix">
+						<span class="label">售价</span>
+						<div class="dline1">
+							<span class="f18 red vt2"><i class="vt5">¥</i><i class="f30 weight"><%=#formatMoney(productSummary.salePrice)%></i></span>
+							<span class="light-grey">国内参考价：<del>¥<%=#formatMoney(productSummary.marketPrice)%></del></span>
+						</div>
+					</dd>
+					<% } %>
+					<% if (activityType === 'ORDER_PROMOTION') { %>
+					<dd class="clearfix">
+						<span class="label">促销</span>
+						<span class="yel">
+							<i class="favour"><%=#product_util.getOrderPromotionLabelShort(productSummary.activityLabel)%></i>
+							<a href="topic-act-o-<%=#productSummary.activityId%>.html" target="_blank" class="yel"><%=#productSummary.activityLabel%></a>
+						</span>
+					</dd>
+					<% } %>
+					<dd class="dtbrd pre clearfix">
+						<span class="label">运费</span>
+						<span><%=productSummary.warehouseName || '-'%>&nbsp;至&nbsp;</span>
+						<span class="iptbrd"><input type="text" readonly="readonly" value="<%=#region?region.name:''%>" id="regionSelector" data-regionId="<%=#region?region.id:''%>" data-warehouseId="<%=#productSummary.warehouseId%>" data-weight="<%=#productDetail.weight%>" data-isFreeShipping="<%=#productSummary.isFreeShipping?'Y':'N'%>"/></span>
+						<span class="jsprice"><% if (productSummary.isFreeShipping) { %>免运费<% } else if (shippingFee) { %>运费<%=#shippingFee%>元<% } %></span>
+					</dd>
+					<dd class="clearfix">
+						<span class="label">税费</span>
+						<% if (productSummary.isFreeTax) { %>
+						<span>免税</span>
+						<% } else { %>
+						<span>本商品适用税率为<%=#typeof productSummary.taxRate === 'number' ? (formatMoney(productSummary.taxRate*100)+'%') : '-'%></span>
+						<% } %>
+					</dd>
+					<% if (productDetail.productSkuPropertyList && productDetail.productSkuPropertyList.length) { %>
+					<dd class="clearfix">
+						<span class="label">规格</span>
+						<div class="specf">
+						<%
+						for (var i = 0; i < productDetail.productSkuPropertyList.length; ++i) {
+							var pair = productDetail.productSkuPropertyList[i];
+							if (pair.skuId === productSummary.skuId) {
+						%>
+							<span class="on"><%=pair.skuProperty%></span>
+						<%
+							} else {
+						%>
+							<span data-skuId="<%=#pair.skuId%>"><%=pair.skuProperty%></span>
+						<%
+							}
+						}
+						%>
+					</dd>
+					<% } %>
+					<% if (productSummary.saleStatus === 'ON_SALE') { // 只有上架商品才显示 %>
+					<dd class="clearfix">
+						<span class="label">数量</span>
+						<% if (productDetail.stockForSale > 0) { %>
+						<span><input type="button" value="-" name="" class="dt-redu dt-reduct"/><input type="text" value="1" class="dt-count" readonly/><input type="button" value="+" name="" class="dt-add"/></span>&nbsp;
+						<%=#product_util.renderProductStock(productDetail)%>
+						<% } else { %>
+						<span><input type="button" value="-" name="" class="dt-redu dt-reduct" disabled><input type="text" value="0" class="dt-count" disabled><input type="button" value="+" name="" class="dt-add dt-addct" disabled></span>&nbsp;
+						<span class="light-grey">库存 0 件</span><input type="hidden" id="allNum" value="0"/>
+						<% } %>
+					</dd>
+					<% } %>
+				</dl>
+				<div class="buyline">
+				<% if (productSummary.saleStatus === 'ON_SALE') { %>
+					<div class="fr grey" style="text-align:right">
+					<%
+					var commissionFee = product_util.getPromotionCommissionFeeForUser(_user, productSummary),
+						showCommissionFee = typeof commissionFee === 'number';
+					%>
+						<p class="dt-share-new jiathis_style" data-tag="share_1">分享：
+							<a class="jiathis_button_renren"></a>
+							<a class="jiathis_button_qzone"></a>
+							<a class="jiathis_button_tqq"></a>
+							<a class="jiathis_button_tsina"></a>
+							<a class="jiathis_button_weixin"></a>
+							<a class="jiathis_button_cqq"></a>
+						</p>
+						<%if(showCommissionFee){%><p style="font-size:13px">推广佣金：<span class="red"><%=#formatMoney(commissionFee)%></span>元/件&nbsp;&nbsp;<%}%><%if(!showCommissionFee){%>货号：<%}%><%=#productSummary.skuCode%></p>
+					</div>
+					<span id="saleBtns">
+					<% if (productDetail.stockForSale > 0) { %>
+						<a href="javascript:void(0)" class="buybtn">立即购买</a><a href="javascript:void(0)" class="enterIn enterCart" data-rel="<%=#productSummary.skuId%>">加入购物车</a>
+					<% } else { %>
+						<span class="buyover">已抢光</span>
+					<% } %>
+					</span>
+					<% if (favorite) { %>
+					<a href="javascript:void(0)" class="collect" data-rel="<%=#productSummary.skuId%>:<%=#productSummary.salePrice%>" style="display:none">收藏</a><span class="beCollect" data-rel="<%=#favorite?favorite.id:''%>" style="display:inline">已收藏</span>
+					<% } else { %>
+					<a href="javascript:void(0)" class="collect" data-rel="<%=#productSummary.skuId%>:<%=#productSummary.salePrice%>">收藏</a><span class="beCollect" data-rel="<%=#favorite?favorite.id:''%>">已收藏</span>
+					<% } %>
+				<% } else { %>
+					<span class="buyover">已下架</span>
+				<% } %>
+				</div>
+			</div>
+		</div>
+		<!--相关产品-->
+		<% if (relatedProducts && relatedProducts.length) { %>
+		<div class="section">
+			<h3><img src="images/tit-ico1.png"/>相关商品</h3>
+			<div class="picScroll-left">
+				<div class="hd">
+					<a href="javascript:void(0)" class="prev"></a>
+					<a href="javascript:void(0)" class="next"></a>
+				</div>
+				<div class="bd">
+					<ul class="picList">
+					<%
+					for (var i = 0; i < relatedProducts.length; ++i) {
+						var relatedProduct = relatedProducts[i];
+					%>
+						<li>
+							<%=#product_util.renderProductTag(relatedProduct)%>
+							<a href="product-<%=#relatedProduct.skuId%>.html" target="_blank" class="picImg">
+								<img src="" _src="<%=#imageUrl(relatedProduct.imageUrl,210,210)%>" title="<%=relatedProduct.skuName%>"/>
+								<%=#product_util.renderProductSaleStatus(relatedProduct)%>
+							</a>
+							<div class="new-intro">
+								<p class="imgtit"><a href="product-<%=#relatedProduct.skuId%>.html" target="_blank" class="black"><%=relatedProduct.skuName%></a></p>
+								<p><span class="fr light-grey"><del>¥<%=#formatMoney(relatedProduct.marketPrice)%></del></span><span class="red">¥<i class="f20"><%=#formatMoney(relatedProduct.promotionPrice || relatedProduct.salePrice)%></i></span></p>
+							</div>
+						</li>
+					<%
+					}
+					%>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<% } %>
+		<!--最近浏览/猜你喜欢-->
+		<div class="mtop30 clearfix">
+			<div class="exten">
+				<% if (recentViewedProducts && recentViewedProducts.length) { %>
+				<div class="extbox">
+					<h4>最近浏览</h4>
+					<ul class="extlist">
+						<%
+						for (var i = 0; i < recentViewedProducts.length; ++i) {
+							var viewProduct = recentViewedProducts[i];
+						%>
+						<li>
+							<a href="product-<%=#viewProduct.skuId%>.html" target="_blank" class="picImg">
+								<img data-original="<%=#imageUrl(viewProduct.imageUrl,210,210)%>" src="images/blank.gif" class="lazy" title="<%=viewProduct.skuName%>"/>
+								<%=#product_util.renderProductSaleStatus(viewProduct)%>
+							</a>
+							<div class="new-intro">
+								<p class="imgtit"><a href="product-<%=#viewProduct.skuId%>.html" target="_blank" class="black"><%=viewProduct.skuName%></a></p>
+								<p><span class="fr light-grey"><del>¥<%=#formatMoney(viewProduct.marketPrice)%></del></span><span class="red extprice">¥<i class="f20"><%=#formatMoney(viewProduct.promotionPrice || viewProduct.salePrice)%></i></span></p>
+							</div>
+						</li>
+						<%
+						}
+						%>
+					</ul>
+				</div>
+				<% } %>
+				<% if (recommendProducts && recommendProducts.length) { %>
+				<div class="extbox">
+					<h4>猜你喜欢</h4>
+					<ul class="extlist">
+						<%
+						for (var i = 0; i < recommendProducts.length; ++i) {
+							var product = recommendProducts[i];
+						%>
+						<li>
+							<a href="product-<%=#product.skuId%>.html" target="_blank" class="picImg">
+								<img data-original="<%=#imageUrl(product.imageUrl,210,210)%>" src="images/blank.gif" class="lazy" title="<%=product.skuName%>"/>
+								<%=#product_util.renderProductSaleStatus(product)%>
+							</a>
+							<div class="new-intro">
+								<p class="imgtit"><a href="product-<%=#product.skuId%>.html" target="_blank" class="black"><%=product.skuName%></a></p>
+								<p><span class="fr light-grey"><del>¥<%=#formatMoney(product.marketPrice)%></del></span><span class="red extprice">¥<i class="f20"><%=#formatMoney(product.promotionPrice || product.salePrice)%></i></span></p>
+							</div>
+						</li>
+						<%
+						}
+						%>
+					</ul>
+				</div>
+				<% } %>
+			</div>
+			<div class="intro-box">
+				<div class="dt-intit"><span class="line-on">商品详情</span></div>
+				<div>
+					<%
+					var productAttrList = productDetail.productAttrList;
+					if (productAttrList && productAttrList.length) {
+					%>
+					<ul class="intro-list clearfix">
+					<%
+						for (var i = 0; i < productAttrList.length; ++i) {
+							var productAttr = productAttrList[i];
+					%>
+						<li title="<%=productAttr.value%>"><span class="grey"><%=productAttr.name%>：</span><%=productAttr.value%></li>
+					<%
+						}
+					%>
+					</ul>
+					<%
+					}
+					%>
+					<div class="dt-text">
+						<%=#product_util.renderProductDetail(productDetail.description)%>
+						<!--<p><img data-original="images/cust_notice.jpg" src="images/blank.gif" class="lazy" style="width:790px;height:750px"/></p>-->
+						<p><img data-original="<%=#staticImgWeb('cust_notice.jpg')%>" src="images/blank.gif" class="lazy" style="width:790px;height:750px"/></p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<img src="<%=#imageUrl(productDetail.imageUrl1,60,60)%>" id="thisImg" style="display:none;"/>
+
+<% include('common/footer') %>
+
+<script type="text/javascript" src="js/lib/jquery.SuperSlide.2.1.2.js"></script>
+<script type="text/javascript" src="js/lib/jquery.imagezoom.min.js"></script><!--放大镜-->
+<script type="text/javascript" src="js/lib/jquery.lazyload.js"></script>
+<script type="text/javascript" src="js/lib/requestAnimationFrame.js"></script><!--IE8 fly-->
+<script type="text/javascript" src="js/lib/jquery.fly.min.js"></script><!--购物车动作-->
+<script type="text/javascript" src="js/shop.alert.js"></script>
+<script type="text/javascript" src="js/login.js"></script>
+<script type="text/javascript" src="js/shop.product.js"></script>
+
+<%
+var activityType = productSummary.activityType;
+if (activityType === 'FLASH_SALE' || activityType === 'PRODUCT_PROMOTION') {  // 只有限时抢购和商品活动才显示倒计时
+%>
+<script type="text/javascript">
+new CountdownCtrl('#activityCountdown', <%=#productSummary.activityEndTime%>, handleActivityCompleted, {deadlineMsg: '<%=#activityType === "FLASH_SALE" ? "限时抢购" : "商品活动"%>已结束', currentTimeMillis: <%=#timestamp()%>}).start();
+</script>
+<%
+}
+%>
+
+<!--jiathis分享(异步加载)-->
+<script type="text/javascript" >
+var jiathis_config = {
+	url:window.location.href,
+	summary:"<%=#escapeJsStr(productSummary.shortDescription)%>",
+	title:"<%=#escapeJsStr(title)%> ",
+	pic:"<%=#imageUrl(productDetail.imageUrl1)%>",
+	shortUrl:false,
+	hideMore:true
+};
+$(function() {
+	var s = document.createElement('script');
+	s.type = "text/javascript";
+	s.src = "http://v3.jiathis.com/code/jia.js";
+	document.body.appendChild(s);
+});
+</script>
+
+<% include('common/end') %>

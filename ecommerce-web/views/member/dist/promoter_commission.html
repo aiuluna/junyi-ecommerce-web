@@ -1,0 +1,226 @@
+<% include('../../common/begin') %>
+<link rel="stylesheet" href="css/jquery.fancybox.css" type="text/css"/>
+<link rel="stylesheet" href="css/member.css" type="text/css"/>
+<% include('../../common/header') %>
+<% include('../frame_begin') %>
+
+<h4 class="mbtit">推广员佣金审核</h4>
+<div class="tgyjc clearfix" id="js_search_form">
+	<div class="fl clearfix">
+		<span class="fl grey">申请时间：</span>
+		<div class="jssel agentS">
+			<input type="text" value="近一个月内" name="" class="jsk" readonly="readonly">
+			<ul class="condt" >
+				<li value="1"><a href="javascript:void(0)">近一个月内</a></li>
+				<li value="2"><a href="javascript:void(0)">近三个月内</a></li>
+				<li value="3"><a href="javascript:void(0)">近半年内</a></li>
+				<li value="4"><a href="javascript:void(0)">全部</a></li>
+			</ul>
+			<input type="hidden" value="" name="" class="selectVal" id="js_search_time_range">
+		</div>
+	</div>
+	<span class="tgyjc3">申请人&nbsp;：&nbsp;&nbsp;<input type="text" id="js_search_login" name="" value=""/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 手机号码&nbsp;：&nbsp;&nbsp;<input type="text" id="js_search_mobile" name="" value=""/></span>
+	<div class="fl clearfix">
+		<span class="fl grey">状态：</span>
+		<div class="jssel agentS">
+			<input type="text" value="待审核" name="" class="jsk" readonly="readonly">
+			<ul class="condt">
+				<li value="COMMISSION_REQUESTED"><a href="javascript:void(0)">待审核</a></li>
+				<li value="COMMISSION_PAYED"><a href="javascript:void(0)">已发放</a></li>
+				<li value="COMMISSION_FAILED"><a href="javascript:void(0)">发放失败</a></li>
+			</ul>
+			<input type="hidden" value="" name="" class="selectVal" id="js_search_status">
+		</div>
+	</div>
+	<a href="javascript:;" class="tgicon1" id="js_search_btn">查询</a>
+</div>
+<table cellpadding="0" cellspacing="0" width="100%" class="tgtable brdtab">
+	<tr>
+		<th width="56">序号</th>
+		<th width="150">推广员</th>
+		<th width="150">手机号码</th>
+		<th width="100">提取金额</th>
+		<th width="180">申请时间</th>
+		<th width="90">状态</th>
+		<th>操作</th>
+	</tr>
+</table>
+<table cellpadding="0" cellspacing="0" width="100%" class="tgtable" id="js_search_result">
+</table>
+<div class="rtl" id="js_pagination"></div>
+
+<% include('../frame_end') %>
+
+<% include('../../common/footer_member') %>
+
+<script type="application/x-template" id="js_draw_row_tmpl" >
+	<tr>
+		<td width="56">{{#record._index}}</td>
+		<td width="150">
+			{{record.promoterName}}
+			{{ if (record.userName) }}
+				<br/>{{record.userName}}
+			{{ /if }}
+		</td>
+		<td width="150">{{record.mobile}}</td>
+		<td width="100">¥{{#record.amount}}</td>
+		<td width="180">{{record.requestDate | formatDate: 'yyyy-MM-dd hh:mm:ss'}} </td>
+		<td width="90">{{ShopUtil.renderDrawRequestStatus(record.status)}}</td>
+		<td>
+			{{ if (record.status == 'COMMISSION_REQUESTED') }}
+			<a class="cation red js-audit" data-request_id="{{#record.id}}" data-action="audit" href="javascript:void(0)">审核</a>
+			{{ else }}
+			<a class="cation red js-audit" data-request_id="{{#record.id}}" data-action="view" href="javascript:void(0)">查看</a>
+			{{ /if }}
+		</td>
+	</tr>
+</script>
+
+<script type="text/javascript" src="js/lib/jquery.selectbox.js"></script>
+<!-- image preview plugin -->
+<script type="text/javascript" src="js/lib/jquery.fancybox.js"></script>
+<script type="text/javascript" src="js/lib/jquery.ui.widget.js"></script>
+<!-- The File Upload plugin -->
+<%=#outputConditionBegin('if lt IE 9')%>
+<script type="text/javascript" src="js/lib/jquery.iframe-transport.js"></script>
+<%=#outputConditionEnd()%>
+<script type="text/javascript" src="js/lib/jquery.fileupload.js"></script>
+<!-- The File Upload processing plugin -->
+<script type="text/javascript" src="js/lib/jquery.fileupload-process.js"></script>
+<!-- The File Upload validation plugin -->
+<script type="text/javascript" src="js/lib/jquery.fileupload-validate.js"></script>
+<!-- The Pagination plugin -->
+<script type="text/javascript" src="js/lib/jquery.pagination.js"></script>
+<!-- The Art Template utility -->
+<script type="text/javascript" src="js/lib/template.js"></script>
+
+<script type="text/javascript">
+	$(function(){
+		$('.jssel').selectBox({'selectClassName':'.jsk','selectList':'.condt','selectVal':'.selectVal'});
+
+		/* select the first item default */
+		$('.jssel').each(function(index, ele) {
+			var $ele = $(ele);
+			$('.condt li:first', $ele).trigger('click');
+		});
+		ShopUtil.initTemplateHelper();
+
+		var auditRowTmpl = ShopUtil.getTemplateById('js_draw_row_tmpl');
+		var loader = ShopLoader.init({
+			pageSelector: '#js_pagination',
+			url: '/member/distributor/commission_audit/list',
+			getCriteria: function() {
+				return {
+					login: $.trim($('#js_search_login').val()),
+					mobile: $.trim($('#js_search_mobile').val()),
+					status: $.trim($('#js_search_status').val()),
+					timeRange: ShopUtil.getFinishTimeRange($.trim($('#js_search_time_range').val()))
+				}
+			},
+			render:function(json) {
+				var htmlArr = [];
+				var pageData = json.data.pageData;
+
+				if (json.data.totalCount > 0) {
+					var seq = (json.data.pageNumber - 1) * json.data.pageSize;
+					var fillArr = ShopUtil.fillArr;
+					for (var i = 0, len = pageData.length; i < len; i++) {
+						var order = pageData[i] || {};
+						order._index = seq + 1 + i;
+						fillArr(htmlArr, auditRowTmpl({record: order, ShopUtil : ShopUtil}))
+					}
+
+					$('#js_search_result').html(htmlArr.join(''));
+				} else {
+					$('#js_search_result').html('<tr><td colspan="10">暂时没有符合要求的记录</td></tr>');
+				}
+			}
+		});
+		loader.search();
+		$('#js_search_btn').on('click', function() {
+			loader.search();
+		});
+		/* 监听回车 */
+		$('#js_search_form').on('keyup', 'input', function(event) {
+			var keycode = event.which;
+			if (keycode == 13) {
+				loader.search();
+			}
+		});
+		function popupAuditRecord(order, forUpdate) {
+			var $popup = ShopAlert.dialog({
+				title: '推广员佣金审核',
+				body: order,
+				className: 's-alert-w-small',
+				autoClose: false,
+				callback: function(yes, $btn) {
+
+					if (yes == 'yes' && forUpdate === true) {
+
+						if ($popup.isButtonDisabled($btn)) {
+							return false;
+						} else {
+							$popup.disableButtons($btn);
+						}
+
+						var radios = $('#js_audit_radio input:checked');
+						if(radios.length < 1) {
+							$popup.enableButtons($btn);
+							ShopAlert.alert('审核失败', '请选择审核结果');
+							return;
+						}
+
+						Shop.post({
+							url: '/member/distributor/commission_audit/audit',
+							data:{
+								requestId: $('#js_request_id').val(),
+								approved: $('#js_audit_radio input:checked').val(),
+								reason: $('#js_audit_text').val(),
+								evidenceFileUrl: $('#js_voucher_url').val()
+							},
+							success: function(json) {
+								loader.search();
+								$popup.destroy();
+							},
+							error: function(json) {
+								ShopAlert.confirm('审核失败', '失败原因:' + json.error.message +', 是否继续编辑当前页面?', function(yes){
+									if(yes != 'yes') {
+										$popup.destroy();
+									}
+								});
+							},
+							fail: function() {
+								$popup.destroy();
+							},
+							complete:function() {
+								$popup.enableButtons($btn);
+							}
+						});
+					} else {
+						$popup.destroy();
+					}
+				}
+
+			});
+		}
+
+		$('#js_search_result').on('click', '.js-audit', function() {
+			var me = $(this);
+			var requestId = me.data('request_id');
+			var action = me.data('action');
+			if (!$.trim(requestId)) {
+				ShopAlert.alert('出错啦', '订单号不能为空');
+				return;
+			}
+			Shop.post({
+				url:'/member/distributor/commission_audit/view',
+				dataType:'html',
+				data: {requestId: requestId, action: action},
+				success:function(html) {
+					popupAuditRecord(html, (action == 'audit'));
+				}
+			});
+		});
+	});
+</script>
+<% include('../../common/end') %>

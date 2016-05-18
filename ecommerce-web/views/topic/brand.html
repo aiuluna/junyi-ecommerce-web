@@ -1,0 +1,98 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+
+<!--content-->
+
+<div id="content">
+  <div class="wd1090">
+    <div class="ppDiv clearfix">
+      <div class="fl">
+        <img src="<%=#imageUrl(topicBrand.imageUrl,535,295)%>"/>
+      </div>
+      <div class="ppright">
+        <div class="bbt-e8 pbt15 mbtom15 clearfix">
+          <span class="fl pplogo"><i><img src="<%=#imageUrlPNG(productBrand.logoUrl,70,70)%>"/></i></span>
+          <p class="fl"><span class="f20 weight"><%=productBrand.name%></span><br/>在售商品 <i class="red"><%=page.totalCount%></i> 件</p>
+          <p class="fr grey"><img src="<%=#imageUrlPNG(productOrigin.logoUrl,42,42)%>" class="vertical2"/><%=productOrigin.name%></p>
+        </div>
+        <div class="ppIntro">
+		  <div class="content"><%=productBrand.description%></div>
+        </div>
+      </div>
+    </div>
+    <div id="js_html_wrapper">
+      <ul class="searchList clearfix">
+        <%
+        for (var j = 0; j < page.pageData.length; ++j) {
+        var product = page.pageData[j];
+        %>
+        <li>
+          <%=#product_util.renderProductTag(product)%>
+          <a href="product-<%=#product.skuId%>.html" target="_blank" class="picImg">
+            <img data-original="<%=#imageUrl(product.imageUrl,210,210)%>" src="images/blank.gif" class="lazy" title="<%=product.skuName%>"/>
+            <%=#product_util.renderProductSaleStatus(product)%>
+          </a>
+          <div class="new-intro">
+            <p class="gbie grey"><span class="red fr"><%=#product.isFreeShipping?'包邮':''%><%=#product.isFreeTax?'免税':''%></span><%=#product_util.renderProductOriginLogo(product,24,24)%><%=product.productOriginName%>&nbsp;<%=product.freightMethodName%></p>
+            <p class="imgtit"><a href="product-<%=#product.skuId%>.html" target="_blank" class="black"><%=product.skuName%></a></p>
+            <p class="schActive">
+              <%
+              if (product.activityType === 'ORDER_PROMOTION') {
+              %>
+              <span class="yel"><i class="favour"><%=#product_util.getOrderPromotionLabelShort(product.activityLabel)%></i><%=#product.activityLabel%></span>
+              <%
+              }
+              %>
+            </p>
+            <p class="ptop15"><del class="fr light-grey">¥<%=#formatMoney(product.marketPrice)%></del><span class="red">¥<i class="f20"><%=#formatMoney(product.promotionPrice || product.salePrice)%></i></span><%if(product.activityType === 'FLASH_SALE' || product.activityType === 'PRODUCT_PROMOTION'){%><span class="favourico small"><i><%=#product.activityLabel%></i></span><%}%></p>
+          </div>
+        </li>
+        <%
+        }
+        %>
+
+      </ul>
+
+      <div class="rtl" id="js_pagination"></div>
+    </div>
+  </div>
+</div>
+
+
+<% include('../common/footer') %>
+
+<script type="text/javascript" src="js/lib/jquery.lazyload.js"></script>
+<script type="text/javascript" src="js/lib/jquery.pagination.js"></script>
+<script type="text/javascript" src="js/lib/slimscroll.js"></script><!--滚动条-->
+<script type="text/javascript" src="js/shop.alert.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+
+<script type="text/javascript">
+  $(function() {
+	$(".ppIntro .content").slimscroll({"height":"154px",alwaysVisible:true});
+    var pgOpt = {
+      selector: '#js_pagination',
+      pageNumber: "<%=page.pageNumber%>",
+      totalCount: "<%=page.totalCount%>",
+      pageSize: "<%=page.pageSize%>",
+      callback: function (pageNum) {
+        doPage(pageNum + 1)
+      }
+    };
+    function doPage(pageNumber) {
+      Shop.post({
+        dataType:'html',
+        method: 'post',
+        url: '/topic/brand/<%=#productBrand.id%>',
+        data: {pageNumber: pageNumber},
+        success: function(html) {
+          $('#js_html_wrapper').html(html);
+        }
+      })
+    }
+    $('#js_html_wrapper').data('$result_callback_func', doPage);
+    Shop.pagination(pgOpt);
+  });
+</script>
+
+<% include('../common/end') %>

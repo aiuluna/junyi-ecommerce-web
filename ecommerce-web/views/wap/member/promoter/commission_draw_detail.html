@@ -1,0 +1,77 @@
+<% include('../../common/begin') %>
+<% include('../../common/header') %>
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:historyBack()" class="sc-prev">&nbsp;</a>
+			佣金提取详情
+		</div>
+	</header>
+	<% } %>
+	<dl class="idLine2">
+		<dd><span class="grey">提取状态：</span><p class="red"><%=#order_util.renderDrawRequestStatus(record.status)%></p></dd>
+		<dd><span class="grey">申请时间：</span><p><%=#formatDate(record.requestDate, 'YYYY-MM-DD HH:mm:ss')%></p></dd>
+		<dd><span class="grey">完成时间：</span><p><%=#formatDate(record.paymentDate, 'YYYY-MM-DD HH:mm:ss')%>&ensp;</p></dd>
+		<dd><span class="grey">提取金额：</span><p class="red">¥<%=#formatMoney2(record.amount, '0.00')%></p></dd>
+	</dl>
+	<div class="mtop10 bg_white">
+		<h2 class="h2"><span class="titLine"></span>账户信息</h2>
+		<dl class="editLine">
+
+			<%
+			var fields = ['accountName', 'bankName', 'bankSite', 'accountNo'];
+			var labels = ['开户人姓名', '开户银行', '开户网点', '银行卡号'];
+			if (record.payType == 'ALI_PAY') {
+				fields = ['alipayName', 'alipayNo'];
+				labels = ['支付宝名称', '支付宝账号'];
+			}
+
+			for (var i = 0, len = fields.length; i < len; ++i) {
+				var field = fields[i], label = labels[i], value = record[field] || '';
+			%>
+			<dd>
+				<div class="dbox">
+					<span class="grey"><%=label%>：</span>
+					<div class="editS <%=field%>"><%=value%></div>
+				</div>
+			</dd>
+			<%
+			} //end of for
+			%>
+		</dl>
+	</div>
+
+	<%if (record.remark) {%>
+	<div class="mtop10 bg_white">
+		<h2 class="h2"><span class="titLine"></span>发放说明</h2>
+		<p class="p15"><%=record.remark%></p>
+	</div>
+	<% } // end of if %>
+
+	<% if (record.paymentEvidenceUrl) {%>
+	<div class="mtop10 bg_white">
+		<h2 class="h2"><span class="titLine"></span>发放凭证</h2>
+		<div class="cred p15">
+			<a href="<%=#imageUrl(record.paymentEvidenceUrl, 800, 800)%>">
+				<img src="<%=#imageUrl(record.paymentEvidenceUrl, 800, 800)%>" />
+			</a>
+		</div>
+	</div>
+	<% } // end of if %>
+</div>
+
+<% include('../../common/footer_simple') %>
+<script type="text/javascript">
+
+	$(function() {
+		function formatBankNo(val) {
+			return val ? val.replace(/[^\d]/g, '').replace(/(\d{4})(?=\d)/g, "$1 ") : '';
+		}
+
+		$('.accountNo').text(formatBankNo($('.accountNo').text()));
+	})
+
+</script>
+
+<% include('../../common/end') %>

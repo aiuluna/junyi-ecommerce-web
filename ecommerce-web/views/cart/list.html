@@ -1,0 +1,216 @@
+<% include('../common/begin') %>
+<link rel="stylesheet" href="css/cart.css" type="text/css"/>
+<link rel="stylesheet" href="css/login.css" type="text/css"/>
+<% include('../common/header_cart') %>
+
+<!--head-->
+<div id="head" class="wd1090 clearfix">
+	<h1 class="fl"><a href="/"><img src="<%=#staticImgWeb('logo.jpg')%>" alt="" title=""/></a></h1>
+	<div class="fr flow">
+		<span class="red"><i class="flows1">1</i>我的购物车</span><span><i class="flows3"></i>提交订单</span><span><i class="flows3"></i>完成支付</span>
+	</div>
+</div>
+<!--content-->
+<div id="content">
+	<div class="wd1090">
+		<div class="brdbt-e8">
+			<span class="cart-h3">购物车</span>
+			<% if (!_user) { %>
+			<span class="cart-tip"><i>亲爱的顾客，您还没有<a class="red" id="lgpop" href="javascript:void(0)" onclick="popupLogin()">登录</a>！登录后购物车的商品将保存到您账号中<a class="red f24 c-close" href="javascript:void(0)">&times;</a></i></span>
+			<% } %>
+		</div>
+		<!--购物车商品列表-->
+		<%
+		if (categorizedCartProducts && categorizedCartProducts.length) {
+		%>
+		<table cellpadding="0" cellspacing="0" width="100%" class="cart-tab">
+			<tr>
+				<th width="140" class="pl30">&nbsp;</th>
+				<th width="310">商品信息</th>
+				<th width="150" class="tct pl30">单价（元）</th>
+				<th width="150" class="tct pl30">数量</th>
+				<th width="120" class="tct pl30">金额（元）</th>
+				<th class="tct">操作</th>
+			</tr>
+		</table>
+		<%
+			for (var i = 0; i < categorizedCartProducts.length; ++i) {
+				var cat = categorizedCartProducts[i];
+				var warehouseId = cat.warehouseId;
+				var freightMethodName = product_util.getFreightMethodNameWithBr(cat.freightMethodName);
+		%>
+		<div class="mycart" data-whs="<%=#warehouseId%>">
+			<p class="ware"><input type="checkbox" value="" name="cartAll" class="check"/><span><i class="<%=#cat.freightMethodId===1?'ware1':'ware2'%>"><%=#freightMethodName%></i><%=cat.warehouseName%></span></p>
+			<table cellpadding="0" cellspacing="0" width="100%" class="cart-tab td-tab">
+				<%
+				if (cat.products.length) {
+					for (var j = 0; j < cat.products.length; ++j) {
+						var product = cat.products[j], productQuantity = productQuantityMap[product.skuId] || 1;
+				%>
+				<tr class="goodsline" data-sku="<%=#product.skuId%>">
+					<td width="37" class="pl26 tdbg-white"><input type="checkbox" value="" name="goods" class="check"/></td>
+					<td width="410">
+						<div class="clearfix">
+							<a href="product-<%=#product.skuId%>.html" target="_blank" class="picImg fl"><img src="<%=#imageUrl(product.imageUrl,80,80)%>"/></a>
+							<div class="txtwrap">
+								<a href="product-<%=#product.skuId%>.html" target="_blank" class="gdsTit"><%=product.skuName%></a>
+								<p class="light-grey">适用税率：<%=#product.isFreeTax?'免税':(formatMoney(product.taxRate*100)+'%')%></p>
+							</div>
+						</div>
+					</td>
+					<td width="150" class="tct pl30">
+						<del class="light-grey">¥<%=#formatMoney2(product.marketPrice)%></del><br/><strong>¥<%=#formatMoney2(product.promotionPrice || product.salePrice)%></strong><br/><% if (product.activityLabel) { %><span class="youh"><%=product.activityLabel%></span><% } %>
+						<input type="hidden" name="salePrice" value="<%=#product.promotionPrice || product.salePrice%>"/>
+					</td>
+					<td width="150" class="tct pl30">
+						<span><input type="button" value="-" name="" class="dt-redu dt-reduct"><input type="text" value="<%=#productQuantity%>" readonly class="dt-count"><input type="button" value="+" name="" class="dt-add dt-addct"></span>
+						<p class="red stock-message" style="display:none"><%=product_util.getProductRestrictStr(product)%></p>
+						<input type="hidden" name="restrictNumber" value="<%=#product.restrictNumber%>"/>
+						<input type="hidden" name="stock" value="<%=#product.stockForSale%>"/>
+					</td>
+					<td width="120" class="tct pl30"><strong class="amount">¥<%=#formatMoney2((product.promotionPrice || product.salePrice) * productQuantity)%></strong></td>
+					<td class="tct"><a href="javascript:void(0)" class="goodsDel">&times;</a></td>
+				</tr>
+				<%
+					}
+				}
+				%>
+				<!--缺货 无效商品-->
+				<%
+				if (cat.outOfStocks.length) {
+					for (var j = 0; j < cat.outOfStocks.length; ++j) {
+						var product = cat.outOfStocks[j], productQuantity = productQuantityMap[product.skuId];
+				%>
+				<tr class="goodsline out-of-stock" data-sku="<%=#product.skuId%>">
+					<td width="37" class="pl26 tdbg-white"><span class="grey">无效</span></td>
+					<td width="410">
+						<div class="clearfix">
+							<a href="product-<%=#product.skuId%>.html" target="_blank" class="picImg fl"><img src="<%=#imageUrl(product.imageUrl,80,80)%>"/></a>
+							<div class="txtwrap">
+								<a href="product-<%=#product.skuId%>.html" target="_blank" class="gdsTit"><%=product.skuName%></a>
+								<p class="light-grey"><%if(product.saleStatus === 'ON_SALE'){%>适用税率：<%=#product.isFreeTax?'免税':(formatMoney(product.taxRate)*100+'%')%><%}%></p>
+							</div>
+						</div>
+					</td>
+					<td width="150" class="tct pl30">
+						<del class="light-grey">¥<%=#formatMoney2(product.marketPrice)%></del><br/><strong>¥<%=#formatMoney2(product.promotionPrice || product.salePrice)%></strong><br/><% if (product.activityLabel) { %><span class="youh"><%=product.activityLabel%></span><% } %>
+					</td>
+					<td width="150" class="tct pl30">
+						<span><input type="button" value="-" name="" class="dt-redu dt-reduct" disabled><input type="text" value="<%=#productQuantity%>" readonly class="dt-count"><input type="button" value="+" name="" class="dt-add dt-addct" disabled></span>
+						<p class="red"><%=#product.saleStatus === 'ON_SALE' ? '商品暂时缺货' : '商品已下架'%></p>
+					</td>
+					<td width="120" class="tct pl30"><strong>-</strong></td>
+					<td class="tct"><a href="javascript:void(0)" class="goodsDel">&times;</a></td>
+				</tr>
+				<%
+					}
+				}
+				%>
+				<!--订单活动-->
+				<%
+				if (cat.orderActs.length) {
+					var activityId = -1;
+					for (var j = 0; j < cat.orderActs.length; ++j) {
+						var product = cat.orderActs[j], productQuantity = productQuantityMap[product.skuId];
+						if (product.activityId !== activityId) {
+							activityId = product.activityId;
+				%>
+				<tr class="order-act-row act-<%=#activityId%>">
+					<td colspan="6">
+						<div class="hdType">
+							<span class="soYou" style="display:none">已优惠<i class="red order-act-discount" id="orderActDiscount_<%=#warehouseId%>_<%=#activityId%>">0.00</i>元</span>
+							<span class="youh"><%=product.activityTypeName%></span>
+							<span class="grey">商品参与“<%=product.activityLabel%>”活动</span>
+							<a href="topic-act-o-<%=#activityId%>.html" target="_blank" class="red">去凑单 &gt;</a>
+						</div>
+					</td>
+				</tr>
+				<%
+						}
+				%>
+				<tr class="goodsline" data-sku="<%=#product.skuId%>" data-act="<%=#activityId%>">
+					<td width="37" class="pl26 tdbg-white"><input type="checkbox" value="" name="goods" class="check"/></td>
+					<td width="410">
+						<div class="clearfix">
+							<a href="product-<%=#product.skuId%>.html" target="_blank" class="picImg fl"><img src="<%=#imageUrl(product.imageUrl,80,80)%>"/></a>
+							<div class="txtwrap">
+								<a href="product-<%=#product.skuId%>.html" target="_blank" class="gdsTit"><%=product.skuName%></a>
+								<p class="light-grey">适用税率：<%=#product.isFreeTax?'免税':(formatMoney(product.taxRate*100)+'%')%></p>
+							</div>
+						</div>
+					</td>
+					<td width="150" class="tct pl30">
+						<del class="light-grey">¥<%=#formatMoney2(product.marketPrice)%></del><br/><strong>¥<%=#formatMoney2(product.salePrice)%></strong>
+						<input type="hidden" name="salePrice" value="<%=#product.salePrice%>"/>
+					</td>
+					<td width="150" class="tct pl30">
+						<span><input type="button" value="-" name="" class="dt-redu dt-reduct"><input type="text" value="<%=#productQuantity%>" class="dt-count"><input type="button" value="+" name="" class="dt-add dt-addct"></span>
+						<p class="red stock-message" style="display:none"><%=product_util.getProductRestrictStr(product)%></p>
+						<input type="hidden" name="restrictNumber" value="<%=#product.restrictNumber%>"/>
+						<input type="hidden" name="stock" value="<%=#product.stockForSale%>"/>
+					</td>
+					<td width="120" class="tct pl30"><strong class="amount">¥<%=#formatMoney2(product.salePrice * productQuantity)%></strong></td>
+					<td class="tct"><a href="javascript:void(0)" class="goodsDel">&times;</a></td>
+				</tr>
+				<%
+					}
+				}
+				%>
+			</table>
+			<div class="cartTotal">
+				<p>商品总计：<span class="wd105 grey5 total-pay-fee">¥0.00</span></p>
+				<p>活动优惠：<span class="wd105 grey5 order-act-discount">-¥0.00</span></p>
+				<p><!--<span class="gsTip">关税≤¥50.00，可以免征哦！</span>-->商品税费：<span class="wd105 grey5 total-tax">¥0.00</span></p>
+				<p>订单总额 (不含运费)：<span class="wd105 red f18 total-fee">¥0.00</span></p>
+				<p><span class="jsTip error-message" style="display:none"></span><a href="javascript:void(0)" class="cantjies btn-order">去结算</a></p>
+			</div>
+		</div>
+		<%
+			}
+		%>
+		<div class="hide"><form id="submitPreOrderForm" method="post" action="cart-order.html"><input type="text" name="items" value=""/></form></div>
+		<%
+		}
+		%>
+		<div class="nobox2" <%=#(categorizedCartProducts && categorizedCartProducts.length) ? 'style="display:none"' : ''%> >
+			<div class="nocon">
+				<p class="f20 mtop15">购物车空空如也~</p>
+				<p><a href="/" class="nobtn">去逛逛</a></p>
+			</div>
+		</div>
+		<!--最近浏览-->
+		<div>
+			<% include('../product_recent_viewed') %>
+		</div>
+		<!--猜你喜欢-->
+		<div id="recommendProductsDiv">
+			<% include('../product_recommend') %>
+		</div>
+		<!--购物须知-->
+		<div class="section">
+			<h3 class="brdbt-e8"><img src="images/tit-ico1.png"/>购物须知</h3>
+			<div class="grey5 ptb10">
+				跨境电子商务零售进口商品的单次交易限值为人民币2000元，个人年度交易限值为人民币20000元。<br/>
+				在限值以内进口的跨境电子商务零售进口商品，关税税率暂设为0%；进口环节增值税、消费税取消免征税额，暂按法定应纳税额的70%征收。<br/>
+				超过单次限值、累加后超过个人年度限值的单次交易，以及完税价格超过2000元限值的单个不可分割商品，均按照一般贸易方式全额征税。
+				<a href="help-103.html" target="_blank" class="red">了解详情&gt;</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+<% include('../common/footer') %>
+
+<script type="text/javascript" src="js/lib/jquery.lazyload.js"></script>
+<script type="text/javascript" src="js/lib/jquery.SuperSlide.2.1.2.js"></script>
+<script type="text/javascript" src="js/shop.alert.js"></script>
+<script type="text/javascript" src="js/login.js"></script>
+<script type="text/javascript" src="js/shop.cart.js"></script>
+
+<% if (preorderError) { %>
+<script type="text/javascript">
+var _ERR_MSG = '<%=preorderError%>';
+</script>
+<% } %>
+
+<% include('../common/end') %>

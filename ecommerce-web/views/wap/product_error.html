@@ -1,0 +1,22 @@
+<% include('common/begin') %>
+<% include('common/header') %>
+
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:void(0)" class="sc-prev" onclick="return historyBack()">&nbsp;</a>
+			商品详情
+		</div>
+	</header>
+	<% } %>
+	<div class="bg_white">
+		<div id="win-middle">
+			<span class="noIco6"></span>
+			<p class="f16">抱歉，没有该商品或商品已下架</p>
+		</div>
+	</div>
+</div>
+
+<% include('common/footer_simple') %>
+<% include('common/end') %>

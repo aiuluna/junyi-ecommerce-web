@@ -1,0 +1,134 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+
+<!--content-->
+<div id="content">
+	<div class="banner"><img src="<%=#imageUrlCrop(topicCat.imageUrl,1920,350)%>"/></div>
+	<div class="wd1090">
+		<!--推荐-->
+		<%
+		var topicProducts = products.topicProducts;
+		if (topicProducts && topicProducts.length) {
+			var topicItemMap = {};
+			topicCat.items.forEach(function(item) { topicItemMap[item.skuId] = item; });
+		%>
+		<div class="section">
+			<h3><img src="images/tit-ico1.png">推荐<span class="hot">HOT</span></h3>
+			<div class="comover">
+				<ul class="commodity clearfix">
+				<%
+				for (var j = 0; j < topicProducts.length; ++j) {
+					var product = topicProducts[j], item = topicItemMap[product.skuId],
+						itemImageUrl = item.imageUrl ? item.imageUrl : product.imageUrl;
+				%>
+					<li>
+						<%=#product_util.renderProductTag(product)%>
+						<a href="product-<%=#product.skuId%>.html" target="_blank" class="picImg">
+							<img data-original="<%=#imageUrlBoxed(itemImageUrl,538,300)%>" src="images/blank.gif" class="lazy" title="<%=product.skuName%>"/>
+							<%=#product_util.renderProductSaleStatus(product)%>
+						</a>
+						<div class="p15">
+							<p class="coline1">
+							<%
+							if (product.activityType === 'ORDER_PROMOTION') {
+							%>
+								<span class="fr yel mtop5"><i class="favour"><%=#product_util.getOrderPromotionLabelShort(product.activityLabel)%></i><%=#product.activityLabel%></span>
+							<%
+							}
+							%>
+								<span class="light-grey"><%=#product_util.renderProductOriginLogo(product,42,42)%><%=product.productOriginName%>&nbsp;&nbsp;<%=product.freightMethodName%></span></p>
+							<h4>
+								<p class="buytit"><a href="product-<%=#product.skuId%>.html" target="_blank" class="black"><%=product.skuName%></a></p>
+							</h4>
+							<p class="red spanVer">
+								<%=#product_util.getPriceLabel(product)%>：<i class="f16">¥</i><i class="f24"><%=#formatMoney(product.promotionPrice || product.salePrice)%></i>
+								<%
+								var promotionList = [];
+								if (product.isFreeShipping) promotionList.push('包邮');
+								if (product.isFreeTax) promotionList.push('免税');
+								if (promotionList.length) {
+								%><span class="favourico"><%
+									for (var k = 0; k < promotionList.length; ++k) {
+								%><i <%=#(k==0)?'style="background-position:0 -1772px"':''%> ><%=#promotionList[k]%></i><%
+									}
+								%></span><%
+								}
+								%>
+							</p>
+							<p class="light-grey">国内参考价：<del>¥<%=#formatMoney(product.marketPrice)%></del></p>
+						</div>
+						<span class="buy-cart-btn">
+							<% if (product_util.productCouldSell(product)) { %>
+							<a href="javascript:void(0)" class="buy-cart enterCart" title="加入购物车" data-rel="<%=#product.skuId%>"></a>
+							<% } else { %>
+							<span class="cant-cart">&nbsp;</span>
+							<% } %>
+						</span>
+					</li>
+				<%
+				}
+				%>
+				</ul>
+			</div>
+		</div>
+		<%
+		}
+		%>
+		<!--品类-->
+		<%
+		for (var i = 0; i < productClassList.length; ++i) {
+			var productClass = productClassList[i], productsForClass = products['class_' + productClass.id].pageData;
+			if (!productsForClass || !productsForClass.length) continue;
+		%>
+		<div class="section">
+			<%if(productsForClass.length >= 12){%><a href="search.html?categoryIdLevel1=<%=#topicCat.productCategoryId%>&classId=<%=#productClass.id%>" target="_blank" class="fr black sectMore">更多商品&gt;</a><%}%>
+			<h3><img src="images/tit-ico1.png"><%=productClass.name%></h3>
+			<ul class="searchList clearfix">
+		<%
+			for (var j = 0; j < productsForClass.length; ++j) {
+				var product = productsForClass[j];
+		%>
+				<li>
+					<%=#product_util.renderProductTag(product)%>
+					<a href="product-<%=#product.skuId%>.html" target="_blank" class="picImg">
+						<img data-original="<%=#imageUrl(product.imageUrl,210,210)%>" src="images/blank.gif" class="lazy" title="<%=product.skuName%>"/>
+						<%=#product_util.renderProductSaleStatus(product)%>
+					</a>
+					<div class="new-intro">
+						<p class="gbie grey"><span class="red fr"><%=#product.isFreeShipping?'包邮':''%><%=#product.isFreeTax?'免税':''%></span><%=#product_util.renderProductOriginLogo(product,24,24)%><%=product.productOriginName%>&nbsp;<%=product.freightMethodName%></p>
+						<p class="imgtit"><a href="product-<%=#product.skuId%>.html" target="_blank" class="black"><%=product.skuName%></a></p>
+						<p class="schActive">
+						<%
+						if (product.activityType === 'ORDER_PROMOTION') {
+						%>
+							<span class="yel"><i class="favour"><%=#product_util.getOrderPromotionLabelShort(product.activityLabel)%></i><%=#product.activityLabel%></span>
+						<%
+						}
+						%>
+						</p>
+						<p class="ptop15"><del class="fr light-grey">¥<%=#formatMoney(product.marketPrice)%></del><span class="red">¥<i class="f20"><%=#formatMoney(product.promotionPrice || product.salePrice)%></i></span><%if(product.activityType === 'FLASH_SALE' || product.activityType === 'PRODUCT_PROMOTION'){%><span class="favourico small"><i><%=#product.activityLabel%></i></span><%}%></p>
+					</div>
+				</li>
+		<%
+			}
+		%>
+			</ul>
+		</div>
+		<%
+		}
+		%>
+	</div>
+</div>
+
+<% include('../common/footer') %>
+
+<script type="text/javascript" src="js/lib/jquery.lazyload.js"></script>
+<script type="text/javascript" src="js/lib/requestAnimationFrame.js"></script><!--IE8 fly-->
+<script type="text/javascript" src="js/lib/jquery.fly.min.js"></script>
+<script type="text/javascript">
+addToCartInit(function(btn) {
+	return btn.parent().parent().find('img.lazy').attr('src');
+});
+</script>
+
+<% include('../common/end') %>

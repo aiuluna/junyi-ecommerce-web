@@ -1,0 +1,61 @@
+<% include('../../common/begin') %>
+<% include('../../common/header') %>
+<div class="wd640">
+    <% if (!_isWeixin) { %>
+    <header>
+        <div class="header clearfix">
+            <a href="javascript:historyBack()" class="sc-prev">&nbsp;</a>
+            佣金结算详情
+        </div>
+    </header>
+    <% } %>
+    <dl class="idLine2">
+        <dd><span class="grey">发放金额：</span><p class="red">¥<%=formatMoney(record.amount)%></p></dd>
+        <dd><span class="grey">结算月份：</span><p><%=record.stmtYear+"-"+record.stmtMonth%></p></dd>
+        <dd><span class="grey">操作人：</span><p><%=record.paymentOperatorName%></p></dd>
+        <dd><span class="grey">发放时间：</span><p><%=formatDate(record.paymentDate, 'YYYY-MM-DD HH:mm:ss')%></p></dd>
+    </dl>
+    <div class="mtop10 bg_white" id="setAccount">
+        <h2 class="h2"><span class="titLine"></span>账户信息</h2>
+        <dl class="editLine">
+            <dd>
+                <div class="dbox">
+                    <span class="grey">开户人姓名</span>
+                    <div class="editS"><%=record.accountName%></div>
+                </div>
+            </dd>
+            <dd>
+                <div class="dbox">
+                    <span class="grey">开户银行</span>
+                    <div class="editS"><%=record.bankName%></div>
+                </div>
+            </dd>
+            <dd>
+                <div class="dbox">
+                    <span class="grey">开户网点</span>
+                    <div class="editS"><%=record.bankSite%></div>
+                </div>
+            </dd>
+            <dd>
+                <div class="dbox">
+                    <span class="grey">银行卡号</span>
+                    <div class="editS"><%=#order_util.formatBankAccount(record.accountNo)%></div>
+                </div>
+            </dd>
+        </dl>
+    </div>
+    <div class="mtop10 bg_white">
+        <h2 class="h2"><span class="titLine"></span>发放说明</h2>
+        <p class="p15"><%=#record.remark%></p>
+    </div>
+    <div class="mtop10 bg_white">
+        <h2 class="h2"><span class="titLine"></span>发放凭证</h2>
+        <div class="cred p15">
+            <a class="fancybox" href="<%=#imageUrl(record.paymentVoucher, 800, 800)%>">
+                <img src="<%=#imageUrl(record.paymentVoucher, 800, 800)%>">
+            </a>
+        </div>
+    </div>
+</div>
+<% include('../../common/footer_simple') %>
+<% include('../../common/end') %>

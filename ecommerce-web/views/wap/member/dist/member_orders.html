@@ -1,0 +1,167 @@
+<% include('../../common/begin') %>
+<% include('../../common/header') %>
+<% if ( !memberId ) {
+	var searchEnabled = true;
+}
+%>
+<div class="wd640">
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:historyBack();" class="sc-prev">&nbsp;</a>
+			<span id="js_list_title">会员订单</span>
+			<span id="js_search_title" style="display:none">按条件搜索</span>
+			<% if(searchEnabled){ %>
+			<a href="javascript:void(0);" class="topsearch" id="js_search_view"></a>
+			<% } %>
+		</div>
+	</header>
+	<div class="bg_white" id="js_list_page">
+		<div class="ymChoose clearfix">
+			<span class="mbdt">下单时间</span>
+			<input type="hidden" value="4" name="" id="js_select_item">
+			<div class="infcon" id="timeRangeBtn"><span id="chtmlIn">全部</span><i class="u-rtarr"></i></div>
+		</div>
+
+		<div class="searchCondt" style="display:none">
+			<a href="javascript:void(0);" id="js_search_clear" class="clearAll">清空</a>
+			<div id="js_search_wrapper"></div>
+		</div>
+
+		<div id="win-middle" style="display: none;">
+			<span class="noIco5"></span>
+			<p class="f16 light-grey">没有会员订单</p>
+		</div>
+
+		<ul class="odlist lwd30" id="js_order_wrapper">
+		</ul>
+	</div>
+
+	<div class="wd640" id="js_search_page" style="display:none">
+		<dl class="editLine tleft">
+			<dd>
+				<div class="dbox">
+					<span class="grey">用户名</span>
+					<div class="editS"><input type="text" value="" placeholder="请输入想查找的会员的用户名" name="" id="cLogin"/></div>
+				</div>
+			</dd>
+			<dd>
+				<div class="dbox">
+					<span class="grey">姓名</span>
+					<div class="editS"><input type="text" value="" placeholder="请输入想查找的会员的真实姓名" name="" id="cName"/></div>
+				</div>
+			</dd>
+			<dd>
+				<div class="dbox">
+					<span class="grey">手机号</span>
+					<div class="editS"><input type="text" value="" placeholder="请输入想查找的会员的手机号" name="" id="cMobile"/></div>
+				</div>
+			</dd>
+		</dl>
+		<div class="p15"><a href="javascript:void(0)" class="btnL" id="js_search_btn">搜索</a></div>
+	</div>
+</div>
+
+<script type="application/x-template" id="js_order_item_template">
+	<li>
+		<a href="member-order-detail-{{order.orderNo}}.html?commissionType=direct">
+			<div class="odclear clearfix">
+				<div class="odLleft">¥{{ShopUtil.formatMoney(order.totalDistCommission, '0.00')}}<br/>
+					<span class="f12">(返佣)</span></div>
+				<dl class="odLright">
+					<dd><span class="grey">订单编号：</span>{{order.orderNo}}</dd>
+					<dd><span class="grey">下单会员：</span>{{order.buyerLogin}}{{order.buyerName?"("+order.buyerName+")":""}}</dd>
+					<dd><span class="grey">订单状态：</span><span class="red">{{#ShopUtil.getOrderStatus(order.orderStatus)}}</span></dd>
+					<dd><span class="grey">完成时间：</span>{{#ShopUtil.formatDate(order.closeTime, 'yyyy-MM-dd')}}</dd>
+				</dl>
+				<i class="u-rtarrL fr"></i>
+			</div>
+		</a>
+	</li>
+</script>
+
+<% include('../../common/footer_simple') %>
+<script type="text/javascript" src="js/lib/template.js"></script>
+<script type="text/javascript" src="js/lib/jquery.ba-hashchange.js"></script>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+<script type="text/javascript" src="js/shop.scroll.js"></script>
+<script type="text/javascript" src="js/shop.search.tag.js"></script>
+
+<script type="text/javascript">
+	$(function() {
+		ShopUtil.initTemplateHelper();
+		var $wrapper = $('#js_order_wrapper');
+		var $noData = $('#win-middle');
+		var searchWrapper = $('#js_search_wrapper');
+		var orderTmpl = ShopUtil.getTemplateById('js_order_item_template');
+
+		ShopScroll.init({
+			dataWrapper: $wrapper,
+			emptyWrapper: $noData,
+			method:'POST',
+			url:'/member/distributor/member_orders',
+			getParams: function() {
+				var param = {pageSize: 8, timeRange: ShopUtil.getFinishTimeRange($('#js_select_item').val()), memberId: "<%=memberId%>"};
+				var searchKey = SearchUtil.getKeys(searchWrapper);
+				return $.extend(searchKey, param);
+			},
+			afterLoad: function() {
+				$(".odlist").trigger('change');
+			},
+			beforeAppendData: function() {
+				$noData.hide();
+			},
+			afterAppendData: function() {
+			},
+			onDataEnd: function() {
+				$wrapper.append('<li class="nomore">已显示全部内容</li>');
+			},
+			onDataEmpty: function() {
+				$noData.show();
+				$wrapper.html('');
+			},
+			renderItem: function(order) {
+				return orderTmpl({
+					order: order,
+					ShopUtil: ShopUtil
+				});
+			},
+			fail: function() {}
+		});
+
+		var searchOpt = {login: '#cLogin', name:'#cName', mobile: '#cMobile'};
+		SearchUtil.init({
+			listTitle: $('#js_list_title'),
+			list: $('#js_list_page'),
+			query: $('#js_search_page'),
+			clearAll: $('#js_search_clear'),
+			searchTitle: $('#js_search_title'),
+			searchView: $('#js_search_view'),
+			searchBtn: $('#js_search_btn'),
+			searchOpt: searchOpt,
+			searchWrapper: searchWrapper
+		});
+
+		var selectData = [
+			{id: '1', text: '近一个月'},
+			{id: '2', text: '近三个月'},
+			{id: '3', text: '近半年'},
+			{id: '4', text: '全部'}
+		];
+		ShopSelect.select(
+				selectData,
+				$('#timeRangeBtn'),
+				'4', /* 全部 */
+				function($ele) {
+					var $a = $('a', $ele);
+					var value = $a.data('value'), text = $a.text();
+					$('#chtmlIn').text(text);
+					$('#js_select_item').val(value);
+					ShopScroll.reload();
+				}
+		);
+
+
+	});
+</script>
+<% include('../../common/end') %>

@@ -1,0 +1,20 @@
+<% include('common/begin') %>
+<% include('common/header') %>
+
+<!--content-->
+<div id="content">
+	<div class="svError">
+		<div class="svmid">
+			<img src="<%=#staticImgWeb('404.png')%>" alt="" title=""/>
+			<p class="f24">
+			<%if (errorMessage) {%>
+				<%=#errorMessage%>
+			<% } %>
+			</p>
+			<p><a href="#" class="svbtn1" onclick="history.back(); return false;">返回上一页</a><a href="/" class="svbtn2">返回首页</a></p>
+		</div>
+	</div>
+</div>
+
+<% include('common/footer') %>
+<% include('common/end') %>

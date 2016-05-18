@@ -1,0 +1,118 @@
+<% include('../../common/begin') %>
+<% include('../../common/header') %>
+<div class="wd640">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:historyBack()" class="sc-prev">&nbsp;</a>
+			佣金提取
+		</div>
+	</header>
+	<% } %>
+	<div class="bg_white mb10">
+		<dl class="editLine">
+			<dd>
+				<div class="dbox">
+					<span class="grey">提取金额：</span>
+					<div class="editS">
+						<input id="js_draw_amount" type="number" value="" data-min_draw_amt="<%=#commission.minDrawAmount%>" data-remaining="<%=#formatMoney2(commission.remaining)%>" placeholder="当前可提取金额¥<%=#formatMoney2(commission.remaining)%>" name="amount" />
+					</div>
+				</div>
+			</dd>
+			<dd>
+				<div class="dbox">
+					<input type="hidden" id="js_acct_type"/>
+					<span class="grey">提现账户：</span>
+					<div class="editS" id="sexbtn">
+						<i class="u-rtarr fr"></i><span id="chtmlIn">支付宝账户</span>
+					</div>
+				</div>
+			</dd>
+		</dl>
+	</div>
+	<div class="bg_white" id="js_acct_alipay">
+		<h2 class="h2"><span class="titLine"></span>账户信息</h2>
+		<dl class="editLine">
+			<dd>
+				<div class="dbox">
+					<span class="grey">支付宝账号：</span>
+					<div class="editS"><input type="text" id="js_alipay_no" value="<%=account.alipayNo%>" placeholder="" name="" /></div>
+				</div>
+			</dd>
+			<dd>
+				<div class="dbox">
+					<span class="grey">账户姓名：</span>
+					<div class="editS"><input type="text" id="js_alipay_name" value="<%=account.alipayName%>" placeholder="" name="" /></div>
+				</div>
+			</dd>
+		</dl>
+	</div>
+	<div class="bg_white" id="js_acct_bank" style="display:none;">
+		<h2 class="h2"><span class="titLine"></span>账户信息</h2>
+		<dl class="editLine">
+			<dd>
+				<div class="dbox">
+					<span class="grey">开户人姓名：</span>
+					<div class="editS"><input type="text" id="js_acct_name" value="<%=account.accountName%>" placeholder="" name="" /></div>
+				</div>
+			</dd>
+			<dd>
+				<div class="dbox">
+					<span class="grey">开户银行：</span>
+					<div class="editS"><input type="text" id="js_bank_name" value="<%=account.bankName%>" placeholder="" name="" /></div>
+				</div>
+			</dd>
+			<dd>
+				<div class="dbox">
+					<span class="grey">开户网点：</span>
+					<div class="editS"><input type="text" id="js_bank_site" value="<%=account.bankSite%>" placeholder="" name="" /></div>
+				</div>
+			</dd>
+			<dd>
+				<div class="dbox">
+					<span class="grey">银行卡号：</span>
+					<div class="editS"><input type="text" id="js_acct_no" value="<%=account.accountNo%>" placeholder="" name="" /></div>
+				</div>
+			</dd>
+		</dl>
+	</div>
+	<p class="p15"><a href="javascript:;" class="btnL" id="js_submit_btn">确认并提交</a></p>
+	
+
+</div>
+
+<% include('../../common/footer_simple') %>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+<script type="text/javascript" src="js/shop.account.js"></script>
+<script type="text/javascript">
+	$(function(){
+		var selectData = [
+			{id: 'ALI_PAY', text: '支付宝账户'},
+			{id: 'BANK', text: '银行账户'}
+		];
+		ShopSelect.select(
+				selectData,
+				$('#sexbtn'),
+				('<%=#account.accountType%>' || 'ALI_PAY'), /* 全部 */
+				function($ele) {
+					var $a = $('a', $ele);
+					var value = $a.data('value'), text = $a.text();
+					$('#chtmlIn').text(text);
+					$('#js_acct_type').val(value);
+					if (value == 'ALI_PAY') {
+						$('#js_acct_bank').hide();
+						$('#js_acct_alipay').show();
+					} else {
+						$('#js_acct_alipay').hide();
+						$('#js_acct_bank').show();
+					}
+				}
+		);
+
+		ShopAccount.init4Draw({
+			minDrawAmount: parseInt('<%=#minDrawAmount%>')
+		});
+	});
+</script>
+<% include('../../common/end') %>

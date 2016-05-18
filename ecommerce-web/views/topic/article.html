@@ -1,0 +1,76 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+
+<!--content-->
+<div id="active" style="background: url(<%=#imageUrl(bgImgUrl)%>) no-repeat center top;background-color: <%=#bgColor%>;">
+	<div class="actCon" style="padding-top: <%=#bgHeight%>px;">
+		<div class="p20 bgf8">
+			<% 
+			for (var i = 0 ; i < topicContentList.length ; i++ ) {
+				var conentLine = topicContentList[i];
+				if (conentLine.type == "1") {
+					var product = conentLine.products[0];
+					if(!product || !product.skuId) {
+						continue;
+					}
+					var productLink = "product-" + product.skuId + ".html";
+			%>
+			<ul class="listOne">
+				<li>
+					<a href="<%=#productLink%>" target="_blank" class="clearfix">
+						<div class="loleft">
+							<p class="lotit"><%=#product.skuName || '&emsp;'%></p>
+							<p class="lointro"><%=#product.shortDescription || '&emsp;'%></p>
+						</div>
+						<div class="loright">
+							<img src="<%=#imageUrl(product.imageUrl,660,420)%>" class="lazy" />
+							<%=#product_util.renderProductSaleStatus(product)%>
+						</div>
+						<span class="priceIcoYel">¥<%=#product.salePrice %></span>
+					</a>
+				</li>
+			</ul>
+			<%
+				} else {
+			%>
+			<ul class="<%=#conentLine.type == '2'? 'listTwo' : 'listThree'%> clearfix">
+			<%
+					for(var j = 0 ; j < conentLine.products.length ; j++) {
+						var product = conentLine.products[j];
+						if(!product || !product.skuId) {
+							continue;
+						}
+						var productLink = "product-" + product.skuId + ".html";
+			%>
+				<li>
+					<a href="<%=#productLink%>" target="_blank">
+						<div class="tct pre">
+							<% if (conentLine.type == "2") { %>
+							<img src="<%=#imageUrl(product.imageUrl,490,360)%>" class="lazy" />
+							<% } else { %>
+							<img src="<%=#imageUrl(product.imageUrl,320,320)%>" class="lazy" />
+							<% } %>
+							<%=#product_util.renderProductSaleStatus(product)%>
+						</div>
+						<% if (conentLine.type == "2") { %>
+						<p class="protitT"><%=#product.skuName || '&emsp;'%></p>
+						<% } else { %>
+						<p class="protit-Tr"><%=#product.skuName || '&emsp;'%></p>
+						<% } %>
+						<span class="priceIcoYel">¥<%=#product.salePrice %></span>
+				    </a>
+                </li>
+			<%
+			}
+			%>
+			</ul>
+			<% 
+			 	}
+			  }
+			%>
+		</div>
+	</div>
+</div>
+
+<% include('../common/footer') %>
+<% include('../common/end') %>

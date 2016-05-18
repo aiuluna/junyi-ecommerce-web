@@ -1,0 +1,107 @@
+<%
+var orderStatus = {"PENDING_PAY":"待付款","PENDING_SHIP":"待发货","PENDING_RECV":"已发货",
+"FINISHED":"已完成","CANCELLED":"已关闭","REFUND_MONEY":"申请退款","REFUND_GOODS":"申请退货","EXCHANGE_GOODS":"申请换货",
+"REFUND_MONEY_FINISH":"已退款","REFUND_GOODS_FINISH":"已退货","REFUND_GOODS_FINISH":"历史订单"};
+var pageData = page.pageData;
+if (pageData && pageData.length) {
+    for(var i = 0, len = pageData.length; i < len; ++i) {
+        var order = pageData[i];
+%>
+
+<div class="ddTit">
+    <span class="orderNum f12"><i class="grey">订单号：</i><%=#order.orderNo%></span>
+    <span class="singleTime f12"><i class="grey">下单时间：</i><%=#formatDate(order.orderTime, 'YYYY-MM-DD HH:mm:ss')%></span>
+</div>
+<table cellpadding="0" cellspacing="0" width="100%" class="orderTab">
+    <tr>
+        <td width="500" class="ptb0">
+            <table cellpadding="0" cellspacing="0" width="100%" class="intab">
+                <%
+                if (order.items && order.items.length) {
+                for (var j = 0, jlen = order.items.length; j < jlen; ++j) {
+                var item = order.items[j], extraCss = (j == jlen -1) ? 'no-bottom-border': '';
+                %>
+                <tr>
+                    <td width="310" class="tleft">
+                        <div class="plr15 clearfix">
+                            <div class="txtwrap">
+                                <span class="gdsTit" title="<%=#item.skuName%>"><%=#item.skuName%></span>
+                            </div>
+                            <p class="grey">货号：<%=#item.skuCode%></p>
+                        </div>
+                    </td>
+                    <%if(item.salePrice!=item.payPrice){%>
+                    <td width="100">
+                        <del class="del light-grey">¥<%=#formatMoney2(item.salePrice)%></del>
+                        ¥<%=#formatMoney2(item.payPrice)%>
+                    </td>
+                    <% }else{%>
+                    <td width="100">¥<%=#formatMoney2(item.payPrice)%></td>
+                    <%}%>
+                    <td><%=#item.quantity%></td>
+                </tr>
+                <%
+                }
+                } else {
+                %>
+                <tr>
+                    <td colspan="3" class="no-bottom-border">商品清单为空</td>
+                </tr>
+                <%
+                }
+                %>
+            </table>
+        </td>
+        <td width="100"><%=#order.consignee%></td>
+        <td width="100">
+            <span class="weight">¥<%=#order.orderTotal%></span>
+            <p class="grey f12"><%=#order.paymentType%></p>
+        </td>
+        <td width="100"><%=#orderStatus[order.orderStatus]%></td>
+        <td><a href="/member-legacy-orders-view-<%=#order.orderNo%>.html" target="_blank" class="grey">查看订单</a></td>
+    </tr>
+</table>
+<%
+}
+} else {
+%>
+
+<div class="nobox ptop160" style="padding:0;margin:50px auto 50px;">
+    <div class="nocon">
+        <p class="f20">您还没有相关的订单</p>
+        <p class="mtop15">可以去看看有哪些想买的，<a href="/" class="nobtn">去逛逛</a></p>
+    </div>
+</div>
+<%
+}
+%>
+
+<script type="text/javascript">
+/* to prevent introduce unnecessary global variables */
+var __init_order_item_popup = function() {
+    <%if(pageData && pageData.length) {%>
+        $('.orderDiv .tabTh').show();
+    <%} else {%>
+        $('.orderDiv .tabTh').hide();
+    <% } %>
+    var pgOpt = {
+        selector: '#js_pagination_orders',
+        pageNumber: parseInt('<%=#page.pageNumber%>'),
+        totalCount: parseInt('<%=#page.totalCount%>'),
+        pageSize: parseInt('<%=#page.pageSize%>'),
+        callback: function (pageNum) {
+            var pagination = $('#js_pagination_orders');
+            var loader = pagination.data('loader');
+            if (loader) {
+                loader.page(pageNum + 1, parseInt('<%=#page.pageSize%>'));
+            } else {
+                if (typeof console == 'object' && typeof console.log == 'function') {
+                    console.log('no loader bind on element #js_pagination_orders');
+                }
+            }
+        }
+    };
+
+    Shop.pagination(pgOpt);
+}();
+</script>

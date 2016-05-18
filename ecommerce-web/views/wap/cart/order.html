@@ -1,0 +1,375 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+
+<div class="wd640 cartCon js_cart_page" id="cartCon">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:void(0)" class="sc-prev" onclick="return historyBack()">&nbsp;</a>
+			确认订单
+		</div>
+	</header>
+	<% } %>
+	<!--无默认地址-->
+
+	<div class="addr">
+		<a href="javascript:void(0)">
+			<i class="adarr"></i>
+			<div id="js_select_wrapper">
+			</div>
+		</a>
+	</div>
+	<div id="win-middle" style="display: none;">
+		<p class="nomo">请选择收货地址</p>
+	</div>
+
+	<div class="mtop10 bg_white">
+		<h2 class="h2"><span class="titLine"></span>商品信息</h2>
+		<ul class="idList">
+			<%
+			for (var i = 0; i < orderProducts.length; ++i) {
+				var product = orderProducts[i], quantity = productQuantityMap[product.skuId];
+			%>
+			<li>
+				<a href="product-<%=product.skuId%>.html" class="clearfix">
+					<div class="picImg">
+						<img src="<%=#imageUrl(product.imageUrl,180,180)%>"/>
+					</div>
+					<div class="picInfor">
+						<p class="tit"><%=product.skuName%></p>
+						<p class="mb5 f16"><span class="red">¥<%=#formatMoney2(product.promotionPrice || product.salePrice)%></span> * <%=#quantity%></p>
+						<p>
+							<% if (product.activityType==='FLASH_SALE' || product.activityType==='PRODUCT_PROMOTION') { %>
+							<span class="actico fr"><%=product.activityLabel%></span>
+							<% } %>
+							<span class="light-grey">适用税率：<%=#product.isFreeTax?'免税':(formatMoney(product.taxRate*100)+'%')%></span>
+						</p>
+					</div>
+				</a>
+			</li>
+			<%
+			}
+			%>
+		</ul>
+		<div class="p15" style="padding-bottom:0">
+			<p class="cart-message clearfix"><span class="fl">买家留言：</span><input type="text" name="buyerMemo" id="js_buyerMemo" class="cmwrite"/></p>
+			<div class="coupBtn" id="js_selectCoupon"><i class="u-rtarr fr"></i><span id="js_selectedCoupon" class="fr textover" style="width:60%;text-align:right"></span>使用优惠券</div>
+			<p class="duiline" id="js_redeemCoupon"><i class="carrico"></i>兑换优惠券</p>
+		</div>
+	</div>
+	<div class="bg_white mb50 mtop10">
+		<h2 class="h2"><span class="titLine"></span>价格信息</h2>
+		<dl class="priceInfor">
+			<input type="hidden" id="js_tpw" value="<%=#cartPreOrderInitResponse.totalPayWeight%>"/>
+			<input type="hidden" id="js_couponId" value="<%=#cartPreOrderInitResponse.couponId || -1%>"/>
+			<dd><span class="fr f16">¥<%=#formatMoney2(cartPreOrderInitResponse.totalPayFee)%></span><span class="light-grey">商品总价：</span></dd>
+			<dd><span class="fr f16" id="shippingFee">¥<%=#formatMoney2(cartPreOrderInitResponse.shippingFee)%></span><span class="light-grey">运费：</span></dd>
+			<dd><span class="fr f16">-¥<%=#formatMoney2(cartPreOrderInitResponse.orderActDiscount)%></span><span class="light-grey">活动优惠：</span></dd>
+			<dd><span class="fr f16" id="couponDiscount">-¥<%=#formatMoney2(cartPreOrderInitResponse.couponDiscount)%></span><span class="light-grey">优惠券抵扣：</span></dd>
+			<dd><span class="fr f16" id="totalPayTax">¥<%=#formatMoney2(cartPreOrderInitResponse.totalPayTax)%></span><span class="light-grey">税费：</span></dd>
+		</dl>
+	</div>
+	<div class="cart-end clearfix">
+		<div class="plr15">
+			<a href="javascript:void(0)" class="cart-btn fr" id="submitOrder">提交订单</a>
+			<span class="light-grey">应付金额：<i class="red f16" id="totalFee">¥<%=#formatMoney2(cartPreOrderInitResponse.totalFee)%></i></span>
+		</div>
+	</div>
+</div>
+
+<!--收货地址选择-->
+<div id="screen" class="js_address_list_page">
+	<div class="header clearfix">
+		<a href="javascript:historyBack()" class="sxClose sc-prev">&nbsp;</a>
+		收货地址
+	</div>
+	<ul class="addrlist" id="js_address_wrapper">
+		<%
+		var addrList = cartPreOrderInitResponse.addrList,
+			shipAddrId = cartPreOrderInitResponse.shipAddrId;
+		if (addrList && addrList.length) {
+			for (var i = 0, len = addrList.length; i < len; ++i) {
+				var addr = addrList[i];
+		%>
+			<li data-id="<%=#addr.id%>"
+				data-is_default="<%=#addr.isDefault%>"
+				data-id_card_no="<%=#addr.idCardNo%>"
+				data-mobile="<%=#addr.mobile%>"
+				data-province_id="<%=#addr.provinceId%>"
+				data-province_name="<%=#addr.provinceName%>"
+				data-city_name="<%=#addr.cityName%>"
+				data-county_name="<%=#addr.countyName%>"
+				data-address="<%=#addr.address%>"
+				data-ship_to="<%=#addr.shipTo%>"
+			>
+				<i class="becico <%=#(addr.id === shipAddrId ? 'becon' : '')%> js_address_select" ></i>
+				<a href="javascript:void(0)" class="writeico js_address" data-action="view"></a>
+				<div class="addrinfor js_address_select">
+					<p><%if (addr.isDefault === 'Y') { %> <span class="actico2 fr">默认地址</span> <%}%><%=addr.shipTo%></p>
+					<p>
+						<span class="fr f12"><%=order_util.maskIdCard(addr.idCardNo)%></span>
+						<span class="f12"><%=order_util.maskMobile(addr.mobile)%></span>
+					</p>
+					<p class="grey"><%=#addr.provinceName%><%=#addr.cityName%><%=#addr.countyName%><%=#addr.address%></p>
+				</div>
+			</li>
+		<%
+			}
+		} else {
+		%>
+		<li style="text-align:center;">还没有添加收货地址</li>
+		<%
+		}
+		%>
+	</ul>
+	<div class="fixedAdd"><p class="plr15"><a href="javascript:void(0)" class="btnL js_address" data-action="add">+新增收货地址</a></p></div>
+</div>
+
+<!--编辑收货地址-->
+<div id="brand" class="js_address_edit_page" style="display:none">
+	<div class="header clearfix">
+		<a href="javascript:historyBack();" class="sc-prev">&nbsp;</a>
+		<span id="add_title">新增收货地址</span>
+		<span id="update_title">编辑收货地址</span>
+	</div>
+	<input type="hidden" value="" class="cId">
+	<dl class="editLine">
+		<dd>
+			<div class="dbox">
+				<span class="grey">收货人：</span>
+				<div class="editS"><input type="text" value="" class="cName" maxlength="30"/></div>
+			</div>
+		</dd>
+		<dd>
+			<div class="dbox">
+				<span class="grey">手机号码：</span>
+				<div class="editS"><input type="text" value="" class="cPhone"  maxlength="30" /></div>
+			</div>
+		</dd>
+		<dd>
+			<div class="dbox">
+				<span class="grey">身份证号码：</span>
+				<div class="editS"><input type="text" value="" class="cIdCardNo"  maxlength="20" /></div>
+			</div>
+		</dd>
+		<dd>
+			<div class="dbox">
+				<span class="grey">所在区域：</span>
+				<div class="editS">
+					<select id="province" style="width:30%;text-overflow:ellipsis; overflow:hidden;">
+						<option value="">选择省份</option>
+					</select>
+					<select id="city" style="width:30%;text-overflow:ellipsis; overflow:hidden;">
+						<option value="">选择城市</option>
+					</select>
+					<select id="county" style="width:30%;text-overflow:ellipsis; overflow:hidden;">
+						<option value="">选择区域</option>
+					</select>
+				</div>
+			</div>
+		</dd>
+		<dd>
+			<div class="dbox">
+				<span class="grey">详细地址：</span>
+				<div class="editS"><input type="text" value="" class="cAddr"  maxlength="255"/></div>
+			</div>
+		</dd>
+		<dd>
+			<div class="moren">
+				<i class="becico js_address_default"></i>设为默认地址
+			</div>
+		</dd>
+	</dl>
+	<div class="p15"><a href="javascript:void(0)" class="pickBtn1 js_address js_address_update_btn" data-action="remove">删除</a><a href="javascript:void(0)" class="pickBtn2 brsure js_address js_address_update_btn" data-action="save">保存</a>
+		<a href="javascript:void(0)" class="btnL js_address js_address_add_btn" data-action="save">保存</a>
+	</div>
+
+	<!--新增收货地址-->
+	<!--<div class="p15"><a href="javascript:void(0)" class="btnL sxClose">保存</a></div>-->
+</div>
+
+<script type="application/x-template" id="js_address_template">
+	<div class="addrinfor">
+		<p>{{ if address.isDefault === 'Y' }}<span class="actico2 fr">默认地址</span><i class="aico1"></i> {{ /if }}{{address.shipTo}}</p>
+		<p>
+			<span class="fr"><i class="aico3"></i>{{ShopUtil.maskIdCard(address.idCardNo)}}</span>
+			<span><i class="aico2"></i>{{ShopUtil.maskMobile(address.mobile)}}</span></p>
+		<p><i class="aico4"></i>{{#address.provinceName}}{{#address.cityName}}{{#address.countyName}}{{#address.address}}</p>
+	</div>
+</script>
+
+<script type="application/x-template" id="js_address_list_template">
+	<li data-id="{{#address.id}}"
+		data-is_default="{{#address.isDefault}}"
+		data-id_card_no="{{#address.idCardNo}}"
+		data-mobile="{{#address.mobile}}"
+		data-province_id="{{#address.provinceId}}"
+		data-province_name="{{#address.provinceName}}"
+		data-city_name="{{#address.cityName}}"
+		data-county_name="{{#address.countyName}}"
+		data-address="{{#address.address}}"
+		data-ship_to="{{#address.shipTo}}"
+	>
+		<i class="becico {{#(isDefault ? 'becon' : '')}} js_address_select" ></i>
+		<a href="javascript:void(0)" class="writeico js_address" data-action="view" data-id="{{#address.id}}"></a>
+		<div class="addrinfor js_address_select">
+			<p>{{ if (address.isDefault === 'Y') }} <span class="actico2 fr">默认地址</span> {{/if}}{{address.shipTo}}</p>
+			<p>
+				<span class="fr">{{ShopUtil.maskIdCard(address.idCardNo)}}</span>
+				<span>{{ShopUtil.maskMobile(address.mobile)}}</span>
+			</p>
+			<p class="grey">{{#address.provinceName}}{{#address.cityName}}{{#address.countyName}}{{#address.address}}</p>
+		</div>
+	</li>
+</script>
+
+<% include('../common/footer_simple') %>
+<script type="text/javascript" src="js/lib/jquery.ba-hashchange.js"></script>
+<script type="text/javascript" src="js/lib/template.js"></script>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+<script type="text/javascript" src="js/shop.cart.order.js"></script>
+<script type="text/javascript" src="js/shop.region.js"></script>
+<script type="text/javascript" src="js/shop.shipping.address.js"></script>
+
+<script type="text/javascript">
+
+var _ITEMS = <%=#itemsJSON%>;
+var _COUPONS = <%=#applicableCouponsJSON%>;
+
+$(function() {
+	/*跳转地址列表*/
+	var listTemplate = ShopUtil.getTemplateById('js_address_list_template');
+	var $wrapper = $('#js_address_wrapper');
+	var $addressListPage = $('.js_address_list_page');
+	var $addressEditPage = $('.js_address_edit_page');
+	var $selectedAddress = $('#js_select_wrapper');
+	var $mainPage = $('.js_cart_page');
+
+	$selectedAddress.parent().on('click', function(e) {
+		window.location.hash = '#bind';
+		e.preventDefault();
+	});
+
+	/*选择列表中的地址作为收货地址*/
+	$addressListPage.on('click', '.js_address_select', function(e) {
+		$('.becico', $addressListPage).removeClass('becon');
+		$(this).parent().find('.becico').addClass('becon');
+		$selectedAddress.trigger('change');
+		historyBack();
+		e.preventDefault();
+	});
+
+	ShopShippingAddress.init({
+		listPage: $addressListPage,
+		editPage: $addressEditPage,
+		updateTitle: $('#update_title'),
+		addTitle: $('#add_title'),
+		wrapper: $wrapper
+	});
+
+	function reloadAddress() {
+		var success = function (result) {
+			$wrapper.html('');
+			if(result.data && result.data.length) {
+				var id = $wrapper.data('id');
+				var itemList = [];
+				result.data.forEach(function(data) {
+					var html = listTemplate({address:data, ShopUtil: ShopUtil});
+					itemList.push(html);
+				});
+
+				$wrapper.append(itemList.join(''));
+
+				var id = $wrapper.data('u_id');
+				if(!id) {
+					var $li = $wrapper.find('li:first');
+					id = $li.data('id');
+				}
+				$wrapper.find('li[data-id='+id+'] .becico').addClass('becon');
+				$wrapper.data('id', id);
+				$wrapper.trigger('change')
+			} else {
+				$wrapper.html('<li style="text-align:center;">还没有添加收货地址</li>')
+			}
+		};
+
+		var opt = {
+			url: 'member/user/address/list',
+			success: success
+		};
+		Shop.post(opt);
+	}
+
+	/*展示添加/编辑页面*/
+	$addressListPage.on('click', '.js_address', function (e) {
+		var $this = $(this);
+		var id = $this.closest('li').data('id');
+		var action = $this.data('action');
+		switch (action) {
+			case 'view':
+				ShopShippingAddress.ajax.view(id);
+				window.location.hash = '#bind_edit';
+				break;
+			case 'add':
+				window.location.hash = '#bind_add';
+				break;
+		}
+		e.preventDefault();
+	});
+
+	$addressEditPage.on('click', '.js_address', function (e) {
+		var $this = $(this);
+		var action = $this.data('action');
+		switch (action) {
+			case 'save':
+				ShopShippingAddress.ajax.update();
+				break;
+			case 'remove':
+				ShopPopup.confirm('删除收货地址', function (yes) {
+					if (yes == 'yes') {
+						ShopShippingAddress.ajax.remove();
+					}
+				});
+				break;
+		}
+		e.preventDefault();
+	});
+
+	var reload = false;
+	function pageOnHashChanged() {
+		var hash = window.location.hash;
+		if (hash === '') {
+			$addressEditPage.hide();
+			$addressListPage.hide();
+			$mainPage.show();
+			if($('.becico', $addressListPage).length === 0) {
+				$('#js_select_wrapper').trigger('change');
+			}
+
+		} else if (hash === '#bind') {
+			$mainPage.hide();
+			ShopShippingAddress.view.listView();
+
+			if(reload) {
+				reloadAddress();
+				reload = false;
+			}
+		} else if(hash === '#bind_edit') {
+			$mainPage.hide();
+			ShopShippingAddress.view.updateView();
+			reload = true;
+		} else if(hash === '#bind_add') {
+			$mainPage.hide();
+			ShopShippingAddress.view.addView();
+			reload = true;
+		}
+	}
+
+	$(window).on('hashchange', pageOnHashChanged);
+	pageOnHashChanged();
+});
+
+</script>
+
+<% include('../common/end') %>

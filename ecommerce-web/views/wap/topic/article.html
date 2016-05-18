@@ -1,0 +1,72 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+
+<div class="wd640" style="background:<%=#bgColor%>;">
+	<% if (!_isWeixin) { %>
+	<header>
+		<div class="header clearfix">
+			<a href="javascript:void(0)" class="sc-prev" onclick="return historyBack()">&nbsp;</a>
+			<%=article_title%>
+		</div>
+	</header>
+	<% } %>
+	<img src="<%=#imageUrl(bgImgUrl)%>" width="100%" />
+	<div class="plr15">
+		<% 
+		for (var i = 0 ; i < topicContentList.length ; i++ ) {
+			var conentLine = topicContentList[i];
+			if(conentLine.type == "1") {
+				var product = conentLine.products[0];
+				if(!product || !product.skuId) {
+					continue;
+				}
+				var productLink = "product-" + product.skuId + ".html";
+		%>
+		<ul class="listOne">
+			<li>
+				<a href="<%=#productLink%>">
+					<div class="pre">
+						<img src="<%=#imageUrl(product.imageUrl,640,640)%>" class="listimg" />
+						<%=#product_util.renderProductSaleStatus(product)%>
+						<span class="priceIcoYel">¥<%=#product.salePrice %></span>
+					</div>
+					<p class="specialTit"><%=#product.skuName %></p>
+				</a>
+			</li>
+		</ul>
+		<%
+			} else {
+		%>
+		<ul class="listTwo clearfix">
+			<%
+				for(var j = 0 ; j < conentLine.products.length ; j++) {
+					var product = conentLine.products[j];
+					if(!product || !product.skuId) {
+						continue;
+					}
+					var productLink = "product-" + product.skuId + ".html";
+			%>
+			<li>
+				<a href="<%=#productLink%>">
+					<div class="pre">
+						<img src="<%=#imageUrl(product.imageUrl,300,300)%>" class="listimg" />
+						<%=#product_util.renderProductSaleStatus(product)%>
+						<span class="priceIcoYel">¥<%=#product.salePrice %></span>
+					</div>
+					<p class="specialTit"><%=#product.skuName %></p>
+				</a>
+			</li>
+			<%
+				}
+			%>
+		</ul>
+		<%
+			}
+		}
+		%>	
+	</div>
+	<p class="nomore" id="loadingLabel">已显示全部内容</p>
+</div>
+
+<% include('../common/footer') %>
+<% include('../common/end') %>

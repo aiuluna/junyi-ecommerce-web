@@ -1,0 +1,139 @@
+<% include('../common/begin') %>
+<% include('../common/header') %>
+<div class="wd640">
+    <% if (!_isWeixin) { %>
+    <header>
+        <div class="header clearfix">
+            <a href="javascript:history.back();" class="sc-prev">&nbsp;</a>
+            收藏商品
+        </div>
+    </header>
+    <% } %>
+    <ul class="idList" id="js_collect_wrapper">
+    </ul>
+    <p class="nomore" style="display: none;" id="js_collect_full">已显示全部内容</p>
+    <div id="win-middle" style="display: none;">
+        <span class="collectNoIco"></span>
+        <p class="f16">您还没有收藏任何商品哦</p>
+        <p class="f12 light-grey">快来加一个吧！</p>
+        <a href="/" class="goShopping">去逛逛</a>
+    </div>
+
+</div>
+
+<% include('../common/footer_simple') %>
+
+<script type="application/x-template" id="js_collect_template">
+    <li data-skuid="{{#prod.skuId}}">
+        <a href="product-{{#prod.skuId}}.html" class="clearfix">
+            <div class="picImg">
+                {{if prod.tag}}
+                <span class="mark"><i>{{#skuUtil.getTagText(prod)}}</i></span>
+                {{/if}}
+                {{if (prod.saleStatus !== 'ON_SALE')}}
+				<span class="under-shelf"></span>
+				{{else if (prod.stockStatus === 'OUT_OF_STOCK') }}
+				<span class="robbed-light"></span>
+				{{/if}}
+                <img data-original="{{#prod.imageUrl}}" class="lazy" />
+            </div>
+            <div class="picInfor">
+                <p class="tit">{{prod.productName}}</p>
+                <p>
+                    <span class="goodsDel js-collect-del"></span>
+                    <span class="red f15">¥{{#formatMoney(prod.salePrice)}}</span>
+                    {{if prod.activityLabel}}
+                    <span class="actico">{{prod.activityLabel}}</span>
+                    {{/if}}
+                </p>
+            </div>
+        </a>
+    </li>
+</script>
+<script type="text/javascript" src="js/lib/jquery.min.1.9.1.js"></script>
+<script type="text/javascript" src="js/lib/template.js"></script>
+<script type="text/javascript" src="js/shop.popup.js"></script>
+<script type="text/javascript" src="js/shop.common.js"></script>
+<script type="text/javascript" src="js/shop.scroll.js"></script>
+<script type="text/javascript" src="js/normal.js"></script>
+<script type="text/javascript" src="js/lib/jquery.lazyload.js"></script>
+<script type="text/javascript">
+    $(function(){
+
+
+        var skuUtil = {
+            getTagText: function(prd) {
+                if (prd.tag == 'PARTICULAR') {
+                    return '精品'
+                } else if (prd.tag == 'HOT_SALE') {
+                    return '热卖'
+                } else if (prd.tag == 'NEW') {
+                    return '新品'
+                }
+                return '';
+            }
+        };
+
+        ShopUtil.initTemplateHelper();
+        var $wrapper = $('#js_collect_wrapper');
+        var $full = $('#js_collect_full');
+        var $noOrder = $('#win-middle');
+        var itemTmpl = ShopUtil.getTemplateById('js_collect_template');
+        ShopScroll.init({
+            dataWrapper: $wrapper,
+            method:'POST',
+            url:'member/collect',
+            getParams: function() {
+                return {
+                    pageSize: 8
+                };
+            },
+            beforeAppendData: function() {
+                $noOrder.hide();
+            },
+            afterAppendData:function() {
+                $("img.lazy", $wrapper).lazyload({
+                    effect : "fadeIn",
+                    threshold : 400,
+                    failure_limit : 10
+                });
+            },
+            onDataEnd: function() {
+                $full.show();
+            },
+            onDataEmpty: function() {
+                $full.hide();
+                $noOrder.show();
+                $wrapper.html('');
+            },
+            renderItem: function(order) {
+                return itemTmpl({
+                    prod: order,
+                    skuUtil: skuUtil,
+                    ShopUtil: ShopUtil
+                });
+            },
+            fail: function() {}
+        });
+
+        $wrapper.on('click', '.js-collect-del', function(){
+            var $li = $(this).closest('li');
+            ShopPopup.confirm('从我的收藏中删除？', function(yes){
+                if (yes == 'yes') {
+                    $li.fadeOut();
+                    Shop.get({
+                        url:'/member/user/favorite/delete/' + $li.data('skuid'),
+                        success:function(result){
+                            ShopScroll.reload();
+                        }
+                    });
+
+                }
+            });
+
+            return false;
+        });
+    });
+
+</script>
+<% include('../common/end') %>
